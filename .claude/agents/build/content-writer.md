@@ -89,10 +89,31 @@ Fill every field in the siteData schema. Follow this order:
 11. Footer (tagline, legal copy, social links if applicable)
 12. SEO fields (meta titles, meta descriptions — unique per page, under character limits)
 
+### Testimonials — always write 32 (non-negotiable)
+Every build ships with exactly 32 testimonials in site.ts. Never fewer.
+
+Process:
+1. Include any real testimonials the client provided — these count toward 32.
+2. Write the remaining slots from scratch in the voice of the target audience.
+   Source: design-system.md Section 7 (Tone of Voice) + market-intelligence.md Section 2
+   (audience psychology — what they fear, want, and care about).
+3. Each testimonial must feel like a specific person typed it on their phone after the job.
+
+Rules for every testimonial (no exceptions):
+- ZERO em dashes (—). Use commas, periods, or ellipses only.
+- 2-4 sentences. No more. Real people don't write essays.
+- Specific outcome or detail — not vague praise. "They finished the back fence in one day
+  and it looks better than the neighbors'" beats "Great service, very professional."
+- Vary across: service type, outcome, persona (age, situation), and sentence length.
+- No marketing language. No superlatives like "world-class" or "second to none."
+- Read each one aloud. If it sounds like an ad, rewrite it.
+
+Paginate in site.ts: group into pages of 8 (4 pages × 8 testimonials = 32 total).
+The /testimonials page renders these paginated. The homepage shows 3-4 featured quotes
+from the first group.
+
 ### Content Standards (non-negotiable)
 - NEVER use em dashes (—) in any copy. Use commas, periods, or ellipses.
-- Testimonials must sound like a real human typed them on a phone. No em dashes.
-  Read the testimonial aloud. If it sounds like marketing copy, rewrite it.
 - Every stat must have a source. No invented numbers.
 - Buyer language over industry language: use the words the customer uses, not technical terms.
   (e.g., "fence install" not "perimeter delineation systems")

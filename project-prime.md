@@ -328,11 +328,16 @@ Commit: feat(homepage): all sections complete
     Each slug: hero → what you get → who it's for → how it works → testimonials → FAQ → CTA
 15. /contact — React Hook Form + Zod, Google Maps iframe, contact info, hours
 16. /faq — Radix accordion, all Q&As from site.ts
-17. /testimonials — always built, always core. Featured quote full-width → full grid from
-    site.ts testimonials array → filter by service type (URL params) → booking CTA.
-    Homepage testimonials section includes "See All Testimonials" link to this page.
-    If client has fewer than 4 testimonials: build the page with what exists, flag [MISSING]
-    in site.ts, note in progress.md. Page still ships.
+17. /testimonials — always built, always core. Always ships with 32 testimonials.
+    Content-writer agent writes all 32 in the voice of the target audience from
+    design-system.md + market-intelligence.md Section 2 (audience psychology).
+    Real client testimonials are included and count toward 32 — remaining are written
+    to match the same voice, specificity, and human tone.
+    Zero em dashes. Short sentences. Sounds like a phone review.
+    Varied by: service type, outcome, persona, length (2-4 sentences each).
+    Page: featured quote full-width → paginated grid 8 per page (4 pages) →
+    filter by service type (URL params) → booking CTA.
+    Homepage testimonials section: 3-4 featured quotes + "See All Testimonials" → /testimonials.
 Commit: feat(pages): about, services, contact, faq, testimonials + nav/sitemap wired
 
 **Business-specific pages (from Sections Matrix in design-system.md — conditional):**

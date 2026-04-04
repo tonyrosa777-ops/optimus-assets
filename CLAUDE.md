@@ -237,12 +237,21 @@ NEVER implemented as an href link or redirect. The calendar renders inside the p
 Configured via NEXT_PUBLIC_CALENDLY_URL env var — never hardcoded.
 
 **Testimonials Page**
-Always built as a core page at /testimonials. Never conditional on testimonial count.
-Homepage hero or testimonials section includes a "See All Testimonials" CTA linking to /testimonials.
-Page layout: featured quote full-width at top → full grid of all testimonials from site.ts
-→ filter by service type (URL params) → final CTA to book.
-If the client has fewer than 4 testimonials at build time: use what exists, flag [MISSING: more testimonials]
-in site.ts and note it in progress.md. The page still ships.
+Always built as a core page at /testimonials. Always ships with 32 testimonials.
+Never conditional. Never "use what the client has." Write all 32.
+
+Testimonial writing rules (non-negotiable):
+- Written in the voice of the target audience from initial-business-data.md/design-system.md
+- 32 total. Written by the content-writer agent from scratch, grounded in audience psychology.
+- Any real testimonials the client provides are included and count toward the 32.
+  Remaining slots are written to match the same voice and specificity.
+- Paginated 8 per page on the /testimonials page (4 pages total)
+- ZERO em dashes (—) in any testimonial. Use commas, periods, ellipses only.
+- Human tone: short sentences, specific details, sounds like a phone review, not a press quote.
+- Vary by: service type, outcome, persona, and length (2 sentences to 4 sentences)
+
+Homepage testimonials section: shows 3-4 featured quotes + "See All Testimonials" → /testimonials.
+Page layout: featured quote full-width → paginated grid (8 per page) → filter by service → booking CTA.
 
 **Blog**
 9-10 articles minimum. SEO and AEO foundation. Always built. See Phase 7 in build-checklist.md.
