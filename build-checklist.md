@@ -55,6 +55,14 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
                Calendly InlineWidget on /booking page + homepage teaser section.
                Brand colors injected via URL params. Visually native to the site.
                Never an href link or redirect. Configured via NEXT_PUBLIC_CALENDLY_URL.
+          → PRICING PAGE (always — sales tool, deleted before launch):
+               Fixed Optimus tiers: Starter $1,500 / Pro $3,000 / Premium $5,500
+               Pro gets "Most Popular" badge. Starter + Premium anchor it psychologically.
+               Includes: tier cards with 50% deposit breakdown + ROI calculator (sliders:
+               avg job value + clients/month → break-even + 12-month ROI per tier) +
+               full comparison chart (Foundation / Conversion / Content & SEO / Commerce / Support).
+               In the nav bar throughout the build and demo. Tier CTAs open booking calendar.
+               Deleted in pre-launch audit — pre-launch-auditor flags it as hard FAIL if still present.
           → blog: Sanity schema + 9-10 articles + index + post template (always)
           → shop: scaffold → decision gate → wire APIs if premium / delete if not
           → SEO/AEO: schema, meta, OG images, sitemap, robots, AEO article validation

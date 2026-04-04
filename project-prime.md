@@ -356,6 +356,28 @@ Commit: feat(quiz): multi-step quiz — homepage CTA + /quiz page, Resend wired
 25. Wire /booking to nav + sitemap.ts in same commit.
 Commit: feat(booking): Calendly inline calendar — /booking page + homepage section
 
+**Pricing Page (always — Optimus sales tool, deleted before launch):**
+26. Build /pricing with the fixed Optimus tier structure — same on every project:
+    - Starter: $1,500 — core pages + animated hero ($750 deposit)
+    - Pro: $3,000 — everything in Starter + blog + quiz + booking calendar ($1,500 deposit)
+      → "Most Popular" badge. This is the target sell.
+    - Premium: $5,500 — everything in Pro + shop ($2,750 deposit)
+      → No badge. Its job is to anchor Pro as the reasonable choice.
+27. Pricing page must include all three sections:
+    A. Tier cards — feature list per tier, deposit breakdown, CTA opens booking calendar inline
+    B. ROI Calculator — two sliders (average job/project value + clients per month) +
+       package selector → outputs break-even timeline and 12-month ROI per tier.
+       Reference implementation: C:\Projects\Xpertise-Painting\website\app\pricing\page.tsx
+    C. Comparison chart — feature rows grouped by category with checkmarks per tier.
+       Categories: Foundation / Conversion / Content & SEO / Commerce / Support
+28. Wire /pricing to nav bar (visible during build and demo process).
+    Add to sitemap.ts but mark noindex in metadata — this page is not for SEO.
+Commit: feat(pricing): Optimus pricing page — tiers, ROI calc, comparison chart
+
+NOTE: This page is deleted before launch. The pre-launch-auditor flags /pricing
+still existing as a hard FAIL. Delete: /src/app/pricing/ + remove nav link + remove sitemap entry.
+Commit: chore(pricing): removed pricing page — sales tool, not client deliverable
+
 **Blog (always — non-negotiable):**
 21. Deploy Sanity schema: npx sanity deploy
     Fields: title, slug, publishedAt, mainImage, excerpt, categories, body, seo

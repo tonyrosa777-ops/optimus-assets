@@ -200,6 +200,27 @@ At project close:
 ## Always-Built Features Rule
 Every project ships with ALL of the following, no exceptions, no client-by-client decisions:
 
+**Pricing Page (sales tool — deleted before launch)**
+Built in Phase 1. In the nav bar throughout the entire build and demo process.
+Deleted as part of the pre-launch audit — it is an Optimus sales tool, not a client deliverable.
+The pre-launch-auditor agent flags /pricing still existing as a hard FAIL.
+
+Fixed Optimus pricing structure — same on every build, never customized per client:
+- Starter: $1,500 — core pages + animated hero
+- Pro: $3,000 — everything in Starter + blog + quiz + booking calendar (MOST POPULAR — this is the sell)
+- Premium: $5,500 — everything in Pro + shop
+
+Pro gets the "Most Popular" badge. Starter and Premium are anchors.
+Premium never gets a badge — its job is to make $3,000 feel reasonable.
+
+The pricing page always contains:
+1. Three tier cards (Starter / Pro / Premium) with feature lists and deposit breakdown (50% upfront)
+2. ROI Calculator — two sliders (average job/project value + clients per month) + package selector
+   → outputs: monthly revenue, break-even timeline, 12-month ROI per tier
+3. Full comparison chart — feature rows grouped by category, checkmarks per tier
+   Categories: Foundation / Conversion / Content & SEO / Commerce / Support
+4. CTA on each tier that opens the booking calendar inline (never a link away)
+
 **Interactive Quiz**
 Built as a multi-step component on the homepage AND as a standalone /quiz page.
 Structure: opening hook CTA → problem selection → qualifying questions → lead capture form

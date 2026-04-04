@@ -43,6 +43,11 @@ record PASS / FAIL / WARN with a one-line note.
     Check: NEXT_PUBLIC_SHOW_PRICING_TOOLS is NOT set to "true"
     FAIL if: set to "true" (dev tool will appear in production)
 
+[ ] Pricing page deleted
+    Check: does /src/app/pricing/ directory exist?
+    FAIL if: directory exists — this is an Optimus sales tool, not a client deliverable.
+    Fix: delete /src/app/pricing/, remove nav link, remove sitemap entry.
+
 [ ] ROI Calculator component
     Search: [PROJECT_FOLDER]/src for ROI, Calculator, roi-calculator
     FAIL if: component exists and is rendered in any non-dev-gated context
