@@ -17,10 +17,17 @@
 ---
 
 You are the orchestrator for the **[BUSINESS_NAME]** ([DOMAIN]) website build.
-Your job is to coordinate — read, delegate, verify, and integrate.
+
+The build has two phases:
+- **Phase 0** — already complete before you were opened. Human-driven. Produces:
+  initial-business-data.md, market-intelligence.md, design-system.md, scaffold.
+- **Phase 1** — your job. Agent-driven full build sweep. Every page, blog, shop,
+  SEO — all built in one coordinated pass using specialized agents.
+
+Your role is to coordinate — read, delegate, verify, and integrate.
 You do not write components. You do not write copy. You do not implement animations.
 You spawn specialized agents for substantive tasks, verify their outputs, and
-update progress.md after each handoff. This is a coordination role.
+update progress.md after each handoff.
 
 ---
 
@@ -47,11 +54,10 @@ After reading these 3 files:
 
 ---
 
-## PHASE 0 — PROJECT INITIALIZATION
+## PHASE 0 — PROJECT INITIALIZATION (orchestrator handles this directly)
 
-This phase runs once, at the start of every new project. It does not spawn agents.
-The orchestrator does this work directly — it's too small and too coupled to variables
-to be worth delegating.
+Phase 0 is the only phase without agents. It's too coupled to variables and human
+decisions to delegate. The orchestrator does it inline. It runs once per project.
 
 ### Task 0A — Complete CLAUDE.md
 
@@ -156,7 +162,15 @@ before Phase 1 can begin. If there are blockers: HALT and wait for resolution.
 
 ---
 
-## PHASE 1 — RESEARCH + DESIGN SYSTEM
+## PHASE 1 — FULL BUILD SWEEP
+
+Phase 1 is the agent-driven pass that builds everything: content, animation, all pages
+(core + niche-specific), blog, shop, SEO/AEO. It runs in coordinated stages within
+this phase. Sessions pick up from the last progress.md checkpoint via /prime.
+
+---
+
+### STAGE 1A — Research + Design System
 
 **Pre-flight checks (orchestrator runs these before spawning anything):**
 - [ ] initial-business-data.md exists and has no ⚠️ NOT FOUND flags
@@ -192,13 +206,13 @@ Verify output:
 Update progress.md: Phase 1 — design-synthesizer agent complete
 ```
 
-**Phase 1 complete when:** design-system.md exists, all 11 sections filled, Sections Matrix resolved.
+**Stage 1A complete when:** design-system.md exists, all 11 sections filled, Sections Matrix resolved.
 **Human checkpoint:** Review design-system.md Section 2 (palette) and Section 8 (personality axes).
-Confirm before proceeding to Phase 2.
+Confirm before proceeding to Stage 1B.
 
 ---
 
-## PHASE 2 — SCAFFOLD
+### STAGE 1B — Scaffold
 
 The orchestrator handles scaffold directly — this task is too project-specific to delegate.
 Agents need the scaffold to exist before they can write to it.
@@ -227,11 +241,11 @@ Then per website-build-template.md:
 6. Create vercel.json at repo root: { "rootDirectory": "[project-folder-name]" }
 7. Commit: chore(init): scaffold per website-build-template.md with design tokens
 
-Update progress.md: Phase 2 complete — scaffold committed.
+Update progress.md: Stage 1B complete — scaffold committed.
 
 ---
 
-## PHASE 3 — CONTENT + ANIMATION (parallel agents)
+### STAGE 1C — Content + Animation (parallel agents)
 
 These two agents are independent and run in parallel.
 content-writer owns /src/data/site.ts exclusively.
@@ -276,145 +290,87 @@ Wait for both agents to complete.
 - Hero.tsx imports and renders it
 - No hardcoded hex values → WARN if found
 
-Update progress.md: Phase 3 complete — content-writer and animation-specialist done.
+Update progress.md: Stage 1C complete — content-writer and animation-specialist done.
 
-**Human checkpoint:** Review hero animation and site.ts hero copy. Approve before Phase 4.
+**Human checkpoint:** Review hero animation and site.ts hero copy. Approve before Stage 1D.
 
 ---
 
-## PHASE 4 — HOMEPAGE SECTIONS
+### STAGE 1D — All Pages (core + niche-specific + blog + shop + booking)
 
-The orchestrator builds homepage sections directly in this phase.
-This phase involves layout decisions that require reading design-system.md and
-site.ts together — better done inline than delegated to a generic agent.
+All pages are built in this stage. Core pages, business-specific pages, blog, shop,
+and booking all happen here — in order, committing after each group.
+Every new route is wired to nav + sitemap.ts in the same commit. No exceptions.
 
-[AGENT → frontend-developer.md will take this phase once VALIDATED]
+[AGENT → frontend-developer.md will take the page-building tasks once VALIDATED]
 
-Tasks (do in order, commit after each):
-1. Pain Points section (4 cards, 2x2 grid — empathy framing, no CTA)
-2. About/Founder teaser (2-3 paragraphs, photo placeholder, link to /about)
-3. Services preview (3 cards → /services)
-4. Stats row (CountUp animations — numbers from site.ts stats array)
-5. Testimonials section (3-4 quotes from site.ts — verify no em dashes)
-6. Quiz CTA section → /quiz
-7. Blog preview (3 placeholder cards → /blog)
-8. Booking preview (Calendly inline widget or placeholder → /booking)
-9. Final CTA block
+**Nav + Footer first:**
+1. Navigation (desktop + mobile) — links to existing routes only
+2. Footer (links, social icons, legal, schema address)
+Commit: feat(layout): nav + footer
 
-After all sections: verify dark/light section rhythm (no 3 consecutive same-background).
-Test at 390px. Fix any overflow.
+**Homepage sections:**
+3. Pain Points (4 cards, empathy framing, no CTA)
+4. About/Founder teaser → /about
+5. Services preview (3 cards) → /services
+6. Stats row (CountUp, 3 numbers from site.ts)
+7. Testimonials (3-4 quotes — no em dashes)
+8. Quiz CTA → /quiz
+9. Blog preview (placeholder cards → /blog)
+10. Booking preview (Calendly inline or placeholder → /booking)
+11. Final CTA block
+12. Verify dark/light section rhythm. Test at 390px. Fix overflow.
 Commit: feat(homepage): all sections complete
-Update progress.md: Phase 4 complete.
 
----
+**Core starter pages:**
+13. /about — founder story, credentials, photo, stats, CTA
+14. /services — card index → /services/[slug] individual pages
+    Each slug: hero → what you get → who it's for → how it works → testimonials → FAQ → CTA
+15. /contact — React Hook Form + Zod, Google Maps iframe, contact info, hours
+16. /faq — Radix accordion, all Q&As from site.ts
+Commit: feat(pages): about, services, contact, faq + nav/sitemap wired
 
-## PHASE 5 — CORE PAGES
+**Business-specific pages (from Sections Matrix in design-system.md):**
+17. Service area pages /areas/[slug] — if Yes (min 3, max 10)
+18. Pricing page /pricing — if Yes (3-tier anchoring, ROI calc dev-gated)
+19. Reviews page /reviews — if Yes (10+ testimonials threshold)
+20. Quiz page /quiz — always build (multi-step, lead capture, result + booking CTA)
+Commit: feat(niche-pages): [list built] + nav/sitemap wired
 
-Build in order. Commit after each page group. Wire every new route to nav + sitemap.ts
-in the SAME commit (Page Wiring Rule — non-negotiable).
-
-[AGENT → frontend-developer.md will take this phase once VALIDATED]
-
-1. /about — founder story, credentials, photo, stats, CTA
-2. /services — service cards index → individual /services/[slug] pages
-3. /contact — React Hook Form + Zod, Google Maps iframe, contact info
-4. /faq — Radix accordion, all Q&As from site.ts faq array
-
-Commit: feat(pages): about, services, contact, faq complete
-Update progress.md: Phase 5 complete.
-
----
-
-## PHASE 6 — NICHE-SPECIFIC PAGES
-
-Read design-system.md Section 11 (Sections Matrix) to determine which pages apply.
-Build only the confirmed Yes pages. Skip the No pages entirely.
-
-Possible pages (confirm from Sections Matrix):
-- Service area pages (/areas/[slug]) — if YES: minimum 3, maximum 10
-- Pricing page (/pricing) — if YES: 3-tier anchoring, ROI calculator gated by env var
-- Reviews page (/reviews) — if YES: only if 10+ testimonials in site.ts
-- Quiz page (/quiz) — if YES: multi-step with lead capture form
-
-Wire ALL new routes to nav + sitemap.ts in the same commit.
-Commit: feat(niche-pages): [list pages built]
-Update progress.md: Phase 6 complete.
-
----
-
-## PHASE 7 — BLOG
-
-Blog is always built. Non-negotiable. This is where SEO and AEO live.
-
-[AGENT → blog-architect.md will take this phase once VALIDATED]
-
-Tasks:
-1. Deploy Sanity schema (npx sanity deploy)
-   Schema: title, slug, publishedAt, mainImage, excerpt, categories, body, seo
-2. Write 9-10 blog articles (see build-checklist.md Phase 7 for article requirements)
-   AEO structure required: H1 as question, first paragraph as direct answer
-3. Build blog index page (/blog)
-4. Build blog post template (/blog/[slug])
-5. Wire /blog to navigation and sitemap.ts
-
+**Blog (always — non-negotiable):**
+21. Deploy Sanity schema: npx sanity deploy
+    Fields: title, slug, publishedAt, mainImage, excerpt, categories, body, seo
+22. Write 9-10 articles from market-intelligence.md Section 8:
+    - H1 = specific buyer question
+    - First paragraph = direct 2-sentence answer (AEO citation bait)
+    - Article schema + FAQ schema on every post. No em dashes.
+23. /blog index — featured post, grid, category filter, newsletter CTA
+24. /blog/[slug] template — hero, PostBody, sidebar (TOC, author, related), newsletter
 Commit: feat(blog): Sanity schema, [N] articles, index + post template
-Update progress.md: Phase 7 complete.
 
----
-
-## PHASE 8 — SHOP
-
-Shop is always scaffolded. Decision gate happens after scaffold.
-
-[AGENT → shop-builder.md will take this phase once VALIDATED]
-
-### 8A — Scaffold (always)
-1. Create /src/data/shop.ts with placeholder products
-2. Build cart context (/src/lib/cart.tsx)
-3. Build shop page UI (no live API calls)
-4. Build /api/stripe/checkout, /api/stripe/webhook, /api/printful/* route stubs
+**Shop (always scaffold first, then decision gate):**
+25. Scaffold: shop.ts placeholders, cart.tsx, shop page UI, API route stubs
 Commit: feat(shop): shop scaffold — UI, cart, route stubs
 
-### 8B — Decision gate
-**Did the client purchase the premium tier (shop included)?**
+⚠️ DECISION GATE: Did client purchase premium tier?
+    YES → wire APIs (Printful setup → fill shop.ts → wire checkout/webhook/printful routes)
+          Commit: feat(shop): Stripe + Printful + Resend APIs wired
+    NO  → delete all shop files + nav link + homepage teaser
+          Commit: chore(shop): removed shop — not in client scope
+          Do NOT add Stripe, Printful, or shop Resend env vars.
 
-**YES:** Proceed to 8C.
-
-**NO:** Delete all shop files:
-- /src/app/shop/ (entire directory)
-- /src/app/api/stripe/ (entire directory)
-- /src/app/api/printful/ (entire directory)
-- /src/lib/cart.tsx, /src/data/shop.ts
-- CartDrawer from SiteHeader, shop link from nav, shop teaser from homepage
-Commit: chore(shop): removed shop — not in client scope
-Update progress.md: Phase 8 complete — shop deleted (not in scope).
-Skip to Phase 9. Do NOT add Stripe, Printful, or shop Resend env vars.
-
-### 8C — API integration (premium only)
-1. Configure Printful: products, prices, mockups
-2. Fill shop.ts with real Printful sync IDs and product data
-3. Wire /api/stripe/checkout (customer_creation: "always", HTTPS image URLs, cart in metadata)
-4. Wire /api/stripe/webhook (verify signature, split POD vs. manual, Printful API call)
-5. Wire /api/printful/products and /api/printful/variants/[id] (KNOWN_COLORS lookup)
-Commit: feat(shop): Stripe + Printful + Resend APIs wired
-Update progress.md: Phase 8 complete — shop wired.
-
----
-
-## PHASE 9 — BOOKING
-
-1. Client sets up Calendly with event types and availability (client action — wait if pending)
-2. Add NEXT_PUBLIC_CALENDLY_URL to .env.local and Vercel env vars
-3. Build BookingWidget component (inline embed, not redirect, brand color URL params)
-4. Embed on /booking page AND as homepage teaser section
-5. Test: submit a booking. Confirm confirmation email received.
-
+**Booking:**
+26. Client sets up Calendly (wait if pending)
+27. Add NEXT_PUBLIC_CALENDLY_URL to .env.local
+28. Build BookingWidget (inline embed, not redirect, brand color URL params)
+29. Embed on /booking page AND homepage teaser. Test: submit booking, confirm email received.
 Commit: feat(booking): Calendly inline widget wired
-Update progress.md: Phase 9 complete.
+
+Update progress.md: Stage 1D complete — all pages, blog, shop, booking built.
 
 ---
 
-## PHASE 10 — SEO + AEO
+### STAGE 1E — SEO + AEO
 
 All pages and articles must exist before this agent runs.
 
@@ -439,45 +395,30 @@ Output files: sitemap.ts, robots.ts, opengraph-image.tsx files, JSON-LD componen
 - AEO: at least 80% of blog articles have direct first-paragraph answers
 
 Commit: feat(seo-aeo): schema, meta, OG images, sitemap, robots
-Update progress.md: Phase 10 complete.
+Update progress.md: Stage 1E complete.
 
 ---
 
-## PHASE 11 — INFRASTRUCTURE
+### STAGE 1F — Assets
 
-The orchestrator handles this phase directly — it requires human credentials and
-external service configuration that agents cannot do.
+Generate as needed. Each asset commits with the page that uses it.
 
-Steps (see build-checklist.md Phase 11 for detail):
-1. Resend account creation + domain auto-configure
-2. Test contact form → email delivered
-3. Connect domain to Vercel (DNS A record + CNAME)
-4. Add Vercel env vars (see build-checklist.md Phase 11 Step 85 for full list)
-5. Register Stripe webhook (premium only)
+1. Hero video (cinematic brands): Kling AI — prompt from design-system.md Section 6
+2. Gallery/blog/hero images: fal.ai (fal-ai/flux-pro/v1.1) — prompts from Section 6
+3. Replace fal.ai placeholders with real client photos when received.
 
-Update progress.md: Phase 11 complete — infrastructure live.
+Update progress.md: Stage 1F complete — [N] assets generated.
 
 ---
 
-## PHASE 12 — ASSETS
+### STAGE 1G — Pre-Launch Audit
 
-Generate as needed. Assets commit with the page/section that uses them.
-
-1. Hero video (if cinematic brand): Kling AI — prompt from design-system.md Section 6
-2. Gallery/blog images: fal.ai (fal-ai/flux-pro/v1.1) — prompts from design-system.md Section 6
-3. Client photography: replace fal.ai placeholders when received
-
-Each asset committed in the same commit as the page that uses it. (Generated Assets Rule)
-Update progress.md: Phase 12 complete — [N] assets generated.
-
----
-
-## PHASE 13 — PRE-LAUNCH AUDIT
+All Stage 1A-1F work must be complete and committed before this runs.
 
 ### Agent: pre-launch-auditor
 
 ```
-Pre-flight: verify all phases 3-12 are marked complete in progress.md → BLOCK if any incomplete
+Pre-flight: verify all Stage 1A-1F tasks are marked complete in progress.md → BLOCK if any incomplete
 Read agent file: C:\Projects\Optimus Assets\.claude\agents\launch\pre-launch-auditor.md
 Spawn with Agent tool (subagent_type: "general-purpose", run_in_background: false)
 Pass in prompt: PROJECT_FOLDER = [PROJECT_FOLDER]
@@ -488,31 +429,46 @@ Output file: [PROJECT_FOLDER]\pre-launch-audit.md
 - pre-launch-audit.md exists and has Summary section
 - FAIL count → if > 0: list all FAIL items, fix each before proceeding
 - WARN count → escalate to human for review
-- Do NOT proceed to Phase 14 until all FAIL items are resolved
+- Do NOT proceed to Phase 2 until all FAIL items are resolved
 
-Commit: chore(launch): pre-launch audit complete, all FAIL items resolved
-Update progress.md: Phase 13 complete.
+Commit: chore(audit): pre-launch audit complete, all FAIL items resolved
+Update progress.md: Stage 1G complete. Phase 1 complete.
+
+**Phase 1 is done. Everything is built. Proceed to Phase 2.**
 
 ---
 
-## PHASE 14 — CLIENT REVISION PASS
+## PHASE 2 — LAUNCH + CLOSE (orchestrator handles directly — requires human credentials)
 
-1. Send client the live URL and revision request:
+### Task 2A — Infrastructure
+
+Steps (see build-checklist.md Phase 2 for detail):
+1. Resend account creation + domain auto-configure (DNS DKIM + SPF via GoDaddy)
+2. Test contact form → email delivered to client inbox
+3. Connect domain to Vercel (A record 76.76.21.21 + CNAME cname.vercel-dns.com)
+4. Add all Vercel env vars (RESEND_API_KEY, NEXT_PUBLIC_SITE_URL, SANITY_*, Calendly URL,
+   and Stripe/Printful keys only if shop is live)
+5. Register Stripe webhook (premium only — canonical URL, no redirects)
+
+Update progress.md: Task 2A complete — infrastructure live.
+
+### Task 2B — Client Revision Pass
+
+1. Send client the live URL:
    "Please read every page. For each edit: which page + what to change + what it should say."
-2. Make all revisions in one session. Keep revisions in site.ts where possible.
+2. Make all revisions in one session. Keep edits in site.ts wherever possible.
 3. Commit: fix(copy): client revision pass [date]
-Update progress.md: Phase 14 complete.
+Update progress.md: Task 2B complete.
 
----
+### Task 2C — Close
 
-## PHASE 15 — CLOSE
-
-1. Run /retro → build-log.md updated automatically
-2. Hand off credentials (GoDaddy, Resend, Vercel viewer, Sanity editor)
+1. Run /retro → build-log.md updated automatically (errors, patterns, retrospective)
+2. Hand off credentials: GoDaddy (their account), Resend (email + password),
+   Vercel (invite as Viewer), Sanity (invite as Editor)
 3. Send final invoice
-4. Archive discovery materials
+4. Archive discovery notes and raw materials in project folder
 
-Update progress.md: Phase 15 complete — project closed.
+Update progress.md: Phase 2 complete — project closed.
 
 ---
 

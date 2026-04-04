@@ -1,24 +1,31 @@
 # Optimus Build Checklist
-# Follow every line. Do not skip. Check each box when done.
-# Steps marked [AGENT →] will eventually be handled by a validated agent.
-# Until the agent is built and VALIDATED, do the step manually.
+# Two phases. Follow every line. Do not skip. Check each box when done.
+#
+# PHASE 0 — Human-driven. Same as baseline. No agents.
+# PHASE 1 — Agent-driven. One coordinated sweep builds everything.
+# PHASE 2 — Launch. Manual infrastructure + client handoff.
 
 ---
 
-## PHASE 0 — CLIENT ONBOARDING (before any code)
+## PHASE 0 — CLIENT ONBOARDING
+Everything here is done manually before touching Claude Code.
+This phase is unchanged from the baseline workflow.
+
+### 0A — Discovery
 
 [ ] 1. Run discovery session with client. Capture raw notes or voice transcript.
-[ ] 2. Open Claude.ai Desktop (Projects). Paste raw notes + intake-prompt.md contents.
-        → Output: initial-business-data.md (all 8 sections filled, ⚠️ flags resolved)
-[ ] 3. Open Claude.ai Desktop. Paste initial-business-data.md + market-research-prompt.md.
+
+### 0B — Intake + Research (Claude.ai Desktop)
+
+[ ] 2. Open Claude.ai Desktop (Projects). Paste raw notes + intake-prompt.md.
+        → Output: initial-business-data.md (all 8 sections filled, no ⚠️ flags)
+[ ] 3. Paste initial-business-data.md + market-research-prompt.md.
         → Output: market-intelligence.md (all 9 sections filled, competitors named, gaps identified)
-        [AGENT → market-researcher.md will replace this step once VALIDATED]
-[ ] 4. Confirm both files have no ⚠️ NOT FOUND flags before proceeding.
-        If any remain: contact client, fill gaps, then continue.
+        [AGENT → market-researcher.md replaces this step once VALIDATED]
+[ ] 4. Confirm both files have zero ⚠️ NOT FOUND flags.
+        If any remain: contact client, fill the gap, then continue.
 
----
-
-## PHASE 1 — PROJECT SETUP
+### 0C — Project Setup
 
 [ ] 5.  Create new project folder: C:\Projects\[ClientName]\
 [ ] 6.  Copy these 6 files from C:\Projects\Optimus Assets\ into the new folder:
@@ -26,375 +33,280 @@
           - project-prime.md
           - frontend-design.md
           - website-build-template.md
-          - initial-business-data.md   ← the filled version from Phase 0
-          - market-intelligence.md     ← the filled version from Phase 0
+          - initial-business-data.md   ← filled version from 0B
+          - market-intelligence.md     ← filled version from 0B
 [ ] 7.  Open the project folder in VS Code.
-[ ] 8.  In the VS Code terminal, run: claude
-[ ] 9.  In the Claude Code terminal, run: /new-client
-          NOTE: Do not skip even if files are pre-filled.
-          This step extracts CLAUDE.md variables and creates .claude/commands/prime.md.
-          Without it, /prime breaks.
-[ ] 10. Review Phase 4 summary output. Verify all 10 variables are correct.
-          Type GO to scaffold the project.
-          Type STOP to review and correct a variable first.
-[ ] 11. Wait for scaffold to complete. Verify these folders/files exist:
+[ ] 8.  Run: claude
+[ ] 9.  Run: /new-client
+          Extracts CLAUDE.md variables and creates .claude/commands/prime.md.
+          Without this step /prime loads the wrong file.
+[ ] 10. Review output. Verify all 10 variables are correct.
+          Type GO to continue. Type STOP to fix a variable first.
+
+### 0D — Design System
+
+[ ] 11. Run: /prime
+          This starts the orchestrator. It will run the design-synthesizer agent.
+          Wait for design-system.md to be produced.
+          [AGENT → design-synthesizer.md handles this automatically]
+[ ] 12. Review design-system.md:
+          [ ] Section 2 (Color Palette) — all 9 CSS tokens have values
+          [ ] Section 8 (Brand Personality Axes) — 3 axes defined
+          [ ] Section 11 (Sections Matrix) — every row has Yes/No (no blanks)
+          Approve before continuing. This is the brand constitution — get it right.
+
+### 0E — Scaffold + GitHub + Vercel
+
+[ ] 13. Orchestrator scaffolds the project per website-build-template.md.
+          Verify these exist after scaffold:
           - /src/app/page.tsx
           - /src/components/
-          - /src/data/site.ts
-          - /public/
-          - package.json
-          - tailwind.config.ts
-          - globals.css (with design tokens)
-
----
-
-## PHASE 2 — GITHUB + VERCEL
-
-[ ] 12. Initialize git and push to GitHub:
-          git init
-          git add .
-          git commit -m "feat(scaffold): initial project scaffold"
+          - /src/data/site.ts (empty schema, not populated yet)
+          - globals.css (with design tokens from design-system.md Section 2)
+[ ] 14. Push to GitHub:
+          git init && git add . && git commit -m "feat(scaffold): initial project scaffold"
           gh repo create [client-name] --private --push --source=.
-[ ] 13. Go to vercel.com → New Project → Import the repo
-          Framework Preset: Next.js
-          Root Directory: web  (or whatever subfolder Claude created)
-          Environment Variables: skip for now, add in Phase 11
-[ ] 14. Confirm Vercel build succeeds (green checkmark). Fix any build errors before continuing.
+[ ] 15. Connect to Vercel:
+          New Project → Import repo → Framework: Next.js → Root Directory: set correctly
+          Skip env vars for now. Add in Phase 2.
+[ ] 16. Confirm Vercel build succeeds (green). Fix any build errors before continuing.
 
 ---
 
-## PHASE 3 — DESIGN SYSTEM + HERO (Session 1)
+## PHASE 1 — FULL BUILD SWEEP
+This entire phase is agent-driven. The orchestrator coordinates everything.
+Run /prime to start each session. The orchestrator picks up from the last checkpoint.
+All pages, blog, shop, and SEO are built in this phase — in one coordinated sweep.
 
-[ ] 15. In Claude Code terminal, run: /prime
-          This starts Phase 1. Run /prime at the start of EVERY session going forward.
-[ ] 16. Confirm design-system.md exists and is filled (palette, typography, tone, brand personality).
-          If missing: ask Claude to create it now from market-intelligence.md + initial-business-data.md.
-[ ] 17. Build the hero section. Get approval on:
-          - Animation type (Canvas / SVG / CSS — matched to brand personality in design-system.md)
-          - Headline and tagline (pulled from /data/site.ts)
-          - CTA pair (primary + secondary)
-          - Color palette rendering correctly
-          NOTE: Do not calibrate mobile hero until desktop is locked. This wastes commits.
-[ ] 18. Build the navigation (desktop + mobile).
-          Verify: all nav links point to existing routes. No broken links at this stage.
-[ ] 19. Build the footer (links, social icons, legal copy, schema address).
-[ ] 20. Commit: feat(layout): nav, hero, footer locked
-[ ] 21. Run /prime to start Session 2.
+### 1A — Content + Hero Animation (parallel — run simultaneously)
 
----
+The content-writer and animation-specialist are independent.
+They run at the same time. Content-writer owns site.ts. Animation-specialist owns Hero.tsx.
 
-## PHASE 4 — HOMEPAGE SECTIONS (Session 2)
+[ ] 17. content-writer agent → populates /src/data/site.ts completely
+          All fields filled. No placeholders. No em dashes. No invented facts.
+          Any [MISSING:] flags get escalated to human before proceeding.
+[ ] 18. animation-specialist agent → selects and builds hero animation
+          Selection based on design-system.md Section 8 (Brand Personality Axes).
+          Implements from the 13-pattern inventory. Mobile handling included.
 
-Build all homepage teaser sections. Every section links to its full page.
-[AGENT → frontend-developer.md and content-writer.md will run in parallel here once VALIDATED]
+[ ] 19. Human review checkpoint:
+          [ ] Hero copy (H1, tagline, CTA pair) approved
+          [ ] Hero animation approved
+          Not approved → agent re-runs with correction note.
 
-[ ] 22. Pain Points section (4 cards, 2x2 grid, empathy — no CTA)
-[ ] 23. Founder / About teaser (2-3 paragraphs + photo placeholder + link to /about)
-[ ] 24. Services preview (3 cards → link to /services)
-[ ] 25. Stats row (CountUp animations — 3 key numbers from market-intelligence.md)
-[ ] 26. Testimonials section (3-4 featured quotes — NO em dashes in quote text)
-[ ] 27. Quiz CTA section ("Not sure where to start?" → /quiz)
-[ ] 28. Blog preview (3 latest posts — placeholder cards until blog is built in Phase 7)
-[ ] 29. Booking preview (Calendly widget inline OR placeholder until Phase 9)
-[ ] 30. Final CTA (last chance conversion block — headline + primary CTA button)
-[ ] 31. Verify homepage dark/light section rhythm: no 3 consecutive same-background sections.
-[ ] 32. Test on mobile (390px). Fix any overflow or alignment issues.
-[ ] 33. Commit: feat(homepage): all sections complete
+### 1B — Navigation, Footer, Homepage Sections
 
----
+[ ] 20. Build navigation (desktop + mobile). All links point to existing routes only.
+[ ] 21. Build footer (links, social icons, legal copy, schema address).
+[ ] 22. Build all homepage teaser sections:
+          [ ] Pain Points (4 cards, empathy framing, no CTA)
+          [ ] About/Founder teaser → /about
+          [ ] Services preview (3 cards) → /services
+          [ ] Stats row (CountUp, 3 numbers from site.ts)
+          [ ] Testimonials (3-4 quotes, no em dashes)
+          [ ] Quiz CTA → /quiz
+          [ ] Blog preview (placeholder cards → /blog)
+          [ ] Booking preview (Calendly inline or placeholder → /booking)
+          [ ] Final CTA block
+[ ] 23. Verify dark/light section rhythm (no 3 consecutive same-background sections).
+[ ] 24. Test at 390px. Fix any overflow or clip.
+[ ] 25. Commit: feat(layout+homepage): nav, hero, footer, all sections
 
-## PHASE 5 — CORE PAGES (Session 3)
+### 1C — Core Starter Pages
 
-[ ] 34. /about page — Full founder story, credentials list, photo, stats row, CTA
-[ ] 35. /services page — Service cards with 1-line tagline each → link to individual pages
-[ ] 36. /services/[slug] pages — One page per service:
-          Hero (service name, who it's for, CTA)
-          What you get (bullet list with icons)
-          Who it's for (3 persona cards)
-          How it works (numbered steps)
-          Service-specific testimonials
-          FAQ (Radix accordion, 5-7 questions)
-          Final CTA
-[ ] 37. /contact page — Form (React Hook Form + Zod), Google Maps iframe centered on service area,
-          contact info (phone, email, address/region), business hours if applicable
-[ ] 38. /faq page — Full FAQ with Radix accordion, all top objections from market-intelligence.md
-[ ] 39. Add all new routes to navigation and sitemap.ts in the SAME commit. (Page Wiring Rule)
-[ ] 40. Commit: feat(pages): about, services, contact, faq complete
+Every new route wired to nav + sitemap.ts in the SAME commit. No exceptions.
 
----
+[ ] 26. /about — founder story, credentials, photo placeholder, stats, CTA
+[ ] 27. /services — service card index → links to /services/[slug]
+[ ] 28. /services/[slug] — one page per service:
+          Hero (who it's for, CTA) → What you get → Who it's for (3 personas) →
+          How it works (numbered steps) → Testimonials → FAQ accordion → Final CTA
+[ ] 29. /contact — React Hook Form + Zod, Google Maps iframe, contact info, hours
+[ ] 30. /faq — Radix accordion, all Q&As from site.ts
+[ ] 31. Commit: feat(pages): about, services, contact, faq + nav/sitemap wired
 
-## PHASE 6 — NICHE-SPECIFIC PAGES (Session 3 continued)
+### 1D — Business-Specific Pages
 
-Build all that apply to this business type. Leave none out that fit.
+Read design-system.md Section 11 (Sections Matrix). Build everything marked Yes.
 
-[ ] 41. SERVICE AREA PAGES (local businesses — contractors, consultants, regional service providers)
-          One page per city/region served. Minimum 3, up to 10.
-          Each page: local H1, local testimonials if available, Google Maps iframe for that city,
-          schema LocalBusiness with that city's address, unique meta description.
-          Add all to navigation dropdown and sitemap.ts.
+[ ] 32. SERVICE AREA PAGES — if Yes:
+          /areas/[slug] — one per city/region served (minimum 3, up to 10)
+          Local H1, local testimonials, Google Maps iframe for that city,
+          LocalBusiness schema with that city's address.
+          All wired to nav dropdown + sitemap.ts.
 
-[ ] 42. PRICING PAGE (service businesses — coaches, consultants, professionals)
-          3-tier anchoring (Starter / Growth / Complete or equivalent).
-          Growth tier gets "Most Popular" badge. Premium tier gets NO badge — it anchors.
-          ROI calculator component (dev-only — gated by NEXT_PUBLIC_SHOW_PRICING_TOOLS=true).
-          Remove ROI calculator before launch.
+[ ] 33. PRICING PAGE — if Yes:
+          3-tier anchoring. Growth = "Most Popular." Premium = no badge (it anchors).
+          ROI calculator gated by NEXT_PUBLIC_SHOW_PRICING_TOOLS=true (dev only).
 
-[ ] 43. REVIEWS / TESTIMONIALS PAGE (any business with 10+ testimonials)
-          Featured quote full-width at top.
-          Full grid below — all testimonials from site.ts.
-          Filter by program/service type (URL params).
+[ ] 34. REVIEWS PAGE — if Yes (10+ testimonials):
+          Featured quote full-width → full grid → filter by service type (URL params).
 
-[ ] 44. QUIZ PAGE (/quiz)
-          Multi-step: problem selection → goal → state/location → lead capture form → result.
-          Result shows the recommended service + booking CTA.
-          Quiz answers appended to contact form submission (sent to Resend).
+[ ] 35. QUIZ PAGE — always build:
+          Multi-step: problem → goal → location → lead capture → result + booking CTA.
+          Quiz answers appended to Resend email on submit.
 
-[ ] 45. Commit: feat(niche-pages): [list which pages were built]
+[ ] 36. Commit: feat(niche-pages): [list which pages built] + nav/sitemap wired
 
----
+### 1E — Blog
 
-## PHASE 7 — BLOG / KNOWLEDGE BASE (Session 4)
+Blog is always built. Non-negotiable.
 
-SEO and AEO live here. This phase is non-negotiable — always built on every project.
-[AGENT → blog-architect.md will handle Sanity schema + article generation once VALIDATED]
+[ ] 37. Deploy Sanity schema: npx sanity deploy
+          Fields: title, slug, publishedAt, mainImage, excerpt, categories, body, seo
+[ ] 38. Write 9-10 blog articles from market-intelligence.md Section 8 (content gaps):
+          - H1 = a specific buyer question (not a topic)
+          - First paragraph = direct 2-sentence answer (this is what AI systems quote)
+          - Body = detailed explanation with H2/H3 subheadings
+          - Closes with CTA (action, not suggestion)
+          - No em dashes
+          - Article schema + FAQ schema on every post
+[ ] 39. Build /blog index:
+          Featured post (full-width) → post grid (3-col) → category filter → newsletter CTA
+[ ] 40. Build /blog/[slug] post template:
+          Hero image, title, date, category, reading time → PostBody → sidebar (TOC, author,
+          related posts) → newsletter signup
+[ ] 41. Wire /blog to nav + sitemap.ts.
+[ ] 42. Commit: feat(blog): Sanity schema, [N] articles, index + post template
 
-[ ] 46. Deploy Sanity schema: npx sanity deploy
-          Schema fields: title, slug, publishedAt, mainImage, excerpt, categories, body, seo
-[ ] 47. Write 9-10 blog articles targeting the gap topics from market-intelligence.md Section 5.
-          Article requirements:
-          - Each article answers ONE specific question a buyer has (not a general topic)
-          - H1 is the exact question (e.g., "What Does an Honorary Consul Actually Do?")
-          - First paragraph: direct 2-sentence answer (AEO: AI systems quote the first clear answer)
-          - Body: detailed explanation with subheadings
-          - Every article closes with a CTA to book/contact
-          - No em dashes in article text
-          AEO schema on every article: Article schema + FAQ schema (if article contains Q&A)
-[ ] 48. Categories to cover (customize per niche — these are the standard Optimus set):
-          - "[Business type] explained" (what do they do, who needs them)
-          - "Process / how it works" (step by step)
-          - "[Service A] vs. [Service B]" (decision guide for confused buyers)
-          - "Who qualifies / who is this for"
-          - "Pricing / what does it cost"
-          - "Common mistakes / what to avoid"
-          - "Local guide" (niche + location — highest local SEO value)
-          - "FAQ mega-post" (top 20 questions compiled)
-          - "[Niche] checklist" (what to bring, what to prepare)
-[ ] 49. Build blog index page:
-          Featured post (full-width card, first/pinned post)
-          Post grid (3-col desktop, 1-col mobile)
-          Category filter tabs
-          Newsletter signup CTA at bottom
-[ ] 50. Build blog post template (/blog/[slug]):
-          Hero image, title, date, category badge, reading time
-          PostBody (Portable Text → semantic HTML)
-          Sidebar: TableOfContents (sticky), Author card, Related posts
-          Newsletter signup at end of post
-[ ] 51. Verify: each article has unique meta title, meta description, and OG image.
-[ ] 52. Commit: feat(blog): Sanity schema, [N] articles, index + post template
+### 1F — Shop
 
----
+Shop is always scaffolded first. Decision gate determines whether APIs get wired.
 
-## PHASE 8 — SHOP (Session 4-5)
+[ ] 43. Scaffold shop UI (no live API calls yet):
+          /src/data/shop.ts with placeholder products
+          /src/lib/cart.tsx — custom React Context, persists to localStorage
+          Shop page UI — hero, filter tabs, product grid, ProductCard, skeleton loaders
+          /api/stripe/checkout, /api/stripe/webhook, /api/printful/* — route stubs only
+[ ] 44. Commit: feat(shop): shop scaffold — UI, cart, route stubs
 
-The shop is ALWAYS scaffolded on every project. The decision is whether to wire APIs.
-That decision happens IMMEDIATELY after scaffold — before any API key is touched.
-[AGENT → shop-builder.md will handle this phase once VALIDATED]
+          ⚠️ DECISION GATE: Did client purchase premium tier (shop included)?
 
-### 8A — Scaffold (always, every project)
+          [ ] YES → proceed to Step 45 (wire APIs)
+          [ ] NO  → DELETE all shop files:
+                    /src/app/shop/, /src/app/api/stripe/, /src/app/api/printful/,
+                    /src/lib/cart.tsx, /src/data/shop.ts,
+                    CartDrawer from SiteHeader, shop link from nav, shop teaser from homepage
+                    Commit: chore(shop): removed shop — not in client scope
+                    Skip to Step 49. Do NOT add Stripe/Printful env vars.
 
-[ ] 53. Populate /src/data/shop.ts with placeholder product data:
-          - Product names, base cost, retail markup (real numbers if known, placeholders if not)
-          - Unsplash placeholder images
-          - Printful sync IDs left blank until decision gate below
-[ ] 54. Build cart context (/src/lib/cart.tsx) — custom React Context, NOT Snipcart.
-          Cart persists to localStorage. CartDrawer in SiteHeader (not layout).
-[ ] 55. Build shop page (UI only — no live API calls yet):
-          Page hero, category filter tabs, product grid (3-col / 2-col / 1-col)
-          ProductCard: image, badge, name, price, description, variant picker, Add to Cart
-          Skeleton loaders while variants fetch
-          ?success=true query param → success toast after Stripe return
-[ ] 56. Build /api/stripe/checkout, /api/stripe/webhook, /api/printful/* route files.
-          Scaffold the routes fully. Do NOT add any API keys or real credentials yet.
-[ ] 57. Commit: feat(shop): shop scaffold complete — UI, cart, route stubs
+[ ] 45. Configure Printful: create products, set prices, generate mockups.
+[ ] 46. Fill shop.ts with real Printful sync IDs, product names, prices, mockup images.
+[ ] 47. Wire /api/stripe/checkout — customer_creation: "always", HTTPS image URLs, cart in metadata
+[ ] 48. Wire /api/stripe/webhook — verify signature, split POD vs. manual, Printful API call
+        Wire /api/printful/products and /api/printful/variants/[id] — KNOWN_COLORS lookup
+[ ] 49. Commit: feat(shop): Stripe + Printful + Resend APIs wired
+          (or: chore(shop): removed shop — not in scope)
 
-### 8B — DECISION GATE: Did the client purchase the premium tier (shop included)?
+### 1G — Booking
 
-          [ ] YES → proceed to Step 58 (wire APIs)
-          [ ] NO  → proceed to Step 58-DELETE (delete shop entirely, then skip to Phase 9)
+[ ] 50. Client sets up Calendly with event types and availability.
+[ ] 51. Add NEXT_PUBLIC_CALENDLY_URL to .env.local.
+[ ] 52. Build BookingWidget component — Calendly inline embed with brand color URL params.
+          Not a redirect link. Widget stays on the client's domain. (Traffic Retention Rule)
+[ ] 53. Embed on /booking page AND as homepage teaser section.
+[ ] 54. Test: submit a booking. Confirm confirmation email arrives to client.
+[ ] 55. Commit: feat(booking): Calendly inline widget wired
 
-          ⚠️ DELETE PATH (client did not purchase premium):
-          [ ] 58-DELETE. Delete all shop files:
-                - /src/app/shop/ (entire directory)
-                - /src/app/api/stripe/ (entire directory)
-                - /src/app/api/printful/ (entire directory)
-                - /src/lib/cart.tsx
-                - /src/data/shop.ts
-                - CartDrawer from SiteHeader
-                - Shop link from navigation
-                - Shop teaser from homepage (if added)
-          [ ] 59-DELETE. Commit: chore(shop): removed shop — not in client scope
-          [ ] 60-DELETE. Skip to Phase 9. Do NOT add any Stripe, Printful, or Resend shop env vars.
+### 1H — SEO + AEO Pass
 
-### 8C — API Integration (only if client purchased premium)
+seo-aeo-specialist agent runs after all pages and articles exist.
 
-[ ] 58. Configure Printful account: create products, set retail prices, generate mockups.
-[ ] 59. Fill /src/data/shop.ts with real product data:
-          - Correct Printful sync product IDs
-          - Real product names, base cost, retail markup, actual mockup images
-[ ] 60. Wire /api/stripe/checkout route (POST):
-          Always include: customer_creation: "always", absolute HTTPS image URLs,
-          cart in metadata.cart as JSON
-[ ] 61. Wire /api/stripe/webhook route (POST):
-          Verify Stripe signature. Split cart by POD vs manual fulfillment.
-          POD items → Printful API. Manual items → Resend owner alert.
-[ ] 62. Wire /api/printful/products and /api/printful/variants/[id] routes.
-          Use KNOWN_COLORS lookup for variant parsing (not position-based).
-[ ] 63. Commit: feat(shop): Stripe + Printful + Resend APIs wired
+[ ] 56. seo-aeo-specialist agent:
+          [ ] JSON-LD schema on every page (type matches SCHEMA_TYPE in CLAUDE.md)
+          [ ] Unique meta title + description on every page (under character limits)
+          [ ] OG images for homepage + major pages (readFileSync pattern — not URL fetch)
+          [ ] sitemap.ts — all routes included
+          [ ] robots.ts — /studio disallowed
+          [ ] AEO: every blog article H1 is a question, first paragraph is direct answer
+          [ ] Heading hierarchy: exactly one H1 per page
+[ ] 57. Commit: feat(seo-aeo): schema, meta, OG images, sitemap, robots
+
+### 1I — Assets
+
+Generate as needed. Each asset commits with the page that uses it. (Generated Assets Rule)
+
+[ ] 58. Hero video (cinematic brands): Kling AI — prompt from design-system.md Section 6
+[ ] 59. Gallery/blog/hero images: fal.ai (fal-ai/flux-pro/v1.1) — prompts from Section 6
+          Hero photos (3-5), gallery (8-12), blog post images (1 per article)
+[ ] 60. Replace fal.ai placeholders with real client photos when received.
+
+### 1J — Pre-Launch Audit
+
+pre-launch-auditor agent runs before anything goes live.
+
+[ ] 61. pre-launch-auditor agent → writes pre-launch-audit.md
+          Review the FAIL list. Fix every FAIL before proceeding.
+          Review the WARN list. Escalate each to human.
+[ ] 62. Manual checks the agent can't do:
+          [ ] Mobile tested on real phone (390px) — not just browser resize
+          [ ] Lighthouse ≥ 90 on Performance, Accessibility, SEO — fix anything under 90
+          [ ] OG image verified — paste URL into Twitter Card Validator
+[ ] 63. Commit: chore(audit): pre-launch audit complete, all FAIL items resolved
 
 ---
 
-## PHASE 9 — BOOKING / SCHEDULING
+## PHASE 2 — LAUNCH + CLOSE
+Manual infrastructure, client handoff, close.
 
-[ ] 64. Client sets up Calendly account with their availability and event types.
-[ ] 65. Copy the Calendly event URL.
-[ ] 66. Add to Vercel env vars: NEXT_PUBLIC_CALENDLY_URL=https://calendly.com/[client]/[event]
-[ ] 67. Build BookingWidget component (Calendly inline embed with brand color URL params).
-[ ] 68. Embed on /booking page AND as homepage teaser section.
-          Confirm no redirect — widget stays on the site domain (traffic retention rule).
-[ ] 69. Test: submit a booking. Confirm confirmation email arrives to client.
-[ ] 70. Commit: feat(booking): Calendly inline widget wired
+### 2A — Infrastructure
 
----
-
-## PHASE 10 — SEO + AEO LAYER (Session 5)
-
-Run this phase after all pages and blog articles are built. Always run — never skip.
-[AGENT → seo-aeo-specialist.md will run this phase as a dedicated pass once VALIDATED]
-
-[ ] 71. Schema markup on every page (add to page.tsx metadata or JSON-LD component):
-          Homepage: LocalBusiness / ProfessionalService / LodgingBusiness (match SCHEMA_TYPE in CLAUDE.md)
-          Blog posts: Article schema + FAQ schema (if applicable)
-          Service pages: Service schema
-          Contact page: LocalBusiness with address, phone, hours
-[ ] 72. Meta tags: every page has unique title tag (under 60 chars) + meta description (under 160 chars).
-[ ] 73. OG images: generate for homepage + all major pages using Next.js native opengraph-image.tsx.
-          Use readFileSync for local logo asset as base64 (see pattern #12 in build-log.md).
-[ ] 74. Sitemap: run next-sitemap or generate sitemap.ts with all routes.
-[ ] 75. robots.txt: allow all crawlers, disallow /studio (Sanity CMS).
-[ ] 76. AEO checks:
-          [ ] Every blog article H1 is a specific question (not a vague topic)
-          [ ] Every article has a direct 2-sentence answer in the first paragraph
-          [ ] FAQ schema on all FAQ-format pages and applicable blog posts
-          [ ] Business entity clearly defined: name, owner name, location, phone, email, schema
-          [ ] Google Business Profile created or updated (client handles this separately)
-[ ] 77. Heading hierarchy check: every page has exactly ONE H1. Subheadings use H2/H3 correctly.
-[ ] 78. Commit: feat(seo-aeo): schema, meta, OG images, sitemap, robots
-
----
-
-## PHASE 11 — CLIENT ONBOARDING INFRASTRUCTURE
-
-[ ] 79. Create client's Resend account (resend.com, free tier):
-          Use client's business email. Note credentials for handoff.
-[ ] 80. In Resend: add the client's domain → Auto-configure DNS (signs into GoDaddy, sets DKIM + SPF).
-[ ] 81. In Resend: API Keys → Create API Key → copy immediately (only shown once).
-[ ] 82. Add to Vercel: RESEND_API_KEY=[key]
-[ ] 83. Test contact form: submit → verify email arrives in client's inbox within 30 seconds.
-          If not: check Resend → Emails tab for error.
-[ ] 84. Connect domain to Vercel:
-          Vercel → Project → Settings → Domains → Add [clientdomain.com] and www.[clientdomain.com]
-          Click Learn More → get A record (76.76.21.21) and CNAME (cname.vercel-dns.com)
-          In GoDaddy DNS: delete parking A record, add Vercel A record, add CNAME for www.
+[ ] 64. Create client Resend account (resend.com, free tier, client's business email).
+[ ] 65. Resend: add domain → Auto-configure DNS (sets DKIM + SPF in GoDaddy).
+[ ] 66. Resend: create API key → copy immediately (only shown once).
+[ ] 67. Add to Vercel: RESEND_API_KEY=[key]
+[ ] 68. Test contact form → verify email arrives in client inbox within 30 seconds.
+          If not: Resend → Emails tab → find error.
+[ ] 69. Connect domain to Vercel:
+          Vercel → Project → Settings → Domains → add [domain.com] and www.[domain.com]
+          Get: A record (76.76.21.21) and CNAME (cname.vercel-dns.com)
+          GoDaddy DNS: delete parking A record → add Vercel A record → add CNAME for www
           Wait 5-30 minutes → verify green checkmarks in Vercel.
-[ ] 85. Add all remaining Vercel env vars:
+[ ] 70. Add all Vercel env vars:
           Always:
-            NEXT_PUBLIC_SITE_URL=https://www.[clientdomain.com] (with www if canonical)
+            NEXT_PUBLIC_SITE_URL=https://www.[domain.com]
             NEXT_PUBLIC_SHOW_PRICING_TOOLS=false
             NEXT_PUBLIC_CALENDLY_URL=https://calendly.com/[client]/[event]
-            SANITY_PROJECT_ID, SANITY_DATASET (blog is always built)
-          Only if client purchased premium (shop was NOT deleted in Phase 8B):
-            STRIPE_SECRET_KEY (live key, not test)
+            SANITY_PROJECT_ID, SANITY_DATASET
+          Only if shop is live (not deleted):
+            STRIPE_SECRET_KEY (live, not test)
             STRIPE_WEBHOOK_SECRET
             PRINTFUL_API_KEY
-[ ] 86. Register Stripe webhook (only if client purchased premium — shop was not deleted):
-          Stripe Dashboard → Developers → Webhooks → Add endpoint
-          URL: https://www.[clientdomain.com]/api/stripe/webhook
-          CRITICAL: must be canonical URL — Stripe does NOT follow 301/307 redirects
+[ ] 71. Register Stripe webhook (only if shop is live):
+          Stripe → Developers → Webhooks → Add endpoint
+          URL: https://www.[domain.com]/api/stripe/webhook (canonical — no redirects)
           Event: checkout.session.completed only
-          Copy signing secret → add to Vercel as STRIPE_WEBHOOK_SECRET
+          Copy signing secret → add as STRIPE_WEBHOOK_SECRET in Vercel
 
----
+### 2B — Client Revision Pass
 
-## PHASE 12 — ASSETS (generate when needed, before image-dependent pages go live)
+[ ] 72. Send client the live URL:
+          "Please read every page. For each edit: which page + what to change + what it should say."
+[ ] 73. Make all revisions in one session. Keep edits in site.ts wherever possible.
+[ ] 74. Commit: fix(copy): client revision pass [date]
 
-[ ] 87. Hero video (cinematic/premium brands): generate via Kling AI.
-          Prompt from design-system.md: photo style description + brand mood.
-          Place in /public/ and commit with the page that uses it (Generated Assets Rule).
-[ ] 88. Gallery images / blog images / hero photos: generate via fal.ai (fal-ai/flux-pro/v1.1).
-          Use prompts derived from design-system.md photography style section.
-          Generate: hero photos (3-5), gallery images (8-12), blog post images (1 per article).
-          All generated assets committed in the same task commit that uses them.
-[ ] 89. Client photography: if client sends real photos, use them. Replace fal.ai placeholders.
-          Ask client to take photos at job sites, events, or in their space — the more the better.
+### 2C — Close
 
----
-
-## PHASE 13 — PRE-LAUNCH AUDIT
-
-[AGENT → pre-launch-auditor.md will run this phase once VALIDATED]
-
-[ ] 90. Remove dev-only components:
-          [ ] ROI Calculator (or confirm NEXT_PUBLIC_SHOW_PRICING_TOOLS=false in Vercel)
-          [ ] Tier Comparison Chart
-          [ ] Any console.log statements
-          [ ] Hardcoded test emails in API routes
-[ ] 91. All copy reviewed by client. No placeholder text anywhere.
-[ ] 92. All photos: real or fal.ai — no broken image URLs, no missing alt text.
-[ ] 93. All forms tested end-to-end:
-          [ ] Contact form → Resend email delivered to client inbox
-          [ ] Quiz form → Resend email delivered with quiz answers appended
-          [ ] Shop checkout → Stripe session created, Printful order triggered, owner alert sent
-                (skip if shop was deleted in Phase 8B)
-[ ] 94. Booking flow tested: Calendly widget loads inline, booking submitted, confirmation received.
-[ ] 95. All navigation links functional — no 404s.
-[ ] 96. Mobile tested on real phone (390px). Not just browser resize.
-[ ] 97. Run Lighthouse on homepage: target ≥ 90 on Performance, Accessibility, SEO.
-          Fix any score below 90 before launch.
-[ ] 98. OG image verified: paste URL into Twitter Card Validator or LinkedIn Post Inspector.
-[ ] 99. Sitemap accessible at: https://www.[clientdomain.com]/sitemap.xml
-[ ] 100. robots.txt accessible at: https://www.[clientdomain.com]/robots.txt
-[ ] 101. Final commit: chore(launch): pre-launch audit complete, dev tools removed
-
----
-
-## PHASE 14 — CLIENT REVISION PASS
-
-[ ] 102. Send client the live URL and a revision request:
-           "Please read every page. For each edit: which page + what to change + what it should say."
-[ ] 103. Make all revisions in one session.
-[ ] 104. Commit: fix(copy): client revision pass [date]
-
----
-
-## PHASE 15 — CLOSE
-
-[ ] 105. Run /retro in Claude Code terminal → vault updates automatically.
-           build-log.md gets new errors, patterns, and retrospective entry.
-[ ] 106. Hand off credentials to client:
-           GoDaddy: their account (they paid for it)
-           Resend: email + password from Phase 11
-           Vercel: invite client as Viewer (Settings → Members)
-           Sanity: invite client as Editor (blog is always active)
-[ ] 107. Send invoice for any remaining balance.
-[ ] 108. Archive raw notes, transcripts, and discovery material in project folder.
+[ ] 75. Run /retro → build-log.md updated automatically (errors, patterns, retrospective entry).
+[ ] 76. Hand off credentials:
+          GoDaddy: their account (they paid for it)
+          Resend: email + password
+          Vercel: invite client as Viewer (Settings → Members)
+          Sanity: invite client as Editor
+[ ] 77. Send final invoice for any remaining balance.
+[ ] 78. Archive discovery notes, transcripts, and raw materials in project folder.
 
 ---
 
 ## Notes
 
-- Sessions 1-5 map to Phases 3-10. Each session = run /prime at the start.
-- [AGENT →] markers show where agents will plug in once VALIDATED. Do manually until then.
-- Phase 7 (Blog) and Phase 8 (Shop): always built. Shop scaffold always happens. API wiring depends on tier purchased.
-- Phase 10 (SEO/AEO): always run — never skipped. This is what makes the site findable.
-- Phase 11 (infrastructure): can happen anytime after Phase 1, but must be complete before launch.
-- Phase 12 (assets): generate assets as pages need them, not all at the end.
+- Phase 0 is baseline — same as it always was. Human-driven. No agents.
+- Phase 1 is the agent sweep — everything built in one coordinated pass.
+  Sessions in Phase 1: run /prime at the start of each. The orchestrator picks up from
+  the last progress.md checkpoint automatically.
+- [AGENT →] markers = step is handled by a validated agent.
+  Steps without that marker = orchestrator or human handles it directly.
+- Shop: always scaffolded. Decision gate at Step 44 determines whether APIs get wired.
+- Blog: always built. Non-negotiable.
+- Phase 2 always requires human presence — credentials, DNS, client communication.
