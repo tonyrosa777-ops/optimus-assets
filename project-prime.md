@@ -330,12 +330,31 @@ Commit: feat(homepage): all sections complete
 16. /faq — Radix accordion, all Q&As from site.ts
 Commit: feat(pages): about, services, contact, faq + nav/sitemap wired
 
-**Business-specific pages (from Sections Matrix in design-system.md):**
+**Business-specific pages (from Sections Matrix in design-system.md — conditional):**
 17. Service area pages /areas/[slug] — if Yes (min 3, max 10)
 18. Pricing page /pricing — if Yes (3-tier anchoring, ROI calc dev-gated)
 19. Reviews page /reviews — if Yes (10+ testimonials threshold)
-20. Quiz page /quiz — always build (multi-step, lead capture, result + booking CTA)
 Commit: feat(niche-pages): [list built] + nav/sitemap wired
+
+**Interactive Quiz (always — non-negotiable, every project):**
+20. Homepage quiz CTA component — inline multi-step, launches without leaving the page
+    Flow: hook headline + start button → problem selection → 2-3 qualifying questions
+    → lead capture form (name, email, phone) → result screen:
+      - Recommended service (matched from site.ts services array based on answers)
+      - Primary CTA: opens booking calendar (scrolls to or navigates to /booking)
+    Quiz answers + lead info submitted to Resend contact API on form completion.
+21. /quiz standalone page — same component, full-page layout, linked from nav
+22. Wire /quiz to nav + sitemap.ts in same commit.
+Commit: feat(quiz): multi-step quiz — homepage CTA + /quiz page, Resend wired
+
+**Inline Booking Calendar (always — non-negotiable, every project):**
+23. /booking page — Calendly InlineWidget filling the page. Brand colors via URL params.
+    Uses process.env.NEXT_PUBLIC_CALENDLY_URL. Never an href link. Never a redirect.
+    The calendar renders inside the site. Visitor never leaves the domain.
+24. Homepage booking teaser section — same InlineWidget, constrained height with scroll.
+    This is distinct from the quiz CTA — it's the direct "ready to book" section.
+25. Wire /booking to nav + sitemap.ts in same commit.
+Commit: feat(booking): Calendly inline calendar — /booking page + homepage section
 
 **Blog (always — non-negotiable):**
 21. Deploy Sanity schema: npx sanity deploy

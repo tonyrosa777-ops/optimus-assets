@@ -197,6 +197,30 @@ At project close:
 - All copy lives in /data/site.ts — zero hard-coded strings in components
 - Performance budget: Lighthouse score ≥ 90 on all pages
 
+## Always-Built Features Rule
+Every project ships with ALL of the following, no exceptions, no client-by-client decisions:
+
+**Interactive Quiz**
+Built as a multi-step component on the homepage AND as a standalone /quiz page.
+Structure: opening hook CTA → problem selection → qualifying questions → lead capture form
+→ result screen with recommended service + booking CTA.
+The quiz ends at the booking calendar — never at a dead end.
+Quiz answers are emailed to the client via Resend on submission.
+The homepage version is a CTA block that launches the quiz inline (not a page link).
+
+**Inline Booking Calendar**
+Uses Calendly under the hood via react-calendly InlineWidget.
+Visually native to the site — brand colors injected via Calendly URL params.
+Lives on a dedicated /booking page AND as a homepage teaser section.
+NEVER implemented as an href link or redirect. The calendar renders inside the page.
+Configured via NEXT_PUBLIC_CALENDLY_URL env var — never hardcoded.
+
+**Blog**
+9-10 articles minimum. SEO and AEO foundation. Always built. See Phase 7 in build-checklist.md.
+
+These three are built in every Phase 1 agent sweep. They are never optional, never deferred,
+never listed as "if applicable." If a phase sign-off doesn't include all three: it is not done.
+
 ## Conversion Flow Rule
 Never embed third-party redirects that take users off the [DOMAIN] domain.
 All conversion flows (booking, scheduling, purchase, inquiry) must be embedded
