@@ -1238,26 +1238,29 @@ All project media must live inside `/public`. Never commit assets to the repo ro
 
 ## AI Asset Generation
 
-When a client has no professional photography or hero video, generate assets before
-building image-dependent sections. Do this in Phase 2 (content) before Phase 3 (pages).
-Flag it as a Phase 0 deliverable in `progress.md`.
+**Hero sections always use animated SVG — never a photo, never fal.ai.**
+fal.ai is strictly for blog post card thumbnail images. Do not use it for heroes,
+about pages, service cards, or OG images.
 
-### Images — fal.ai
+Service cards, about page, and OG images use real client photos when provided.
+If not provided, build sections that work without photo content until photos arrive.
 
-Uses fal.ai Node.js SDK via terminal. Requires `FAL_KEY` in `.env.local`.
+### Blog Card Images — fal.ai
+
+Used for blog post card thumbnails only. Requires `FAL_KEY` in `.env.local`.
 
 Prompt source: `design-system.md` → Section 6 (Photography & Media Direction)
-Output: `/public/images/` — commit immediately after generation
+Output: `/public/images/blog/` — commit immediately after generation
 
 ```ts
-// scripts/generate-images.ts
+// scripts/generate-blog-images.ts
 import * as fal from "@fal-ai/serverless-client";
 
 fal.config({ credentials: process.env.FAL_KEY });
 
 // Pull mood, setting, and prohibited content from design-system.md Section 6
-// Generate hero, section backgrounds, card images
-// Save to /public/images/ with descriptive filenames
+// Generate one card image per blog article
+// Save to /public/images/blog/ with slug-matching filenames
 // Commit all outputs in the same commit as the script run
 ```
 

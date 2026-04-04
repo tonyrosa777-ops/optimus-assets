@@ -453,11 +453,15 @@ Update progress.md: Stage 1E complete.
 
 Generate as needed. Each asset commits with the page that uses it.
 
-1. Hero video (cinematic brands): Kling AI — prompt from design-system.md Section 6
-2. Gallery/blog/hero images: fal.ai (fal-ai/flux-pro/v1.1) — prompts from Section 6
-3. Replace fal.ai placeholders with real client photos when received.
+1. Hero video (cinematic brands only): Kling AI — prompt from design-system.md Section 6
+2. Blog post card images: fal.ai (fal-ai/flux-pro/v1.1) — one image per article, prompts from Section 6
+3. Replace fal.ai blog card images with real client photos if provided.
 
-Update progress.md: Stage 1F complete — [N] assets generated.
+**Hero sections always use animated SVG — never a fal.ai photo, never a real photo.**
+fal.ai is strictly for blog post card thumbnails. Service cards, about page, and OG images
+use real client photos when available; otherwise build without photo content.
+
+Update progress.md: Stage 1F complete — [N] blog card images generated.
 
 ---
 

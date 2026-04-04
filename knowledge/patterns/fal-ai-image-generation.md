@@ -4,13 +4,20 @@
 
 ---
 
+## Scope — Blog Post Card Images Only
+
+fal.ai is used **exclusively for blog post card thumbnail images**. Do not use it for:
+- Hero sections (always animated SVG)
+- About page photos (real client photos or build without)
+- Service card images (real client photos or build without)
+- OG images (real client photos or build without)
+
 ## What
-Generate custom, brand-matched images via the fal.ai Node.js SDK running in the terminal. Eliminates the need for professional photography before launch.
+Generate brand-matched blog card thumbnails via the fal.ai Node.js SDK. One image per article.
 
 ## When to Use
-- Client has no professional photography
-- Sections need custom imagery that stock photos won't fit
-- Brand requires a specific mood/style that needs to be consistent across the site
+- Blog articles need card thumbnails
+- Client has no provided photography for blog cards
 - Fast turnaround needed before launch
 
 ## How
@@ -30,37 +37,37 @@ FAL_KEY=your_fal_api_key
 
 **Script pattern:**
 ```ts
-// scripts/generate-images.ts
+// scripts/generate-blog-images.ts
 import * as fal from "@fal-ai/serverless-client";
 import * as fs from "fs";
 import * as path from "path";
 
 fal.config({ credentials: process.env.FAL_KEY });
 
+// One entry per blog article — filename matches the article slug
 const images = [
-  { prompt: "[brand mood from design-system.md] + [specific scene]", filename: "hero-main.jpg" },
-  { prompt: "[brand mood] + [section descriptor]", filename: "section-stays.jpg" },
+  { prompt: "[brand mood from design-system.md] + [article topic]", filename: "blog-[slug].jpg" },
 ];
 
 for (const img of images) {
-  const result = await fal.run("fal-ai/flux/schnell", {
+  const result = await fal.run("fal-ai/flux-pro/v1.1", {
     input: { prompt: img.prompt, image_size: "landscape_16_9" }
   });
-  // Save to /public/images/
+  // Save to /public/images/blog/
   // Commit immediately after script completes
 }
 ```
 
-**Output location:** `/public/images/[section]-[descriptor].jpg`
+**Output location:** `/public/images/blog/[article-slug].jpg`
 
 ## Key Rules
 1. Commit all generated files in the same commit as the script run — never as a follow-up
 2. Use design-system.md Section 6 as the prompt source — keep imagery on-brand
-3. Name files descriptively: `[section]-[descriptor].jpg` not `image-1.jpg`
-4. Generate hero image first — validate brand feel before generating the rest
+3. Name files to match article slugs: `blog-[slug].jpg`
+4. One image per article — do not generate extras speculatively
 
 ## Reuse Condition
-Every build where client photography is absent or insufficient for a premium feel.
+Every build — blog articles always need card thumbnails.
 
 ## Related
 - [[errors/generated-assets-not-committed]]
