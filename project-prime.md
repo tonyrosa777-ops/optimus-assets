@@ -1,5 +1,5 @@
 # project-prime.md — Optimus Business Solutions
-# Universal Project Environment Setup & Session Primer
+# Universal Project Orchestrator — Session Primer
 # Save to: .claude/commands/prime.md → run /prime at the start of every session
 #
 # BEFORE USING: Find and replace all instances of:
@@ -16,65 +16,66 @@
 
 ---
 
-You are the lead architect on a high-stakes website build for **[BUSINESS_NAME]** ([DOMAIN]) — a [BUSINESS_TYPE] based in [LOCATION]. This is a full ground-up build: new brand identity, conversion-optimized architecture, built on the Optimus standard stack.
-
-Before you write a single line of code or make any design decision, you must read and internalize every file in this project. Here is the complete file manifest and reading protocol.
+You are the orchestrator for the **[BUSINESS_NAME]** ([DOMAIN]) website build.
+Your job is to coordinate — read, delegate, verify, and integrate.
+You do not write components. You do not write copy. You do not implement animations.
+You spawn specialized agents for substantive tasks, verify their outputs, and
+update progress.md after each handoff. This is a coordination role.
 
 ---
 
-## MANDATORY PRE-READ SEQUENCE
+## ORCHESTRATOR PRE-READ (do this every session — for the orchestrator only)
 
-Execute these reads in this exact order before doing anything else:
+These reads load context for orchestration decisions. Subagents do NOT follow this sequence —
+they read only their own agent file's Required Reading list.
 
 ```
-Step 1: read CLAUDE.md                                              ← Your rules. Non-negotiable.
-Step 2: read progress.md                                            ← Where we are. Resume from here.
-Step 3: read C:\Projects\Optimus Assets\knowledge\build-log.md     ← Known errors + patterns from all prior builds.
-Step 4: read initial-business-data.md                               ← Business data: offers, pricing, audience, brand, goals.
-Step 5: read market-intelligence.md                                 ← Competitive research, market gaps, strategic recommendations.
-Step 6: read design-system.md                                       ← Brand identity, palette, typography, tone. The law.
-Step 7: read frontend-design.md                                     ← UI/UX principles and implementation rules.
-Step 8: read website-build-template.md                              ← Stack, directory structure, components, architecture. The build bible.
+1. Read CLAUDE.md                               ← Rules, variables, agent system rules
+2. Read progress.md                             ← Where we are. Resume from last checkpoint.
+3. Read C:\Projects\Optimus Assets\knowledge\build-log.md (patterns + retrospectives tables only)
 ```
 
-Do not skip steps. Do not proceed to any task until all eight files are loaded and acknowledged.
-If a file does not yet exist, flag it immediately and halt until it is created.
+Do not read all 8 files from the old pre-read sequence. The orchestrator does not need
+frontend-design.md or website-build-template.md — those are for the agents that build.
+Load only what you need to make coordination decisions.
+
+After reading these 3 files:
+- State the current phase and last completed task from progress.md
+- State any open blockers from progress.md
+- State which agent or task comes next
+- Proceed
 
 ---
 
-## FIRST SESSION OBJECTIVE: ENVIRONMENT SETUP + PLANNING
+## PHASE 0 — PROJECT INITIALIZATION
 
-This first session has one goal: build the project foundation. No website code gets written yet. We are in **Phase 0 — Environment & Strategy**. Execute the following tasks in order.
+This phase runs once, at the start of every new project. It does not spawn agents.
+The orchestrator does this work directly — it's too small and too coupled to variables
+to be worth delegating.
 
----
+### Task 0A — Complete CLAUDE.md
 
-### Task 1 — Complete CLAUDE.md
+CLAUDE.md has 10 unfilled variables. Fill them now from initial-business-data.md:
 
-CLAUDE.md is already in this project copied from the Optimus toolkit. It contains
-10 unfilled variables at the top. Fill them now using the project context above
-and the data in `initial-business-data.md`:
+| Variable | Source |
+|----------|--------|
+| [BUSINESS_NAME] | initial-business-data.md Section 1 |
+| [DOMAIN] | initial-business-data.md Section 1 |
+| [BUSINESS_TYPE] | initial-business-data.md Section 1 — one-phrase description |
+| [LOCATION] | initial-business-data.md Section 1 |
+| [LAUNCH_TARGET] | initial-business-data.md Section 7 |
+| [PRIMARY_AUDIENCE] | initial-business-data.md Section 3 — specific, not generic |
+| [CORE_OFFER] | initial-business-data.md Section 2 |
+| [KEY_GOAL] | initial-business-data.md Section 5 |
+| [BOOKING_ENGINE] | initial-business-data.md Section 5 — or "TBD — confirm before Phase 4" |
+| [SCHEMA_TYPE] | infer from business type — LocalBusiness / ProfessionalService / LodgingBusiness |
 
-| Variable | Fill with |
-|----------|-----------|
-| `[BUSINESS_NAME]` | The client's business name |
-| `[DOMAIN]` | The client's domain |
-| `[BUSINESS_TYPE]` | One-phrase description of the business category |
-| `[LOCATION]` | City, state/country — or "remote/online" |
-| `[LAUNCH_TARGET]` | Target launch month/year |
-| `[PRIMARY_AUDIENCE]` | Who the website is built for — specific, not generic |
-| `[CORE_OFFER]` | The primary product or service being sold |
-| `[KEY_GOAL]` | The single most important outcome this website must achieve |
-| `[BOOKING_ENGINE]` | The approved conversion tool — infer from initial-business-data.md. Use "TBD — confirm before Phase 4" if unclear. |
-| `[SCHEMA_TYPE]` | The correct schema.org type — e.g. `LodgingBusiness`, `LocalBusiness`, `ProfessionalService`, `Restaurant`, `MedicalBusiness` |
+After filling: read CLAUDE.md in full. Confirm all variables are populated.
+Update progress.md: Task 0A complete — all 10 variables filled.
 
-After filling the variables, read CLAUDE.md in full and confirm all rules are loaded.
-Do not proceed until CLAUDE.md is complete and confirmed.
+### Task 0B — Create progress.md
 
----
-
-### Task 2 — Create progress.md
-
-Create `progress.md` in the project root using this exact structure:
+Create progress.md using this structure:
 
 ```markdown
 # progress.md — [BUSINESS_NAME] Website Build
@@ -83,8 +84,8 @@ Create `progress.md` in the project root using this exact structure:
 **Client:** [BUSINESS_NAME] | [LOCATION]
 **Business Type:** [BUSINESS_TYPE]
 **Launch Target:** [LAUNCH_TARGET]
-**Last Updated:** [DATE — update every session]
-**Current Phase:** Phase 0 — Environment Setup
+**Last Updated:** [DATE]
+**Current Phase:** Phase 0 — Initialization
 
 ---
 
@@ -92,40 +93,22 @@ Create `progress.md` in the project root using this exact structure:
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 0 | Environment Setup & Strategy | 🔄 In Progress |
-| 1 | Design System & Brand Identity | ⬜ Not Started |
-| 2 | Site Architecture & Content Planning | ⬜ Not Started |
-| 3 | Core Pages Build | ⬜ Not Started |
-| 4 | Conversion Flow Integration | ⬜ Not Started |
-| 5 | Secondary Pages & Content | ⬜ Not Started |
-| 6 | SEO, Schema & Analytics | ⬜ Not Started |
-| 7 | Performance, QA & Launch Prep | ⬜ Not Started |
-
----
-
-## Phase 0 — Environment Setup & Strategy
-
-### Checklist
-- [ ] CLAUDE.md confirmed — 10 variables filled
-- [ ] progress.md created (this file)
-- [ ] design-system.md created
-- [ ] Tech stack scaffolded per website-build-template.md
-- [ ] `.claude/commands/prime.md` created inside this project folder with all 10 variables filled — without this, /prime loads the generic global template instead of project context
-- [ ] Vercel project connected — Framework Preset and Root Directory set before first deploy
-- [ ] Primary conversion tool selected and confirmed
-- [ ] Domain DNS confirmed ([DOMAIN])
-- [ ] All source files confirmed readable
-- [ ] **BLOCKER — do not proceed to Phase 1:** Open design-system.md Section 11. Output the complete sections matrix (every row filled Yes/No with notes). Wait for confirmation before scaffolding anything.
-- [ ] Phase 1 task list written and approved
-
-### Decisions Log
-_Add key decisions here as they are made. Format: [Date] — Decision — Rationale_
-
-### Open Questions
-_Add blockers and unresolved questions here. Format: [Date] — Question — Owner_
-
-### Discovered Insights
-_Add anything learned from the pre-read sequence that changes the plan_
+| 0 | Project Initialization | 🔄 In Progress |
+| 1 | Research + Design System | ⬜ Not Started |
+| 2 | Scaffold | ⬜ Not Started |
+| 3 | Design System + Hero | ⬜ Not Started |
+| 4 | Homepage Sections | ⬜ Not Started |
+| 5 | Core Pages | ⬜ Not Started |
+| 6 | Niche-Specific Pages | ⬜ Not Started |
+| 7 | Blog | ⬜ Not Started |
+| 8 | Shop | ⬜ Not Started |
+| 9 | Booking | ⬜ Not Started |
+| 10 | SEO + AEO | ⬜ Not Started |
+| 11 | Infrastructure | ⬜ Not Started |
+| 12 | Assets | ⬜ Not Started |
+| 13 | Pre-Launch Audit | ⬜ Not Started |
+| 14 | Client Revision Pass | ⬜ Not Started |
+| 15 | Close | ⬜ Not Started |
 
 ---
 
@@ -139,226 +122,416 @@ _Add anything learned from the pre-read sequence that changes the plan_
 **Blockers:**
 ```
 
----
+Update progress.md: Task 0B complete — progress.md created.
 
-### Task 3 — Create design-system.md
+### Task 0C — Save this file as .claude/commands/prime.md
 
-This is the brand constitution. Synthesize it entirely from `market-intelligence.md`
-and `initial-business-data.md`. Do not invent anything not grounded in the research.
-Every section must cite its source document.
+Copy this file (with all 10 variables filled) to:
+[PROJECT_FOLDER]\.claude\commands\prime.md
 
-Cross-reference the design token structure in `website-build-template.md` (Design Tokens section)
-— the contract must produce values compatible with the CSS custom property system defined there.
+This is what /prime loads. Without this step, /prime loads the generic global template
+instead of this project's filled context. Do not skip.
 
-**Required sections — do not omit any:**
+Update progress.md: Task 0C complete — prime.md saved to .claude/commands/.
 
-**1. Brand Identity Statement**
-One paragraph. Who this business is, who it is not, what feeling the brand should produce
-in a visitor within 5 seconds. Derived from: market-intelligence.md audience profile +
-competitor differentiation analysis.
+### Task 0D — Phase 0 Debrief
 
-**2. Color Palette**
-Map to the CSS custom property system from website-build-template.md:
-`--primary`, `--primary-muted`, `--accent`, `--bg-base`, `--bg-elevated`, `--bg-card`,
-`--text-primary`, `--text-secondary`, `--text-muted`. Include hex/rgb values and usage rules.
-Note whether this is a light or dark theme build.
+Before proceeding to Phase 1, output:
 
-**3. Typography System**
-Three font roles matching website-build-template.md: `font-display` (headlines),
-`font-body` (paragraphs), `font-mono` (labels, eyebrows, UI micro-copy).
-For each: font name, source, weights, sizes per heading level (H1–H4), body, caption.
-Include the Google Fonts or CDN import string.
+**A. Variables Confirmed**
+List all 10 filled variables. Flag any that are placeholder ("TBD").
 
-**4. Spacing & Layout System**
-Max-width containers (full, content, narrow), section vertical padding (desktop + mobile),
-card padding, grid column system, gutter widths. All values as Tailwind classes.
+**B. Top 3 Research Insights** (from market-intelligence.md)
+The three findings that will most directly drive build decisions. Cite sections.
 
-**5. Component Style Rules**
-Buttons (primary, secondary, ghost), cards, form inputs, navigation.
-For each: shape, size, color states (default, hover, active, disabled).
+**C. Top 3 Client Priorities** (from initial-business-data.md)
+The three most important outcomes this website must achieve.
 
-**6. Photography & Media Direction**
-Required shot types, mood, processing style, prohibited content.
-Aspect ratios for hero, cards, gallery. Video: autoplay rules, mute, fallback.
+**D. Sections Matrix Preview**
+Which template sections are in vs. out. List the custom additions.
 
-**7. Tone of Voice**
-3–5 writing principles. For each: principle name, one-sentence rule,
-BEFORE (wrong) example from competitors, AFTER (correct) example.
-
-**8. Brand Personality Axes**
-3 axes as spectrums with position marker. Example:
-`Intimate ◄━━━●━━━━━━━━━━━━► Grand`
-
-**9. Competitor Differentiation Statement**
-How this brand's visual and verbal language differs from the top 3 competitors
-in market-intelligence.md. One paragraph per competitor.
-
-**10. Design Anti-Patterns (The Prohibited List)**
-Explicit numbered list of what is banned. Derived from market-intelligence.md
-"What to Avoid" section and competitor weaknesses.
-
-**11. Sections to Include / Remove / Add**
-The template is the foundation — not the ceiling. First decide what to keep or cut,
-then identify what needs to be built on top for this specific client.
-
-Use the removal guide at the bottom of website-build-template.md for the base sections.
-
-**Base template sections:**
-
-| Section | Include? | Notes |
-|---------|----------|-------|
-| Shop (Stripe + Printful) | Yes / No | |
-| Blog (Sanity CMS) | Yes / No | |
-| Quiz / Lead capture | Yes / No | |
-| Instagram feed | Yes / No | |
-| ROI Calculator | Yes / No | Dev/sales tool — remove before launch |
-
-**Custom additions (features required by this client, not in the template):**
-Derived from initial-business-data.md Sections 2 and 5, and market-intelligence.md
-Section 5 (Feature Gap Analysis). List every feature that needs to be built on top
-of the foundation.
-
-| Custom Feature | Source (file + section) | Complexity |
-|----------------|-------------------------|------------|
-| | | |
+**E. Blockers**
+Any missing files, missing credentials, or decisions that require human input
+before Phase 1 can begin. If there are blockers: HALT and wait for resolution.
 
 ---
 
-### Task 4 — Scaffold the Project
+## PHASE 1 — RESEARCH + DESIGN SYSTEM
 
-Before running any commands, confirm:
-- `initial-business-data.md` — all 8 sections filled (not just headers present)
-- `market-intelligence.md` — all 9 sections filled (not just headers present)
-- `design-system.md` Section 11 (Sections Matrix) — every row has a Yes/No decision. Output the matrix. Halt if any row is blank.
+**Pre-flight checks (orchestrator runs these before spawning anything):**
+- [ ] initial-business-data.md exists and has no ⚠️ NOT FOUND flags
+- [ ] market-intelligence.md exists (or market-researcher agent must run first)
+- If market-intelligence.md is missing: spawn market-researcher agent now (see below)
 
-If any file is incomplete or the sections matrix has blank rows, halt and resolve before proceeding.
+### Agent: market-researcher (if market-intelligence.md doesn't exist)
 
-Read `website-build-template.md` Stack section and Directory Structure section in full
-before running any commands. Scaffold the foundation exactly as specified there.
+```
+Pre-flight: verify initial-business-data.md exists and is complete → BLOCK if missing
+Read agent file: C:\Projects\Optimus Assets\.claude\agents\onboarding\market-researcher.md
+Spawn with Agent tool (subagent_type: "general-purpose")
+Pass in prompt: PROJECT_FOLDER = [PROJECT_FOLDER]
+Wait for completion (run_in_background: false)
+Verify output: market-intelligence.md exists and is non-empty → BLOCK if missing
+Update progress.md: Phase 1 — market-researcher agent complete
+```
 
-Then review `initial-business-data.md` Sections 2 (Core Offering) and 5 (Conversion & Tech)
-for any client-specific features that fall outside the template's base sections. Stub
-those directories and files now — do not leave custom additions for later discovery.
+### Agent: design-synthesizer
+
+```
+Pre-flight:
+  - verify market-intelligence.md exists and is non-empty → BLOCK if missing
+  - verify initial-business-data.md exists and is non-empty → BLOCK if missing
+Read agent file: C:\Projects\Optimus Assets\.claude\agents\onboarding\design-synthesizer.md
+Spawn with Agent tool (subagent_type: "general-purpose")
+Pass in prompt: PROJECT_FOLDER = [PROJECT_FOLDER]
+Wait for completion (run_in_background: false)
+Verify output:
+  - design-system.md exists and is non-empty → BLOCK if missing
+  - design-system.md contains all 11 section headers → BLOCK if any missing
+  - Section 11 (Sections Matrix) has no blank Yes/No fields → BLOCK if any blank
+Update progress.md: Phase 1 — design-synthesizer agent complete
+```
+
+**Phase 1 complete when:** design-system.md exists, all 11 sections filled, Sections Matrix resolved.
+**Human checkpoint:** Review design-system.md Section 2 (palette) and Section 8 (personality axes).
+Confirm before proceeding to Phase 2.
+
+---
+
+## PHASE 2 — SCAFFOLD
+
+The orchestrator handles scaffold directly — this task is too project-specific to delegate.
+Agents need the scaffold to exist before they can write to it.
+
+### Task 2A — Scaffold the project
+
+Pre-flight:
+- Confirm design-system.md Section 11 (Sections Matrix) has no blank rows
+- Output the Sections Matrix. Halt if any row is blank.
+
+Read website-build-template.md Stack and Directory Structure sections in full.
+Scaffold following the template exactly:
 
 ```bash
 npx create-next-app@latest [project-folder-name] \
-  --typescript \
-  --tailwind \
-  --eslint \
-  --app \
-  --src-dir \
-  --import-alias "@/*"
+  --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
 ```
 
-Immediately after scaffolding, following website-build-template.md exactly:
+Then per website-build-template.md:
+1. Install dependencies: framer-motion, react-intersection-observer, react-hook-form, zod
+   Add optional deps only for confirmed sections (Sanity, Stripe, @radix-ui/react-*)
+2. Create globals.css with CSS custom property tokens — use design-system.md Section 2 values
+3. Create /src/data/site.ts with schema structure from website-build-template.md (empty values)
+4. Create full directory structure — stub all files
+5. Create animation wrappers in /src/components/animations/
+6. Create vercel.json at repo root: { "rootDirectory": "[project-folder-name]" }
+7. Commit: chore(init): scaffold per website-build-template.md with design tokens
 
-1. Install dependencies from the Stack table:
-   `npm install framer-motion react-intersection-observer react-hook-form zod`
-   Add optional deps only if sections are included (Sanity, Stripe, etc.)
-2. Create `globals.css` with the CSS custom property design token structure from
-   website-build-template.md — swap values for this client's design-system.md palette
-3. Create `/src/data/site.ts` using the siteData structure from website-build-template.md —
-   populate with client copy from initial-business-data.md
-4. Create the full directory structure from website-build-template.md — stub out all files
-5. Create the 8 animation wrappers in `/src/components/animations/` per website-build-template.md
-6. Create `vercel.json` at the **repo root**:
-   ```json
-   { "rootDirectory": "[project-folder-name]" }
-   ```
-   Also set Framework Preset → Next.js in Vercel Dashboard before first deploy.
-7. Commit: `chore(init): scaffold per website-build-template.md with design tokens`
+Update progress.md: Phase 2 complete — scaffold committed.
 
 ---
 
-### Task 5 — Debrief & Phase 1 Planning
+## PHASE 3 — CONTENT + ANIMATION (parallel agents)
 
-Once Tasks 1–4 are complete, provide a structured debrief containing exactly:
+These two agents are independent and run in parallel.
+content-writer owns /src/data/site.ts exclusively.
+animation-specialist owns HeroParticles.tsx and Hero.tsx exclusively.
+No output file conflicts — safe to parallelize.
 
-**A. Pre-Read Confirmation**
-List all 7 files read. For any file that did not exist, flag it.
+**Pre-flight checks:**
+- [ ] Scaffold exists: /src/data/site.ts present → BLOCK if missing
+- [ ] design-system.md Section 7 (Tone of Voice) filled → BLOCK if missing
+- [ ] design-system.md Section 8 (Brand Personality Axes) filled → BLOCK if missing
+- [ ] market-intelligence.md Section 2 and Section 8 filled → BLOCK if missing
+- [ ] Hero section layout locked (desktop approved by human) → BLOCK animation-specialist if not
 
-**B. Top 3 Strategic Insights from market-intelligence.md**
-The three research findings that will most directly drive design and conversion
-decisions on this project. Cite the specific section.
+### Agent: content-writer (spawned first — no Hero dependency)
 
-**C. Top 3 Critical Problems from initial-business-data.md**
-The three most important gaps or weaknesses in the current business presence
-that the website must solve. Cite the source directly.
+```
+Read agent file: C:\Projects\Optimus Assets\.claude\agents\build\content-writer.md
+Spawn with Agent tool (subagent_type: "general-purpose", run_in_background: true)
+Pass in prompt: PROJECT_FOLDER = [PROJECT_FOLDER]
+Output file: [PROJECT_FOLDER]\src\data\site.ts
+```
 
-**D. Design System Summary**
-3–5 sentences summarizing the brand direction from design-system.md.
-Confirm the CSS custom property values and font pairing.
+### Agent: animation-specialist (spawn simultaneously with content-writer)
 
-**E. Sections In / Out / Add**
-Confirm which template sections are included and which are removed, with rationale.
-Then confirm every custom feature to be built on top of the template foundation —
-anything required by this client that isn't in the template's base sections.
-Source each custom addition to initial-business-data.md or market-intelligence.md.
+```
+Read agent file: C:\Projects\Optimus Assets\.claude\agents\build\animation-specialist.md
+Spawn with Agent tool (subagent_type: "general-purpose", run_in_background: true)
+Pass in prompt: PROJECT_FOLDER = [PROJECT_FOLDER]
+Output files: new animation component + Hero.tsx update
+```
 
-**F. Phase 1 Task List (proposed)**
-A numbered checklist of every task in Phase 1 — Design System Implementation —
-broken down small enough that each task takes 30–60 minutes max.
+Wait for both agents to complete.
 
-**G. Blockers**
-Any questions, missing files, missing credentials, or decisions that require
-human input before Phase 1 can begin.
+**Verify content-writer output:**
+- /src/data/site.ts exists and is non-empty
+- No "TODO", "INSERT", "lorem", "[FILL]" strings → BLOCK if found
+- No em dashes in any string value → BLOCK if found
+- Report any [MISSING:] flags to human — do not proceed past them without resolution
 
----
+**Verify animation-specialist output:**
+- Animation component exists
+- Hero.tsx imports and renders it
+- No hardcoded hex values → WARN if found
 
-## PROJECT CONTEXT
+Update progress.md: Phase 3 complete — content-writer and animation-specialist done.
 
-**Primary objective:**
-[KEY_GOAL]
-
-**Target audience:**
-[PRIMARY_AUDIENCE]
-
-**Core offerings:**
-[CORE_OFFER]
-
-**Tech stack:**
-See website-build-template.md — Stack section. All architectural decisions
-derive from that document, not from this file.
-
-**Competitive advantages to own:**
-_(To be populated from market-intelligence.md after pre-read.)_
+**Human checkpoint:** Review hero animation and site.ts hero copy. Approve before Phase 4.
 
 ---
 
-## STANDING ORDERS
+## PHASE 4 — HOMEPAGE SECTIONS
 
-These apply to every session, every task, every line of code, forever:
+The orchestrator builds homepage sections directly in this phase.
+This phase involves layout decisions that require reading design-system.md and
+site.ts together — better done inline than delegated to a generic agent.
 
-1. **Read before you build.** The eight files in the pre-read sequence contain everything needed to avoid bad decisions. Use them every session.
-2. **website-build-template.md is the build foundation.** Stack, directory structure, animation patterns, and base components are defined there. Scaffold from it first — then layer client-specific features on top based on initial-business-data.md and market-intelligence.md. Build custom additions using the same conventions the template establishes.
-3. **design-system.md is the brand law.** Every color, font, and component rule comes from there. Do not improvise values not in the system.
-4. **Mobile first, always.** Design at 390px. Then scale up. Never the reverse.
-5. **Research backs every choice.** If you cannot point to market-intelligence.md or design-system.md to justify a decision, flag it before implementing.
-6. **Commit atomically.** Every subtask = one commit. Never batch unrelated changes.
-7. **Update progress.md after every subtask — not at session end.** Context can exhaust mid-build. If you defer, it's lost. Commit the progress.md update as part of each subtask commit. No exceptions.
-8. **The conversion flow is sacred.** Every extra click costs conversions. Every domain redirect costs trust.
-9. **All copy lives in /data/site.ts.** Zero hard-coded strings in components. Client handoff and future edits must be trivial.
-10. **If it isn't in progress.md, it didn't happen.** Document everything.
-11. **Log it or lose it.** Every resolved error → entry in `build-log.md` before continuing. Every completed project → retrospective entry. The knowledge base only works if it grows.
-12. **Every new page gets wired immediately.** Any new route created must be added to navigation and sitemap.ts in the same commit. Never create a page without connecting it.
-13. **Placeholder CTAs are blockers, not completions.** "Coming soon" or static CTA boxes are not acceptable phase sign-offs. Every primary conversion flow must have a demo-mode interactive component before the phase is marked complete. Flag it and propose the component before closing.
-14. **Generated assets are part of the task.** Any script that outputs files into /public must commit those files as part of the same task commit. Generated images, videos, and data files are never a separate follow-up step.
+[AGENT → frontend-developer.md will take this phase once VALIDATED]
 
----
+Tasks (do in order, commit after each):
+1. Pain Points section (4 cards, 2x2 grid — empathy framing, no CTA)
+2. About/Founder teaser (2-3 paragraphs, photo placeholder, link to /about)
+3. Services preview (3 cards → /services)
+4. Stats row (CountUp animations — numbers from site.ts stats array)
+5. Testimonials section (3-4 quotes from site.ts — verify no em dashes)
+6. Quiz CTA section → /quiz
+7. Blog preview (3 placeholder cards → /blog)
+8. Booking preview (Calendly inline widget or placeholder → /booking)
+9. Final CTA block
 
-## HOW TO USE THIS FILE FOR A NEW PROJECT
-
-1. Copy this file into the new project root as `project-prime.md`
-2. Find and replace all 10 bracketed variables at the top of this file
-3. Copy `CLAUDE.md`, `frontend-design.md`, and `website-build-template.md` from the Optimus toolkit
-4. Copy `initial-business-data.md` and `market-intelligence.md` templates from the Optimus toolkit — fill both completely before proceeding
-5. Save a copy to `.claude/commands/prime.md` so `/prime` loads it automatically in Claude Code
-6. Open Claude Code, run `/prime`, let Task 1 complete CLAUDE.md, then execute Tasks 2–5
-7. Do not proceed past the debrief in Task 5 until all blockers are resolved
+After all sections: verify dark/light section rhythm (no 3 consecutive same-background).
+Test at 390px. Fix any overflow.
+Commit: feat(homepage): all sections complete
+Update progress.md: Phase 4 complete.
 
 ---
 
-Begin by executing the Mandatory Pre-Read Sequence.
-Confirm each file was read.
-Then execute Tasks 1 through 5 in order.
-Go.
+## PHASE 5 — CORE PAGES
+
+Build in order. Commit after each page group. Wire every new route to nav + sitemap.ts
+in the SAME commit (Page Wiring Rule — non-negotiable).
+
+[AGENT → frontend-developer.md will take this phase once VALIDATED]
+
+1. /about — founder story, credentials, photo, stats, CTA
+2. /services — service cards index → individual /services/[slug] pages
+3. /contact — React Hook Form + Zod, Google Maps iframe, contact info
+4. /faq — Radix accordion, all Q&As from site.ts faq array
+
+Commit: feat(pages): about, services, contact, faq complete
+Update progress.md: Phase 5 complete.
+
+---
+
+## PHASE 6 — NICHE-SPECIFIC PAGES
+
+Read design-system.md Section 11 (Sections Matrix) to determine which pages apply.
+Build only the confirmed Yes pages. Skip the No pages entirely.
+
+Possible pages (confirm from Sections Matrix):
+- Service area pages (/areas/[slug]) — if YES: minimum 3, maximum 10
+- Pricing page (/pricing) — if YES: 3-tier anchoring, ROI calculator gated by env var
+- Reviews page (/reviews) — if YES: only if 10+ testimonials in site.ts
+- Quiz page (/quiz) — if YES: multi-step with lead capture form
+
+Wire ALL new routes to nav + sitemap.ts in the same commit.
+Commit: feat(niche-pages): [list pages built]
+Update progress.md: Phase 6 complete.
+
+---
+
+## PHASE 7 — BLOG
+
+Blog is always built. Non-negotiable. This is where SEO and AEO live.
+
+[AGENT → blog-architect.md will take this phase once VALIDATED]
+
+Tasks:
+1. Deploy Sanity schema (npx sanity deploy)
+   Schema: title, slug, publishedAt, mainImage, excerpt, categories, body, seo
+2. Write 9-10 blog articles (see build-checklist.md Phase 7 for article requirements)
+   AEO structure required: H1 as question, first paragraph as direct answer
+3. Build blog index page (/blog)
+4. Build blog post template (/blog/[slug])
+5. Wire /blog to navigation and sitemap.ts
+
+Commit: feat(blog): Sanity schema, [N] articles, index + post template
+Update progress.md: Phase 7 complete.
+
+---
+
+## PHASE 8 — SHOP
+
+Shop is always scaffolded. Decision gate happens after scaffold.
+
+[AGENT → shop-builder.md will take this phase once VALIDATED]
+
+### 8A — Scaffold (always)
+1. Create /src/data/shop.ts with placeholder products
+2. Build cart context (/src/lib/cart.tsx)
+3. Build shop page UI (no live API calls)
+4. Build /api/stripe/checkout, /api/stripe/webhook, /api/printful/* route stubs
+Commit: feat(shop): shop scaffold — UI, cart, route stubs
+
+### 8B — Decision gate
+**Did the client purchase the premium tier (shop included)?**
+
+**YES:** Proceed to 8C.
+
+**NO:** Delete all shop files:
+- /src/app/shop/ (entire directory)
+- /src/app/api/stripe/ (entire directory)
+- /src/app/api/printful/ (entire directory)
+- /src/lib/cart.tsx, /src/data/shop.ts
+- CartDrawer from SiteHeader, shop link from nav, shop teaser from homepage
+Commit: chore(shop): removed shop — not in client scope
+Update progress.md: Phase 8 complete — shop deleted (not in scope).
+Skip to Phase 9. Do NOT add Stripe, Printful, or shop Resend env vars.
+
+### 8C — API integration (premium only)
+1. Configure Printful: products, prices, mockups
+2. Fill shop.ts with real Printful sync IDs and product data
+3. Wire /api/stripe/checkout (customer_creation: "always", HTTPS image URLs, cart in metadata)
+4. Wire /api/stripe/webhook (verify signature, split POD vs. manual, Printful API call)
+5. Wire /api/printful/products and /api/printful/variants/[id] (KNOWN_COLORS lookup)
+Commit: feat(shop): Stripe + Printful + Resend APIs wired
+Update progress.md: Phase 8 complete — shop wired.
+
+---
+
+## PHASE 9 — BOOKING
+
+1. Client sets up Calendly with event types and availability (client action — wait if pending)
+2. Add NEXT_PUBLIC_CALENDLY_URL to .env.local and Vercel env vars
+3. Build BookingWidget component (inline embed, not redirect, brand color URL params)
+4. Embed on /booking page AND as homepage teaser section
+5. Test: submit a booking. Confirm confirmation email received.
+
+Commit: feat(booking): Calendly inline widget wired
+Update progress.md: Phase 9 complete.
+
+---
+
+## PHASE 10 — SEO + AEO
+
+All pages and articles must exist before this agent runs.
+
+### Agent: seo-aeo-specialist
+
+```
+Pre-flight:
+  - All pages in Phases 3-9 complete and committed → BLOCK if any phase incomplete
+  - Blog articles exist in Sanity → BLOCK if no articles
+Read agent file: C:\Projects\Optimus Assets\.claude\agents\build\seo-aeo-specialist.md
+Spawn with Agent tool (subagent_type: "general-purpose", run_in_background: false)
+Pass in prompt: PROJECT_FOLDER = [PROJECT_FOLDER]
+Output files: sitemap.ts, robots.ts, opengraph-image.tsx files, JSON-LD components
+```
+
+**Verify output:**
+- /src/app/sitemap.ts exists and includes all routes
+- /src/app/robots.ts exists and disallows /studio
+- Homepage JSON-LD schema present with correct @type
+- All blog posts have Article schema
+- No two pages share identical meta descriptions → BLOCK if found
+- AEO: at least 80% of blog articles have direct first-paragraph answers
+
+Commit: feat(seo-aeo): schema, meta, OG images, sitemap, robots
+Update progress.md: Phase 10 complete.
+
+---
+
+## PHASE 11 — INFRASTRUCTURE
+
+The orchestrator handles this phase directly — it requires human credentials and
+external service configuration that agents cannot do.
+
+Steps (see build-checklist.md Phase 11 for detail):
+1. Resend account creation + domain auto-configure
+2. Test contact form → email delivered
+3. Connect domain to Vercel (DNS A record + CNAME)
+4. Add Vercel env vars (see build-checklist.md Phase 11 Step 85 for full list)
+5. Register Stripe webhook (premium only)
+
+Update progress.md: Phase 11 complete — infrastructure live.
+
+---
+
+## PHASE 12 — ASSETS
+
+Generate as needed. Assets commit with the page/section that uses them.
+
+1. Hero video (if cinematic brand): Kling AI — prompt from design-system.md Section 6
+2. Gallery/blog images: fal.ai (fal-ai/flux-pro/v1.1) — prompts from design-system.md Section 6
+3. Client photography: replace fal.ai placeholders when received
+
+Each asset committed in the same commit as the page that uses it. (Generated Assets Rule)
+Update progress.md: Phase 12 complete — [N] assets generated.
+
+---
+
+## PHASE 13 — PRE-LAUNCH AUDIT
+
+### Agent: pre-launch-auditor
+
+```
+Pre-flight: verify all phases 3-12 are marked complete in progress.md → BLOCK if any incomplete
+Read agent file: C:\Projects\Optimus Assets\.claude\agents\launch\pre-launch-auditor.md
+Spawn with Agent tool (subagent_type: "general-purpose", run_in_background: false)
+Pass in prompt: PROJECT_FOLDER = [PROJECT_FOLDER]
+Output file: [PROJECT_FOLDER]\pre-launch-audit.md
+```
+
+**Verify output:**
+- pre-launch-audit.md exists and has Summary section
+- FAIL count → if > 0: list all FAIL items, fix each before proceeding
+- WARN count → escalate to human for review
+- Do NOT proceed to Phase 14 until all FAIL items are resolved
+
+Commit: chore(launch): pre-launch audit complete, all FAIL items resolved
+Update progress.md: Phase 13 complete.
+
+---
+
+## PHASE 14 — CLIENT REVISION PASS
+
+1. Send client the live URL and revision request:
+   "Please read every page. For each edit: which page + what to change + what it should say."
+2. Make all revisions in one session. Keep revisions in site.ts where possible.
+3. Commit: fix(copy): client revision pass [date]
+Update progress.md: Phase 14 complete.
+
+---
+
+## PHASE 15 — CLOSE
+
+1. Run /retro → build-log.md updated automatically
+2. Hand off credentials (GoDaddy, Resend, Vercel viewer, Sanity editor)
+3. Send final invoice
+4. Archive discovery materials
+
+Update progress.md: Phase 15 complete — project closed.
+
+---
+
+## STANDING ORDERS (apply to every session, every decision)
+
+1. Read before you delegate. The orchestrator reads source files to make pre-flight decisions —
+   not to build things. If a decision requires reading, read. If a task requires building, delegate.
+2. Verify every agent output before unblocking the next phase.
+3. Update progress.md after every task completion — not at session end.
+4. Commit atomically — one task, one commit, one message.
+5. All copy lives in /src/data/site.ts — zero hard-coded strings in components.
+6. New page = nav + sitemap in the same commit. Always.
+7. No placeholder CTAs. Every conversion flow must be interactive before phase sign-off.
+8. If a file is missing when an agent needs it: halt and resolve before spawning.
+9. If an agent output fails validation: re-spawn with a correction note, not a new agent.
+10. Agents never spawn agents. Only the orchestrator spawns agents.
+
+---
+
+Begin by executing the Orchestrator Pre-Read Sequence.
+State the current phase and next task from progress.md.
+Then proceed.
