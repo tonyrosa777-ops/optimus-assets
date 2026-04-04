@@ -236,6 +236,14 @@ Lives on a dedicated /booking page AND as a homepage teaser section.
 NEVER implemented as an href link or redirect. The calendar renders inside the page.
 Configured via NEXT_PUBLIC_CALENDLY_URL env var — never hardcoded.
 
+**Testimonials Page**
+Always built as a core page at /testimonials. Never conditional on testimonial count.
+Homepage hero or testimonials section includes a "See All Testimonials" CTA linking to /testimonials.
+Page layout: featured quote full-width at top → full grid of all testimonials from site.ts
+→ filter by service type (URL params) → final CTA to book.
+If the client has fewer than 4 testimonials at build time: use what exists, flag [MISSING: more testimonials]
+in site.ts and note it in progress.md. The page still ships.
+
 **Blog**
 9-10 articles minimum. SEO and AEO foundation. Always built. See Phase 7 in build-checklist.md.
 

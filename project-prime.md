@@ -328,12 +328,16 @@ Commit: feat(homepage): all sections complete
     Each slug: hero → what you get → who it's for → how it works → testimonials → FAQ → CTA
 15. /contact — React Hook Form + Zod, Google Maps iframe, contact info, hours
 16. /faq — Radix accordion, all Q&As from site.ts
-Commit: feat(pages): about, services, contact, faq + nav/sitemap wired
+17. /testimonials — always built, always core. Featured quote full-width → full grid from
+    site.ts testimonials array → filter by service type (URL params) → booking CTA.
+    Homepage testimonials section includes "See All Testimonials" link to this page.
+    If client has fewer than 4 testimonials: build the page with what exists, flag [MISSING]
+    in site.ts, note in progress.md. Page still ships.
+Commit: feat(pages): about, services, contact, faq, testimonials + nav/sitemap wired
 
 **Business-specific pages (from Sections Matrix in design-system.md — conditional):**
-17. Service area pages /areas/[slug] — if Yes (min 3, max 10)
-18. Pricing page /pricing — if Yes (3-tier anchoring, ROI calc dev-gated)
-19. Reviews page /reviews — if Yes (10+ testimonials threshold)
+18. Service area pages /areas/[slug] — if Yes (min 3, max 10)
+19. Pricing page /pricing — if Yes in Sections Matrix
 Commit: feat(niche-pages): [list built] + nav/sitemap wired
 
 **Interactive Quiz (always — non-negotiable, every project):**

@@ -44,8 +44,9 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
 [ ] 11. Orchestrator runs the full build sweep in order:
           → content-writer + animation-specialist (run in parallel)
           → nav, footer, all homepage sections
-          → core pages: /about, /services, /services/[slug], /contact, /faq
-          → business-specific pages from Sections Matrix (service areas, pricing, reviews)
+          → core pages: /about, /services, /services/[slug], /contact, /faq, /testimonials
+               (homepage testimonials section has "See All Testimonials" → /testimonials)
+          → business-specific pages from Sections Matrix (service areas)
           → QUIZ (always — non-negotiable):
                Multi-step component on homepage + standalone /quiz page.
                Flow: hook CTA → problem selection → qualifying questions → lead capture
