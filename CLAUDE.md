@@ -63,6 +63,42 @@ At the start of EVERY session, read in order:
 Never skip this sequence. Never rely on context from a previous session.
 Treat each session as if it is your first.
 
+EXCEPTION FOR SUBAGENTS: This protocol applies to the main orchestrator session only.
+Subagents spawned via the Agent tool must NOT follow the full 8-file pre-read sequence —
+they load only the files listed in their agent file's Required Reading section.
+Loading all 8 files in every subagent wastes context before any work begins.
+
+## Agent System Rules
+These rules apply whenever the Subagent Delegation Rule triggers agent spawning.
+
+**Agents never spawn agents.** Only orchestrators (workflow commands) spawn agents.
+If a subagent needs help, it reports back to the orchestrator — it does not spawn
+its own subagents. One level of hierarchy only. This is non-negotiable.
+
+**Agents read files, not summaries.** Every agent gets context by reading known output
+files directly (market-intelligence.md, design-system.md, /data/site.ts). The orchestrator
+does NOT pass summaries or briefings — it passes file paths. The agent reads the file.
+
+**Agents own their output files exclusively.** No two parallel agents may write to the
+same file. Each agent owns exactly one output file or directory. If two tasks share an
+output file, they run sequentially — not in parallel.
+
+**Agents checkpoint progress.** After completing each discrete unit of work, the agent
+writes a progress note to progress.md. If an agent fails mid-task, the orchestrator
+can re-invoke it with "continue from [last checkpoint]" rather than starting over.
+
+**Agent status lifecycle:** Every agent file has a status field: DRAFT → TESTED → VALIDATED.
+Only VALIDATED agents run without human review of the output. DRAFT agents always get
+output reviewed before proceeding.
+
+**Orchestrators validate outputs.** Before unblocking the next task, the orchestrator
+checks that the agent's output file exists, is non-empty, and passes the agent's
+Validation criteria. Failing agents get re-run with a correction note — not silently passed.
+
+**Variable injection via CLAUDE.md.** Agents read the project's CLAUDE.md directly to
+get filled variables ([BUSINESS_NAME], [DOMAIN], etc. — already substituted by /prime).
+Orchestrators do NOT perform string substitution on agent file contents.
+
 ## Skill File Name Aliases
 Some design skills reference files by generic names that differ from this
 project's actual filenames. Resolve them:
