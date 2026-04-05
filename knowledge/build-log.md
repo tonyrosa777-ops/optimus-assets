@@ -44,6 +44,7 @@ Known problems with confirmed solutions. Detailed entries in `knowledge/errors/`
 | 22 | Printful CDN image URLs fabricated for products without confirmed scrape URLs — lazy-loaded images appear as SVG placeholders in firecrawl; guessed hash paths 404; use Unsplash until real mockups exist | Cody's Complete Junk Removal | Apr 2026 | [[errors/printful-cdn-image-url-fabricated]] |
 | 23 | No global .gitconfig on Windows — fresh Windows install has no ~/.gitconfig; `git config --global user.name` errors; fix: set per-repo identity before first commit | Cody's Complete Junk Removal | Apr 2026 | [[errors/no-global-gitconfig-windows]] |
 | 24 | `react-intersection-observer` uses `triggerOnce` not `once` — `once: true` is silently ignored; animations re-trigger on every scroll; fix: `triggerOnce: true` across all animation primitives | Gray Method Training | Mar 2026 | [[errors/react-intersection-observer-triggeronc-not-once]] |
+| 25 | Mobile hero text starts mid-screen — `min-h-screen` + `flex items-center` vertically centers content; fine on desktop tall viewport, puts headline dead-center on short mobile screen; fix: `items-start` + `pt-24 md:pt-40` on content div | Sweep Test 1 | Apr 2026 | (inline fix) |
 
 ---
 
@@ -134,3 +135,4 @@ Changes made to the Optimus toolkit as a result of project learnings.
 | Apr 2026 | Added Calendly + Google Maps + Homepage Teaser Rule to website-build-template.md — standard booking widget, service area map, every page gets a homepage teaser | Workflow consolidation |
 | Apr 2026 | Created `knowledge/onboarding/client-launch-checklist.md` — exact step-by-step for Resend domain setup, DNS→Vercel configuration, env vars, Stripe webhook, pre-launch checklist | Workflow consolidation — steps previously tribal knowledge |
 | Apr 2026 | Em dash rule added to CLAUDE.md Content Standards — never use em dash (—) in testimonials; humans don't type them, it's an AI/copywriter tell | Observed in copy review |
+| Apr 2026 | Hero mobile padding rule added to animation-specialist.md and project-prime.md — `items-center` on hero section causes mid-screen text on mobile; must use `items-start` + `pt-24 md:pt-40` | Sweep Test 1 |

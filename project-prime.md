@@ -347,7 +347,14 @@ Commit: feat(layout): nav + footer
 9. Blog preview (placeholder cards → /blog)
 10. Booking preview (Calendly inline or placeholder → /booking)
 11. Final CTA block
-12. Verify dark/light section rhythm. Test at 390px. Fix overflow.
+12. Mobile QA pass — test at 390px viewport width before committing:
+    ✓ Hero text starts within ~32px of the navigation bar bottom — NOT mid-screen
+      If text is mid-screen: hero section is using `items-center`. Change to `items-start`
+      and ensure content div has `pt-24 md:pt-40`. Do not commit until this passes.
+    ✓ Dark/light section rhythm — no 3 consecutive same-background sections
+    ✓ No horizontal overflow at 390px (check every section)
+    ✓ Quiz options render as emoji + label cards, not plain text list
+    ✓ Booking calendar InlineWidget renders (not an empty box)
 Commit: feat(homepage): all sections complete
 
 **Core starter pages:**

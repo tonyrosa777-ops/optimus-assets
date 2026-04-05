@@ -242,6 +242,33 @@ The animation renders BEHIND the hero content (position: absolute, inset-0, z-0)
 The hero content (headline, CTA) renders ABOVE (position: relative, z-10).
 Verify the z-index stack doesn't block click events on CTA buttons.
 
+⚠️ MOBILE PADDING RULE (non-negotiable — fixes mid-screen text on mobile):
+Hero section layout MUST use `items-start`, never `items-center`.
+`min-h-screen` + `flex items-center` vertically centers content — on desktop this
+looks intentional; on a short mobile viewport (667–812px) it puts the headline
+dead in the middle of the screen, far below the nav.
+
+Required hero section shell:
+```tsx
+<section className="relative min-h-[100svh] flex items-start overflow-hidden">
+  {/* Layer 1: canvas — absolute, inset-0, z-0 */}
+  {/* Layer 2: animated SVG — absolute, z-5 */}
+  {/* Layer 3: content */}
+  <div className="relative z-10 w-full max-w-5xl mx-auto px-6 pt-24 pb-20 md:pt-40 md:pb-32">
+    {/* H1, tagline, CTAs */}
+  </div>
+</section>
+```
+
+`pt-24` on mobile = 96px — clears the fixed nav (~64px) with a ~32px gap.
+`md:pt-40` on desktop = 160px — larger breathing room on wide screens.
+Use `min-h-[100svh]` not `min-h-screen` — `svh` respects the mobile browser chrome
+(address bar) so the section fills the visible viewport, not the full document height.
+
+Never adjust this to center-align the content. The nav is at the top.
+The content should follow the nav. Every pixel of padding below 96px on mobile
+risks the headline landing too low.
+
 ## Output
 This agent creates/modifies:
 - /src/components/[AnimationName].tsx — the new animation component
