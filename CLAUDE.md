@@ -308,8 +308,35 @@ Page layout: featured quote full-width → paginated grid (8 per page) → filte
 **Blog**
 9-10 articles minimum. SEO and AEO foundation. Always built. See Phase 7 in build-checklist.md.
 
-These three are built in every Phase 1 agent sweep. They are never optional, never deferred,
-never listed as "if applicable." If a phase sign-off doesn't include all three: it is not done.
+**Shop**
+Always scaffolded on every project. The scaffold is built whether or not the client bought Premium.
+The decision gate runs AFTER scaffold — not before.
+
+Reference implementation: C:\Projects\andrea-abella-marie\src\
+
+Required files (scaffold on every build):
+- src/lib/cart.tsx — CartProvider + useCart (localStorage-persisted cart state)
+- src/components/CartDrawer.tsx — slide-in drawer, quantity controls, subtotal, checkout CTA
+- src/lib/printful-seeded-products.json — 10-15 seeded products (name, price, category, preview image)
+- src/lib/printful.ts — Printful API client (reads PRINTFUL_API_KEY from env)
+- src/app/api/printful/products/route.ts
+- src/app/api/printful/variants/[id]/route.ts
+- src/app/api/stripe/checkout/route.ts
+- src/app/api/stripe/webhook/route.ts
+- src/components/ShopContent.tsx — product grid, category filter, variant picker, seeded fallback
+- src/app/shop/page.tsx
+CartProvider and CartDrawer wired in layout.tsx.
+
+Seeded fallback rule (non-negotiable): ShopContent fetches /api/printful/products and falls back
+to printful-seeded-products.json on any error. The shop must render a real-looking product grid
+during demo with zero Printful credentials. An empty grid kills the demo.
+
+Decision gate (after scaffold):
+- Client bought Premium → wire PRINTFUL_API_KEY + STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET
+- Client did not buy Premium → delete all shop files from the list above, remove from nav + sitemap
+
+These are built in every Phase 1 agent sweep. They are never optional, never deferred,
+never listed as "if applicable." If a phase sign-off doesn't include all of them: it is not done.
 
 ## Conversion Flow Rule
 Never embed third-party redirects that take users off the [DOMAIN] domain.

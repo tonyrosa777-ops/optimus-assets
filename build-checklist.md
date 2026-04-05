@@ -65,7 +65,10 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
                In the nav bar throughout the build and demo. Tier CTAs open booking calendar.
                Deleted in pre-launch audit — pre-launch-auditor flags it as hard FAIL if still present.
           → blog: Sanity schema + 9-10 articles + index + post template (always)
-          → shop: scaffold → decision gate → wire APIs if premium / delete if not
+          → shop: always scaffold (cart.tsx, CartDrawer, ShopContent, API routes, seeded fallback JSON)
+               Seeded fallback is the key: shop renders a full product grid during demo with zero
+               Printful/Stripe credentials. Reference: tonyrosa777-ops/andrea-abella-marie.
+               Decision gate after scaffold: wire Printful + Stripe if premium / delete all if not.
           → SEO/AEO: schema, meta, OG images, sitemap, robots, AEO article validation
           → pre-launch audit: PASS/FAIL/WARN report — fix every FAIL before proceeding
         Run /prime at the start of each session. The orchestrator picks up from the last

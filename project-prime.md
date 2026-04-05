@@ -394,25 +394,50 @@ Commit: feat(quiz): multi-step quiz — homepage CTA + /quiz page, Resend wired
 Commit: feat(booking): Calendly inline calendar — /booking page + homepage section
 
 **Pricing Page (always — Optimus sales tool, deleted before launch):**
-26. Build /pricing with the fixed Optimus tier structure — same on every project:
+Reference implementation: C:\Projects\Xpertise-Painting\website\app\pricing\page.tsx
+Read that file before building. Adapt the structure — NOT the Xpertise-specific copy.
+
+26. Build src/app/pricing/page.tsx as a "use client" self-contained file.
+    Fixed Optimus tier structure — identical on every project:
     - Starter: $1,500 — core pages + animated hero ($750 deposit)
     - Pro: $3,000 — everything in Starter + blog + quiz + booking calendar ($1,500 deposit)
-      → "Most Popular" badge. This is the target sell.
+      "Most Popular" badge. This is the sell.
     - Premium: $5,500 — everything in Pro + shop ($2,750 deposit)
-      → No badge. Its job is to anchor Pro as the reasonable choice.
-27. Pricing page must include all three sections:
-    A. Tier cards — feature list per tier, deposit breakdown, CTA opens booking calendar inline
-    B. ROI Calculator — two sliders (average job/project value + clients per month) +
-       package selector → outputs break-even timeline and 12-month ROI per tier.
-       Reference implementation: C:\Projects\Xpertise-Painting\website\app\pricing\page.tsx
-    C. Comparison chart — feature rows grouped by category with checkmarks per tier.
-       Categories: Foundation / Conversion / Content & SEO / Commerce / Support
-28. Wire /pricing to nav bar (visible during build and demo process).
-    Add to sitemap.ts but mark noindex in metadata — this page is not for SEO.
+      No badge — anchors Pro as the reasonable middle.
+
+    Section A — Tier cards:
+    - tiers[] array: id, label, name, price, deposit, recommended, features[], cta
+    - Features are CUSTOMIZED to this client's business type — not the painting-specific list
+      from the reference. Pull from site.ts services and market-intelligence.md.
+    - "Most Popular" badge on Pro. Deposit shown as "(${deposit} deposit today)".
+    - Each tier CTA opens the Calendly InlineWidget inline — same widget as /booking page.
+      Import InlineWidget from react-calendly. Inject brand colors via URL params.
+
+    Section B — ROI Calculator (ROICalculator component in same file):
+    - Slider 1: Average job/project value — min $500, max $20,000, step $100
+      Default value: pull from market-intelligence.md avg job value for this business type
+    - Slider 2: New clients per month from website — min 1, max 20, step 1. Default: 3
+    - Package selector: buttons toggle between Starter / Pro / Premium
+    - Outputs (live, calculated on slider change):
+        Monthly Revenue = jobValue × clientsPerMonth
+        Annual Revenue = Monthly × 12
+        Break-even = Math.ceil((packagePrice / monthlyRevenue) × 10) / 10 months
+        12-month ROI = ((annualRevenue - packagePrice) / packagePrice × 100)%
+    - Animate result cards: opacity + translateY transition on value change
+
+    Section C — Comparison chart (comparisonGroups array in same file):
+    - Categories: Foundation / Conversion / Content & SEO / Commerce / Support
+    - Each row: feature name + 3 checkmarks (true/false/string per tier)
+    - Use ✓ / — style (SVG or text, never Lucide/Heroicons)
+
+27. Wire /pricing to nav bar — visible throughout the entire build and demo.
+    Add to sitemap.ts with <priority>0.1</priority> and noindex in page metadata.
+    This page must appear in the nav. It is part of the sales presentation.
 Commit: feat(pricing): Optimus pricing page — tiers, ROI calc, comparison chart
 
 NOTE: This page is deleted before launch. The pre-launch-auditor flags /pricing
-still existing as a hard FAIL. Delete: /src/app/pricing/ + remove nav link + remove sitemap entry.
+still existing as a hard FAIL.
+Delete: src/app/pricing/ + remove from nav + remove from sitemap.ts
 Commit: chore(pricing): removed pricing page — sales tool, not client deliverable
 
 **Blog (always — non-negotiable):**
@@ -427,15 +452,64 @@ Commit: chore(pricing): removed pricing page — sales tool, not client delivera
 Commit: feat(blog): Sanity schema, [N] articles, index + post template
 
 **Shop (always scaffold first, then decision gate):**
-25. Scaffold: shop.ts placeholders, cart.tsx, shop page UI, API route stubs
-Commit: feat(shop): shop scaffold — UI, cart, route stubs
+Reference implementation: C:\Projects\andrea-abella-marie\src\ — read these files before building:
+  - src/components/ShopContent.tsx (product grid, category filter, variant picker, cart flow)
+  - src/lib/cart.tsx (CartProvider + useCart — localStorage-persisted cart state)
+  - src/components/CartDrawer.tsx (slide-in cart drawer, quantity controls, checkout trigger)
+  - src/lib/printful.ts (Printful API client)
+  - src/app/api/printful/products/route.ts
+  - src/app/api/printful/variants/[id]/route.ts
+  - src/app/api/stripe/checkout/route.ts
+  - src/app/api/stripe/webhook/route.ts
+  - src/lib/printful-seeded-products.json (the seeded fallback — critical, see below)
+
+25. Build these files in this order:
+    A. src/lib/cart.tsx — CartProvider context + useCart hook (localStorage persistence)
+    B. src/components/CartDrawer.tsx — slide-in drawer, quantity +/-, subtotal, checkout CTA
+    C. src/lib/printful-seeded-products.json — seed 10-15 generic products with name, price,
+       category (Apparel / Drinkware / Bags / Accessories), and a placeholder preview_image_url
+       These are the products that show during demo when no Printful API key exists.
+    D. src/lib/printful.ts — Printful API client (reads PRINTFUL_API_KEY from env)
+    E. src/app/api/printful/products/route.ts — returns Printful sync products or throws
+    F. src/app/api/printful/variants/[id]/route.ts — returns variant options or throws
+    G. src/app/api/stripe/checkout/route.ts — creates Stripe checkout session
+    H. src/app/api/stripe/webhook/route.ts — handles checkout.session.completed
+    I. src/components/ShopContent.tsx — product grid, category filter tabs, inline variant picker
+       (color swatches + size chips), add-to-cart button, seeded fallback on fetch error
+    J. src/app/shop/page.tsx — page wrapper (Navigation + ShopContent + Footer)
+    K. Wire CartProvider to src/app/layout.tsx
+    L. Wire CartDrawer to src/app/layout.tsx (renders on all pages)
+    M. Wire /shop to nav + sitemap.ts in same commit
+
+    ⚠️ CRITICAL — SEEDED FALLBACK PATTERN (non-negotiable):
+    ShopContent must fetch /api/printful/products and .catch(() => fallback to seeded JSON).
+    The seeded JSON is imported statically: import seededProducts from "@/lib/printful-seeded-products.json"
+    This means the shop renders a full, real-looking product grid during the demo
+    with zero Printful or Stripe credentials. The demo must show a working shop.
+    An empty product grid kills the demo. The seeded fallback is the demo.
+
+    ⚠️ CART MUST FUNCTION WITHOUT API KEYS:
+    CartProvider, CartDrawer, and add-to-cart flow are all client-side.
+    They work without any env var. This is visually complete for demo day.
+    The Stripe checkout route stub can return a demo success response when no
+    STRIPE_SECRET_KEY is present — never show a raw error to the demo visitor.
+
+Commit: feat(shop): shop scaffold — cart, drawer, seeded grid, route stubs
 
 ⚠️ DECISION GATE: Did client purchase premium tier?
-    YES → wire APIs (Printful setup → fill shop.ts → wire checkout/webhook/printful routes)
-          Commit: feat(shop): Stripe + Printful + Resend APIs wired
-    NO  → delete all shop files + nav link + homepage teaser
+    YES → wire APIs:
+          1. Get Printful API key from client → add PRINTFUL_API_KEY to .env.local
+          2. Get Stripe secret key + webhook secret → add to .env.local
+          3. Remove demo fallback from checkout route — replace stub with real Stripe session
+          4. Test: add item → checkout → confirm Stripe session created → confirm webhook fires
+          Commit: feat(shop): Stripe + Printful APIs wired
+    NO  → delete all shop files + remove nav link + remove sitemap entry
+          Files to delete: src/app/shop/, src/app/api/printful/, src/app/api/stripe/,
+                           src/components/ShopContent.tsx, src/components/CartDrawer.tsx,
+                           src/lib/cart.tsx, src/lib/printful.ts, src/lib/printful-seeded-products.json
+          Also: remove CartProvider and CartDrawer from layout.tsx
           Commit: chore(shop): removed shop — not in client scope
-          Do NOT add Stripe, Printful, or shop Resend env vars.
+          Do NOT add STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, or PRINTFUL_API_KEY to Vercel.
 
 **Booking:**
 26. Client sets up Calendly (wait if pending)
