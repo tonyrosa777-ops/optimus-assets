@@ -84,15 +84,88 @@ Fill every field in the siteData schema. Follow this order:
 1. Business metadata (name, domain, contact, location, hours, schema type)
 2. Navigation labels — include "Take the Quiz" as a header CTA label
 3. Hero (done in Step 3)
-4. Pain points (4 cards — name the specific problems this audience has)
+4. Pain points (4 cards — each has: emoji, title, description)
 5. About/founder section — see About Section Spec below (non-negotiable structure)
-6. Services (each service: name, tagline, description, who it's for, CTA)
-7. Stats (3 key numbers — cite sources from market-intelligence.md or initial-business-data.md)
-8. Testimonials (32 — see Testimonials section below)
-9. FAQ (10-15 Q&As — pulled from market-intelligence.md Section 8 buyer questions)
-10. Blog article stubs (title, slug, excerpt for each article — not full articles)
-11. Footer — see Footer Spec below (non-negotiable structure)
-12. SEO fields (meta titles, meta descriptions — unique per page, under character limits)
+6. Services (each service: emoji, name, tagline, description, who it's for, CTA)
+7. Process/How It Works steps (3-5 steps — each has: emoji, step number, title, description)
+8. Stats (3 key numbers — each has: emoji, value, label, source)
+9. Testimonials (32 — see Testimonials section below)
+10. FAQ (10-15 Q&As — pulled from market-intelligence.md Section 8 buyer questions)
+11. Quiz steps — see Quiz Data Spec below (non-negotiable structure)
+12. Blog article stubs (title, slug, excerpt for each article — not full articles)
+13. Footer — see Footer Spec below (non-negotiable structure)
+14. SEO fields (meta titles, meta descriptions — unique per page, under character limits)
+
+### Emoji Standards (required — applies to every field with an emoji)
+Every data object that gets rendered as a card, option, or bullet MUST have an emoji field.
+Emoji is never decorative filler — it is semantic. Pick the emoji that means the thing.
+
+Emoji is REQUIRED on:
+- services[].emoji — represents the service type (🔧 plumbing, 🌿 lawn care, 🏗️ construction)
+- painPoints[].emoji — represents the pain being described (😩 frustration, ⏳ waiting, 💸 cost)
+- processSteps[].emoji — represents the action (📞 call, 📋 quote, 🚛 job done, ✅ complete)
+- stats[].emoji — amplifies the stat (⭐ rating, 🏆 years, ⚡ speed, 📍 locations)
+- quiz step options[].emoji — represents each answer choice (see Quiz Data Spec)
+- about beliefs[].emoji — each stated value (🤝 trust, 🏠 local, 💬 communication)
+
+Rules:
+- One emoji per item. Never two.
+- Never use ✨ as a catch-all. It says nothing.
+- Test: cover the label, read the emoji alone — does it communicate the concept? If not, pick a better one.
+- Avoid skin-tone modifiers — they render inconsistently across platforms.
+
+### Quiz Data Spec (required — write this in site.ts, quiz component reads from it)
+The quiz is the highest-conversion element on the site. Every option must have an emoji
+so the choices feel visual, scannable, and human — not a plain multiple-choice form.
+
+Write a `quiz` object in site.ts with this structure:
+
+```typescript
+quiz: {
+  headline: string          // The hook — "Not Sure Where to Start?" or "Which [service] Do You Need?"
+  subheadline: string       // 1 sentence. Speaks to the audience's situation.
+  steps: [
+    {
+      id: string            // "problem" | "type" | "timeline" | etc.
+      question: string      // Direct question — not a label. "What's your biggest challenge right now?"
+      options: [
+        {
+          emoji: string     // ONE emoji. Semantic, not decorative. Required on every option.
+          label: string     // Short. 3-6 words max. "Old furniture piling up"
+          value: string     // camelCase identifier. "oldFurniture"
+        }
+      ]
+    }
+  ]
+  leadCapture: {
+    heading: string         // "Almost there — where should we send your recommendation?"
+    fields: ["name", "email", "phone"]
+    submitLabel: string     // "Get My Recommendation →"
+    privacyNote: string     // Short. "We never spam. Unsubscribe any time."
+  }
+  resultScreen: {
+    heading: string         // "Here's what we recommend for you"
+    subheading: string      // 1 sentence bridging their answers to the recommendation
+    ctaLabel: string        // "Book Your [Service] →"
+    ctaHref: string         // "/booking"
+  }
+}
+```
+
+Step count: always 2-3 steps before lead capture. More than 3 steps = drop-off.
+
+Step 1 is always the problem/situation selection — this is the highest-engagement step.
+Each option on Step 1 must have a specific, vivid emoji that represents the scenario.
+Example for a junk removal business:
+  { emoji: "🏚️", label: "Old furniture & clutter", value: "clutter" }
+  { emoji: "🌿", label: "Yard waste & debris", value: "yardWaste" }
+  { emoji: "🏗️", label: "Post-renovation debris", value: "renovation" }
+  { emoji: "🏢", label: "Commercial cleanout", value: "commercial" }
+
+Step 2 is typically "who are you" or "how soon do you need this."
+Step 3 (optional) is a qualifying detail — timeline, size, location.
+
+Write 4 options per step minimum. 6 options maximum. More is not better.
 
 ### About Section Spec — full structure required (non-negotiable)
 The about section is never 5 lines. It is a structured story with multiple components.

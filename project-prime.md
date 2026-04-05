@@ -495,15 +495,36 @@ Read these files before building:
 Commit: feat(service-areas): /service-areas index + /service-areas/[city] pages + nav dropdown
 
 **Interactive Quiz (always — non-negotiable, every project):**
+Reference: tonyrosa777-ops/enchanted-madison quiz for component structure.
+Quiz data lives in site.ts quiz object (written by content-writer — see Quiz Data Spec).
+
 20. Homepage quiz CTA component — inline multi-step, launches without leaving the page
-    Flow: hook headline + start button → problem selection → 2-3 qualifying questions
-    → lead capture form (name, email, phone) → result screen:
-      - Recommended service (matched from site.ts services array based on answers)
-      - Primary CTA: opens booking calendar (scrolls to or navigates to /booking)
-    Quiz answers + lead info submitted to Resend contact API on form completion.
-21. /quiz standalone page — same component, full-page layout, linked from nav
-22. Wire /quiz to nav + sitemap.ts in same commit.
-Commit: feat(quiz): multi-step quiz — homepage CTA + /quiz page, Resend wired
+    Flow: hook headline + start CTA → step-by-step questions → lead capture → result screen.
+
+    ⚠️ EMOJI ON EVERY ANSWER OPTION — non-negotiable:
+    Each answer option renders as a card or button with:
+      [emoji] [label text]
+    The emoji is the first thing the eye lands on. It makes the quiz feel visual and
+    human instead of a plain form. Read quiz.steps[].options[].emoji from site.ts.
+    Never render an option as plain text only.
+
+    Step rendering pattern:
+    - Each step: full-width question text + grid of option cards (2-col on mobile, 2-4 col desktop)
+    - Each option card: emoji large (text-2xl or text-3xl) + label text below or beside
+    - Selected state: brand --accent border + subtle background tint
+    - Progress indicator: step dots or "Step 1 of 3" text at top
+    - "Back" link on steps 2+ — never trap the user
+
+    Lead capture step: name + email + phone fields (React Hook Form + Zod)
+    Result screen: recommended service card + primary CTA opens /booking calendar
+
+    Quiz answers + lead info → Resend contact API on form submit.
+    Reference implementation: C:\Projects\Enchanted Madison\ (if accessible)
+
+21. /quiz standalone page — same Quiz component, full-page layout, /quiz route
+22. "Take the Quiz" in site header — always visible, routes to /quiz
+23. Wire /quiz to nav + sitemap.ts in same commit.
+Commit: feat(quiz): multi-step quiz with emoji options — homepage CTA + /quiz page, Resend wired
 
 **Inline Booking Calendar (always — non-negotiable, every project):**
 23. /booking page — Calendly InlineWidget filling the page. Brand colors via URL params.

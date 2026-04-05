@@ -214,6 +214,21 @@ reasonably write ourselves.
   Emoji renders natively, loads at zero cost, and looks clean at display size.
   Reference style: tonyrosa777-ops/placed-right-fence service page.
 
+  Emoji is required in every one of these locations — never a plain text label alone:
+  - Quiz answer options: every option has a leading emoji before the label text
+  - Service cards: each service has an emoji (sourced from site.ts services[].emoji)
+  - Pain point cards: each pain point has an emoji (site.ts painPoints[].emoji)
+  - How It Works / Process steps: each step has an emoji (site.ts processSteps[].emoji)
+  - Stats bar: each stat has a leading emoji (site.ts stats[].emoji)
+  - About section belief/value bullets: each belief has an emoji
+  - Pricing page feature lists: ✅ for included, ✗ for not included (never plain text)
+  - Trust checklist bullets on service area pages: ✅ or context-specific emoji per bullet
+  - FAQ: optional — emoji per question category group, not per question
+
+  Choosing the right emoji: match the semantic meaning, not decoration.
+  A plumbing service gets 🔧. A lawn care service gets 🌿. Speed stat gets ⚡.
+  Wrong: generic ✨ on everything. Right: specific, meaningful, instantly readable.
+
 ## Hero Architecture Rule
 Every hero section ships with exactly 3 layers. No exceptions. No photos. No static backgrounds.
 
