@@ -77,11 +77,15 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
           → Any [MISSING:] flags in site.ts — fill the gap, then continue
 
 [ ] 13. Assets (generate when pages need them, not all at the end):
-          Hero sections → animated SVG only. Never a photo, never fal.ai.
-          Hero video (cinematic brands only) → Kling AI (prompt from design-system.md Section 6)
-          Blog post card images → fal.ai fal-ai/flux-pro/v1.1 (one per article, prompts from Section 6)
-          Service cards / about page / OG image → real client photos when provided; build without if absent.
-          Replace fal.ai blog card images with real photos if client provides them.
+          Hero video (cinematic brands) → Kling AI (prompt from design-system.md Section 6)
+          Hero photos (3-5) → fal.ai
+          Blog post card images + article header images → fal.ai (one card + one header per article)
+          Gallery (trade businesses only — contractors, painters, fencers, electricians, landscapers,
+          cleaners, builders, and any hands-on service business):
+            → Build /gallery page. Generate 12-16 job site images via fal.ai.
+            → Prompts show actual trade work: finished jobs, in-progress, before/after style.
+            → Wire to nav + sitemap.ts in same commit.
+          Replace any fal.ai image with real client photo when provided.
           Each asset committed with the page that uses it.
 
 ---

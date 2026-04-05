@@ -453,15 +453,21 @@ Update progress.md: Stage 1E complete.
 
 Generate as needed. Each asset commits with the page that uses it.
 
-1. Hero video (cinematic brands only): Kling AI — prompt from design-system.md Section 6
-2. Blog post card images: fal.ai (fal-ai/flux-pro/v1.1) — one image per article, prompts from Section 6
-3. Replace fal.ai blog card images with real client photos if provided.
+1. Hero video (cinematic brands): Kling AI — prompt from design-system.md Section 6
+2. Hero photos (3-5): fal.ai — prompts from design-system.md Section 6 photography direction
+3. Blog post card images + article header images: fal.ai — one card + one header per article.
+   Prompt from the article topic + design-system.md mood/photography style.
+4. Gallery (trade businesses — always include):
+   Check BUSINESS_TYPE in CLAUDE.md. If the business is a trade (contractor, painter,
+   fencer, electrician, landscaper, cleaner, builder, or any hands-on service):
+   - Build a /gallery page
+   - Generate 12-16 job site images via fal.ai — finished work, in-progress shots,
+     before/after style. Prompts show the actual trade work, not generic stock.
+   - Wire /gallery to nav + sitemap.ts in the same commit
+   If not a trade business: skip gallery entirely.
+5. Replace any fal.ai image with a real client photo when the client provides one.
 
-**Hero sections always use animated SVG — never a fal.ai photo, never a real photo.**
-fal.ai is strictly for blog post card thumbnails. Service cards, about page, and OG images
-use real client photos when available; otherwise build without photo content.
-
-Update progress.md: Stage 1F complete — [N] blog card images generated.
+Update progress.md: Stage 1F complete — [N] assets generated.
 
 ---
 
