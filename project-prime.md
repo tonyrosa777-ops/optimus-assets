@@ -368,10 +368,131 @@ Commit: feat(homepage): all sections complete
     Homepage testimonials section: 3-4 featured quotes + "See All Testimonials" → /testimonials.
 Commit: feat(pages): about, services, contact, faq, testimonials + nav/sitemap wired
 
-**Business-specific pages (from Sections Matrix in design-system.md — conditional):**
-18. Service area pages /areas/[slug] — if Yes (min 3, max 10)
-19. Pricing page /pricing — if Yes in Sections Matrix
-Commit: feat(niche-pages): [list built] + nav/sitemap wired
+**Service Area Pages (conditional — most local service businesses need these):**
+Build if the business serves customers across multiple cities/towns (trade businesses,
+home services, delivery, cleaning, junk removal, landscaping, etc.).
+Skip if the business is location-fixed (retail, restaurant, single-location studio).
+
+Reference implementation: C:\Projects\Cody's Complete Junk Removal\src\
+Read these files before building:
+  - src/data/serviceAreas.ts (data shape + example entries)
+  - src/app/service-areas/[city]/CityPageClient.tsx (4-section page structure)
+  - src/app/service-areas/[city]/page.tsx (generateStaticParams, generateMetadata, notFound)
+  - src/app/service-areas/ServiceAreasClient.tsx (index page grid)
+  - src/components/layout/Header.tsx (dropdown nav pattern)
+
+18. Data file first — src/data/serviceAreas.ts:
+    Export a `serviceAreas` array. Each entry shape (mirror Cody's):
+    {
+      city: string       // "Springfield"
+      state: string      // "IL"
+      slug: string       // "springfield" (lowercase, hyphenated)
+      population: number // approximate city population
+      distance: string   // "12 miles" from the business base location
+      description: string // 2-3 sentences — what's notable about this city + why this
+                         //  business serves it well. Written by content-writer from
+                         //  market-intelligence.md. If data is missing, write it in
+                         //  the business owner's voice. [DEMO COPY — pending client review]
+    }
+    Minimum 3 cities. Maximum 10. Pull city list from initial-business-data.md Section 1.
+    If client didn't specify cities, use the 5-6 most populous cities within 20 miles
+    of the business address. Write the descriptions yourself.
+
+19. Route structure — /service-areas/[city]:
+    CRITICAL: The route MUST be /service-areas/[city] — not /areas/[slug] or any other path.
+    Getting this wrong causes 404s from every nav link.
+
+    Files to build:
+    A. src/app/service-areas/page.tsx — index page
+       - Server component. Imports ServiceAreasClient.
+       - generateMetadata: title "Service Areas | [BUSINESS_NAME]"
+
+    B. src/app/service-areas/ServiceAreasClient.tsx — index page UI ('use client')
+       - Hero: H1 "[Service Type] Serving [Region]" + subheading about coverage area
+       - Grid: all cities from serviceAreas array, each card links to /service-areas/[slug]
+         City cards show: city name, state, population, distance from base, description preview
+       - "Not in our area?" CTA section at bottom → phone or /contact
+
+    C. src/app/service-areas/[city]/page.tsx — individual city page (SERVER component)
+       - generateStaticParams(): return serviceAreas.map(a => ({ city: a.slug }))
+       - generateMetadata({ params }): unique title + description per city
+         title: "[Service] in [City], [State] | [BUSINESS_NAME]"
+         description: "Fast, [service] in [City], [State]. [differentiator]. [CTA]."
+       - Find area: const area = serviceAreas.find(a => a.slug === params.city)
+       - if (!area) notFound() ← always include this or invalid slugs throw errors
+       - Render: <CityPageClient area={area} /> + <FinalCTABanner>
+
+    D. src/app/service-areas/[city]/CityPageClient.tsx — city page UI ('use client')
+       Build exactly these 4 sections in order:
+
+       SECTION 1 — Hero:
+         - Breadcrumb: Service Areas › [City], [State]
+         - H1: "[Service Type] in [City], [State]" (AEO: this IS a search query)
+         - area.description as the subheading
+         - Primary CTA: "Get a Free [Quote/Estimate] in [City]" → /contact
+         - Secondary CTA: phone number (tel: link)
+
+       SECTION 2 — City Info (2-column grid):
+         LEFT COLUMN:
+         - H2: "Your Local [Service] Experts in [City]"
+         - 2 paragraphs about serving this city (pull from area.description + expand)
+         - Trust checklist (3-5 bullets — same for every city, from site.ts)
+           Examples: "Licensed & insured", "Upfront pricing", "Same-day availability"
+
+         RIGHT COLUMN (⚠️ REQUIRED — this was missing in sweep test 1):
+         - Google Maps iframe:
+           <div className="rounded-2xl overflow-hidden shadow-md h-64">
+             <iframe
+               src={`https://maps.google.com/maps?q=${encodeURIComponent(area.city + ', ' + area.state)}&output=embed&hl=en`}
+               width="100%"
+               height="100%"
+               style={{ border: 0 }}
+               allowFullScreen
+               loading="lazy"
+               referrerPolicy="no-referrer-when-downgrade"
+               title={`${area.city}, ${area.state} map`}
+             />
+           </div>
+         - Info card below map: "Serving [City], [State]" + distance from base + population
+
+       SECTION 3 — Services Available in [City]:
+         - H2: "Services Available in [City]"
+         - Grid of all services (from src/data/services.ts or site.ts services array)
+         - Each service links to /services/[slug]
+
+       SECTION 4 — City FAQ (auto-generated, no manual content needed):
+         const cityFaqs = (city: string, service: string) => [
+           {
+             q: `Do you offer same-day ${service} in ${city}?`,
+             a: `Yes! We offer same-day service in ${city} whenever our schedule allows...`
+           },
+           {
+             q: `How much does ${service} cost in ${city}?`,
+             a: `Our pricing is based on [pricing model]. We give you an upfront price before...`
+           },
+           {
+             q: `What areas of ${city} do you serve?`,
+             a: `We serve all neighborhoods throughout ${city}...`
+           },
+         ]
+         Accordion expand/collapse on click. No library needed — simple useState toggle.
+
+20. Nav dropdown for Service Areas (⚠️ REQUIRED — plain nav link causes 404 in some builds):
+    The "Service Areas" nav item MUST be a dropdown, not a plain link.
+    Pattern (adapt from Header.tsx in Cody's):
+    - Button: "Service Areas ▾" with ChevronDown icon (use ▾ emoji or CSS, not Lucide)
+    - Dropdown panel: lists all cities as links → /service-areas/[slug]
+    - Footer of dropdown: "View All Service Areas →" → /service-areas (index page)
+    - Click-outside closes: useRef + mousedown event listener
+    - AnimatePresence fade + slide: same pattern as services dropdown
+
+    Mobile: all cities listed inline in the mobile nav drawer.
+
+21. Wire /service-areas to sitemap.ts:
+    - /service-areas (index) — priority 0.8
+    - /service-areas/[city] for each city — priority 0.7 each
+    All wired in the same commit as the pages.
+Commit: feat(service-areas): /service-areas index + /service-areas/[city] pages + nav dropdown
 
 **Interactive Quiz (always — non-negotiable, every project):**
 20. Homepage quiz CTA component — inline multi-step, launches without leaving the page

@@ -46,7 +46,15 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
           → nav, footer, all homepage sections
           → core pages: /about, /services, /services/[slug], /contact, /faq, /testimonials
                (homepage testimonials section has "See All Testimonials" → /testimonials)
-          → business-specific pages from Sections Matrix (service areas)
+          → service area pages (local service businesses — most builds need these):
+               Route: /service-areas/[city] — NOT /areas/[slug] or any other path.
+               Index page at /service-areas. Data in src/data/serviceAreas.ts.
+               Each city page: 4 sections — hero, 2-col info (LEFT: text + checklist /
+               RIGHT: Google Maps iframe + distance card), services grid, city FAQ.
+               Google Maps: <iframe src="maps.google.com/maps?q=[City, State]&output=embed">
+               Nav: "Service Areas" = DROPDOWN listing each city → /service-areas/[slug].
+               Plain nav link causes 404. Dropdown with direct city links prevents it.
+               Reference: tonyrosa777-ops/codys-complete-junk-removal Header.tsx + CityPageClient.tsx
           → QUIZ (always — non-negotiable):
                Multi-step component on homepage + standalone /quiz page.
                Flow: hook CTA → problem selection → qualifying questions → lead capture
