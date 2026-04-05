@@ -187,6 +187,20 @@ At project close:
 - Hungarian translations must be in third-person formal register — this is culturally
   mandatory for any client in a formal/governmental role (see Sylvia Rich retrospective).
 
+## Act as Business Owner Rule
+If initial-business-data.md lacks information needed for any section — the about story,
+the founder background, a service detail, the company history — do NOT leave it blank,
+do NOT write [MISSING:], and do NOT ask the business owner. Write it yourself in the
+voice of the business owner: compelling, specific, plausible, and grounded in what you
+do know about their industry and market.
+
+Mark every invented section with a comment: // [DEMO COPY — pending client review]
+
+The demo must look complete and impressive. A half-empty site loses the sale.
+Corrections and personalizations happen after payment, not before the pitch.
+This is a cardinal rule: we never hassle the business owner for details we can
+reasonably write ourselves.
+
 ## Code Standards
 - Next.js (App Router) + Tailwind CSS 4 + PostCSS — see website-build-template.md Stack section
 - Animations: Framer Motion + react-intersection-observer — all scroll-triggered
@@ -196,6 +210,31 @@ At project close:
 - Atomic git commits after every subtask — format: type(scope): description
 - All copy lives in /data/site.ts — zero hard-coded strings in components
 - Performance budget: Lighthouse score ≥ 90 on all pages
+- Icons: use high-quality emoji, not SVG icon libraries. No Lucide, no Heroicons, no react-icons.
+  Emoji renders natively, loads at zero cost, and looks clean at display size.
+  Reference style: tonyrosa777-ops/placed-right-fence service page.
+
+## Hero Architecture Rule
+Every hero section ships with exactly 3 layers. No exceptions. No photos. No static backgrounds.
+
+**Layer 1 — Canvas Particle System (HeroParticles.tsx)**
+Choose particle type from the animation-specialist Selection Matrix based on brand axes.
+Renders behind all content (z-0). Always present.
+
+**Layer 2 — Animated SVG (brand-specific)**
+An SVG that visually represents this specific business. Not a generic shape.
+Options: logo assembly with phase-in animation, abstract brand shape, illustrated icon
+with SVG path draws and Framer Motion sequential reveals.
+Canonical reference: Sylvia Rich used StStephensCrest.tsx (coat of arms with
+sequential phase animations). Build the equivalent for every brand.
+Renders at z-0 or z-5 (behind text, above particles). Always present.
+
+**Layer 3 — Framer Motion Stagger Text**
+All hero text enters with staggered fade-up: H1 first, tagline at 0.15s delay, CTAs at 0.3s delay.
+Renders above canvas and SVG (z-10). Always present.
+
+This 3-layer stack is non-negotiable. The animation-specialist agent selects the specific
+variants for layers 1 and 2. The text stagger is the same on every build.
 
 ## Always-Built Features Rule
 Every project ships with ALL of the following, no exceptions, no client-by-client decisions:
@@ -229,12 +268,25 @@ The quiz ends at the booking calendar — never at a dead end.
 Quiz answers are emailed to the client via Resend on submission.
 The homepage version is a CTA block that launches the quiz inline (not a page link).
 
+Quiz CTA placement — two mandatory locations:
+1. Site header: a "Take the Quiz" button always appears in the header/nav as a primary CTA.
+   It is always visible, always clickable, always routes to /quiz.
+2. Homepage CTA block: a full section on the homepage that launches the quiz inline.
+Never omit the header CTA. It is the highest-visibility quiz entry point.
+
+Reference implementation: tonyrosa777-ops/enchanted-madison quiz.
+
 **Inline Booking Calendar**
 Uses Calendly under the hood via react-calendly InlineWidget.
 Visually native to the site — brand colors injected via Calendly URL params.
 Lives on a dedicated /booking page AND as a homepage teaser section.
 NEVER implemented as an href link or redirect. The calendar renders inside the page.
 Configured via NEXT_PUBLIC_CALENDLY_URL env var — never hardcoded.
+
+The calendar must render a real, interactive widget during demo — never an empty container.
+If the client hasn't provided their Calendly URL yet, set NEXT_PUBLIC_CALENDLY_URL to
+a working Calendly demo URL so the widget loads and the demo is convincing.
+A blank calendar box kills the demo. A working calendar closes the sale.
 
 **Testimonials Page**
 Always built as a core page at /testimonials. Always ships with 32 testimonials.

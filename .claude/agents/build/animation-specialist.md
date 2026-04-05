@@ -45,16 +45,22 @@ Read these files in order before selecting any animation.
 ## Inputs (provided by orchestrator)
 - PROJECT_FOLDER: absolute path to the client's project folder
 
-## Animation Selection Matrix
+## Hero Animation — 3 Required Layers
 
-Use design-system.md Section 8 (Brand Personality Axes) to select the animation.
-Never use more than: 1 primary animation system + 1 CSS texture layer.
-The standard scroll-triggered entrance animations (Framer Motion) apply to ALL builds
-regardless of which hero animation is selected — they are not a choice.
+Every hero ships with exactly 3 layers. This is not a choice. The canonical reference
+is the Sylvia Rich build: canvas gold dust particles + animated coat of arms SVG +
+Framer Motion stagger text. Build the equivalent for every brand.
 
-### Primary Animation Systems (pick ONE)
+**No photo in the hero. No static background. Always 3 layers.**
 
-**Canvas Particle System — Stars / Embers / Glimmers**
+---
+
+### Layer 1 — Canvas Particle System (required — pick ONE type)
+
+Use design-system.md Section 8 (Brand Personality Axes) to select the particle type.
+Renders at z-0 (behind everything). HeroParticles.tsx is the standard component name.
+
+**Stars / Embers / Glimmers**
 Source: Gray-Method-Training/HeroParticles.tsx, Placed-Right-Fence/HeroParticles.tsx
 Tech: Canvas requestAnimationFrame
 Select when: Dark luxury brand. Premium feel. Intimate or aspirational personality.
@@ -62,7 +68,7 @@ Brand axes: Intimate, Premium, Sophisticated, Quiet
 Best for: Coaching, consulting, wellness, high-end services, night-sky aesthetic
 Color: Particles use --accent and --text-muted at low opacity on dark bg
 
-**Canvas Forge Animation — Particles → Extrusion**
+**Forge Particles — Ember Extrusion**
 Source: Placed-Right-Fence (ForgeCanvas.tsx)
 Tech: Canvas requestAnimationFrame, custom particle physics
 Select when: Trade business, craft, industrial, construction, manufacturing
@@ -70,54 +76,86 @@ Brand axes: Bold, Hands-on, Local, Built
 Best for: Contractors, fabricators, builders, any business where "making things" is core
 Color: Forge particles use amber/orange on dark background — override with brand --accent
 
-**SVG Lightning Bolts + Pulse Rings**
-Source: Cody's/HeroEffects.tsx
-Tech: SVG + CSS keyframes
-Select when: Electrical, industrial, tech, energy, high-intensity brand
-Brand axes: Bold, Electric, Fast, Technical
-Best for: Electrical contractors, tech services, fitness brands, anything high-energy
-Color: SVG stroke uses --accent; pulse rings use --primary at low opacity
+**Floating Micro-Dust (CSS canvas fallback)**
+Source: andrea-abella-marie/Hero.tsx
+Tech: CSS keyframes, absolute positioning
+Select when: Light-theme brands, or when canvas complexity isn't needed
+Brand axes: Warm, Soft, Approachable
+Best for: Service businesses with warm palettes, lifestyle brands
 
-**Cosmic Sunrise — SVG Gradients + Rays**
+---
+
+### Layer 2 — Animated SVG Element (required — brand-specific)
+
+An SVG that represents THIS specific business. Not a generic shape. Not a placeholder.
+Renders at z-5 (above particles, below text). Name it after what it depicts.
+Examples: StStephensCrest.tsx, FencePostSVG.tsx, WreathSVG.tsx, GlampringStar.tsx
+
+**Selection approach:**
+1. Look at the business type and brand axes from design-system.md Section 8
+2. Pick a visual motif that represents this business — a tool, an icon, a symbol,
+   a coat of arms, a leaf, a flame, a compass rose, whatever fits
+3. Build it as an SVG with Framer Motion sequential path/opacity animations
+   (paths draw in one by one, elements phase in with staggered delays)
+4. It does not need to be complex. Even a simple SVG that phases in elegantly elevates the hero.
+
+**Reference implementations (pick the closest and adapt):**
+- Sylvia Rich: StStephensCrest.tsx — coat of arms, sequential phase animations, gold on dark
+  Source: C:\Projects\Sylvia Rich\src\components\StStephensCrest.tsx (if accessible)
+- Enchanted Madison: romantic/glamping motif — read C:\Projects\Enchanted Madison\src\components\
+- andrea-abella-marie: cosmic sunrise SVG — radial gradients + ray animations
+  Source: C:\Projects\andrea-abella-marie\src\components\Hero.tsx (extract SVG section)
+
+If no suitable reference exists: build it from scratch using SVG paths + Framer Motion.
+The SVG does not need to be elaborate — 3-5 animated elements is enough.
+
+**SVG option — atmospheric effects (use when a pictorial icon doesn't fit):**
+
+Cosmic Sunrise — SVG Gradients + Rays
 Source: andrea-abella-marie/Hero.tsx
 Tech: SVG blend modes, radial gradients
-Select when: Spiritual, wellness, coaching, personal transformation, aspirational
 Brand axes: Warm, Aspirational, Transformational, Feminine-leaning
-Best for: Life coaches, spiritual practitioners, holistic health, personal development
-Color: Sunrise rays use warm amber/gold — map to --accent; background dark purple/navy
 
-**Shooting Stars**
+SVG Lightning Bolts + Pulse Rings
+Source: Cody's/HeroEffects.tsx
+Tech: SVG + CSS keyframes
+Brand axes: Bold, Electric, Fast, Technical
+
+Shooting Stars (CSS/SVG)
 Source: andrea-abella-marie/Hero.tsx
 Tech: CSS keyframes, absolute positioning
-Select when: Night-sky aesthetic, aspirational, dreamy, romantic
 Brand axes: Aspirational, Romantic, Premium-but-approachable
-Best for: Wedding services, romantic experiences, luxury hospitality, vision/dreams framing
-Color: Stars use white/light-gold on dark background — minimal override needed
 
-**Gold Particle Floats**
+Gold Particle Floats (CSS)
 Source: andrea-abella-marie/Hero.tsx
 Tech: CSS keyframes, absolute positioning
-Select when: Luxury, premium, gold-palette, exclusive, high-end
 Brand axes: Luxury, Exclusive, Premium, Gold
-Best for: Financial services, high-end consulting, luxury retail, premium memberships
-Color: Particles are gold/amber — must align with --accent being gold-family
 
-**Deterministic Star Field**
+Deterministic Star Field (SSR-safe fallback)
 Source: andrea-abella-marie/HeroStars.tsx
-Tech: CSS modulo positioning (no hydration issues — safe for SSR)
-Select when: Dark background brand that needs subtle depth without heavy animation
-Brand axes: Any dark-theme brand where other animations feel too intense
-Best for: Safe fallback for any dark brand. Professional services, B2B, legal, finance
-Note: This is the safest option — no hydration issues, no canvas complexity
+Tech: CSS modulo positioning — zero hydration risk
+Use when: Dark brand that needs depth, no other SVG motif fits clearly.
 
-**Framer Motion Entrance Cascade ONLY (no background animation)**
-Source: All builds — standard wrappers in website-build-template.md
-Tech: Framer Motion + useInView
-Select when: Light-theme brand. Animation would clash with light background.
-  Or: client explicitly wants minimal motion. Or: hero has a video background.
-Brand axes: Clean, Minimal, Corporate, Light
-Best for: Light-theme builds, medical, legal, corporate, any brand where animation
-  would distract from a photo or video background
+---
+
+### Layer 3 — Framer Motion Stagger Text (required — always the same)
+
+All hero text enters with staggered fade-up. No variation per build. Always present.
+
+Timing:
+- H1: delay 0s, duration 0.6s, y: 20px → 0
+- Tagline: delay 0.15s, duration 0.6s, y: 20px → 0
+- Primary CTA: delay 0.3s, duration 0.5s
+- Secondary CTA: delay 0.4s, duration 0.5s
+
+All use `once: true` with useInView — never re-triggers on scroll back.
+Renders at z-10 (above everything).
+
+---
+
+### CSS Texture Layer (optional — pick ONE or NONE)
+
+Adds on top of the 3-layer stack. Use sparingly.
 
 ### CSS Texture Layer (pick ONE or NONE — adds on top of primary)
 
@@ -215,15 +253,20 @@ This agent creates/modifies:
 - Never hardcode hex color values — use CSS custom properties (var(--accent), var(--primary))
 - Never use canvas without proper cleanup in useEffect return
 - Never spawn subagents — you are a worker, not an orchestrator
-- Never implement more than 1 primary animation system — over-animation is a bug
+- Always implement all 3 layers: canvas particles + animated SVG + Framer Motion stagger text
+- Never put a photo in the hero — canvas + SVG only for backgrounds
+- Never implement more than 1 canvas particle system — over-animation is a bug
 
 ## Validation (orchestrator checks before proceeding)
-- Animation component file exists and is non-empty
-- Hero.tsx imports and renders the animation component
+- HeroParticles.tsx (or equivalent canvas component) exists and is non-empty
+- Animated SVG component exists and is non-empty
+- Both components are imported and rendered in Hero.tsx
+- Hero text uses Framer Motion stagger with delay sequence (H1, tagline, CTAs)
+- No photos or static image backgrounds in the hero
 - Animation uses CSS custom properties, not hardcoded hex values
 - Canvas animation has requestAnimationFrame cleanup in useEffect return
 - Mobile handling: particle count reduction or scale handling at 390px
-- No TypeScript errors in the animation component
+- No TypeScript errors in any animation component
 
 ## Handoff
 When complete, report:
