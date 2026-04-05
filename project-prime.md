@@ -170,7 +170,35 @@ this phase. Sessions pick up from the last progress.md checkpoint via /prime.
 
 ---
 
-### STAGE 1A — Research + Design System
+### STAGE 1A — Repo Scan (always — before any build work begins)
+
+Before writing a single line of code, scan the finished Optimus projects in C:\Projects\
+for animation patterns, component structure, and implementation approaches relevant
+to this client's niche and brand personality.
+
+Repos to scan (read their /src/components/ and key page files):
+- C:\Projects\Placed-Right-Fence\ — canvas forge animation, trade/contractor structure
+- C:\Projects\Gray-Method-Training\ — canvas particle system, coaching/fitness structure
+- C:\Projects\andrea-abella-marie\ — cosmic SVG animations, luxury/personal brand structure
+- C:\Projects\Xpertise-Painting\ — trade business, pricing page reference, gallery
+- C:\Projects\Cody's Complete Junk Removal\ — SVG effects, local service structure
+- C:\Projects\Enchanted Madison\ — hospitality/experience brand structure
+- C:\Projects\Sylvia Rich\ — bilingual, formal/professional brand structure
+
+What to look for:
+- Hero animation that matches this client's brand personality axes (design-system.md Section 8)
+- Component patterns for pages this client needs (gallery, quiz, booking, etc.)
+- Any niche-specific structural decisions relevant to this business type
+
+Note findings in progress.md: which repo has the closest match, what to reuse vs. adapt.
+This scan informs the animation-specialist agent and frontend build — do not skip.
+
+Commit: nothing — this is research only.
+Update progress.md: Stage 1A complete — repo scan done, findings noted.
+
+---
+
+### STAGE 1B — Research + Design System
 
 **Pre-flight checks (orchestrator runs these before spawning anything):**
 - [ ] initial-business-data.md exists and has no ⚠️ NOT FOUND flags
@@ -212,7 +240,7 @@ Confirm before proceeding to Stage 1B.
 
 ---
 
-### STAGE 1B — Scaffold
+### STAGE 1C — Scaffold
 
 The orchestrator handles scaffold directly — this task is too project-specific to delegate.
 Agents need the scaffold to exist before they can write to it.
@@ -241,11 +269,11 @@ Then per website-build-template.md:
 6. Create vercel.json at repo root: { "rootDirectory": "[project-folder-name]" }
 7. Commit: chore(init): scaffold per website-build-template.md with design tokens
 
-Update progress.md: Stage 1B complete — scaffold committed.
+Update progress.md: Stage 1C complete — scaffold committed.
 
 ---
 
-### STAGE 1C — Content + Animation (parallel agents)
+### STAGE 1D — Content + Animation (parallel agents)
 
 These two agents are independent and run in parallel.
 content-writer owns /src/data/site.ts exclusively.
@@ -290,13 +318,13 @@ Wait for both agents to complete.
 - Hero.tsx imports and renders it
 - No hardcoded hex values → WARN if found
 
-Update progress.md: Stage 1C complete — content-writer and animation-specialist done.
+Update progress.md: Stage 1D complete — content-writer and animation-specialist done.
 
-**Human checkpoint:** Review hero animation and site.ts hero copy. Approve before Stage 1D.
+**Human checkpoint:** Review hero animation and site.ts hero copy. Approve before Stage 1E.
 
 ---
 
-### STAGE 1D — All Pages (core + niche-specific + blog + shop + booking)
+### STAGE 1E — All Pages (core + niche-specific + blog + shop + booking)
 
 All pages are built in this stage. Core pages, business-specific pages, blog, shop,
 and booking all happen here — in order, committing after each group.
@@ -416,11 +444,11 @@ Commit: feat(shop): shop scaffold — UI, cart, route stubs
 29. Embed on /booking page AND homepage teaser. Test: submit booking, confirm email received.
 Commit: feat(booking): Calendly inline widget wired
 
-Update progress.md: Stage 1D complete — all pages, blog, shop, booking built.
+Update progress.md: Stage 1E complete — all pages, blog, shop, booking built.
 
 ---
 
-### STAGE 1E — SEO + AEO
+### STAGE 1F — SEO + AEO
 
 All pages and articles must exist before this agent runs.
 
@@ -445,17 +473,18 @@ Output files: sitemap.ts, robots.ts, opengraph-image.tsx files, JSON-LD componen
 - AEO: at least 80% of blog articles have direct first-paragraph answers
 
 Commit: feat(seo-aeo): schema, meta, OG images, sitemap, robots
-Update progress.md: Stage 1E complete.
+Update progress.md: Stage 1F complete.
 
 ---
 
-### STAGE 1F — Assets
+### STAGE 1G — Assets
 
 Generate as needed. Each asset commits with the page that uses it.
 
 1. Hero video (cinematic brands): Kling AI — prompt from design-system.md Section 6
-2. Hero photos (3-5): fal.ai — prompts from design-system.md Section 6 photography direction
-3. Blog post card images + article header images: fal.ai — one card + one header per article.
+   Hero sections use animated SVG or custom canvas/JS — never a photo, never fal.ai.
+   Animation selection is handled in Stage 1C by the animation-specialist agent.
+2. Blog post card images + article header images: fal.ai — one card + one header per article.
    Prompt from the article topic + design-system.md mood/photography style.
 4. Gallery (trade businesses — always include):
    Check BUSINESS_TYPE in CLAUDE.md. If the business is a trade (contractor, painter,
@@ -467,18 +496,18 @@ Generate as needed. Each asset commits with the page that uses it.
    If not a trade business: skip gallery entirely.
 5. Replace any fal.ai image with a real client photo when the client provides one.
 
-Update progress.md: Stage 1F complete — [N] assets generated.
+Update progress.md: Stage 1G complete — [N] assets generated.
 
 ---
 
-### STAGE 1G — Pre-Launch Audit
+### STAGE 1H — Pre-Launch Audit
 
-All Stage 1A-1F work must be complete and committed before this runs.
+All Stage 1A-1G work must be complete and committed before this runs.
 
 ### Agent: pre-launch-auditor
 
 ```
-Pre-flight: verify all Stage 1A-1F tasks are marked complete in progress.md → BLOCK if any incomplete
+Pre-flight: verify all Stage 1A-1G tasks are marked complete in progress.md → BLOCK if any incomplete
 Read agent file: C:\Projects\Optimus Assets\.claude\agents\launch\pre-launch-auditor.md
 Spawn with Agent tool (subagent_type: "general-purpose", run_in_background: false)
 Pass in prompt: PROJECT_FOLDER = [PROJECT_FOLDER]
@@ -492,7 +521,7 @@ Output file: [PROJECT_FOLDER]\pre-launch-audit.md
 - Do NOT proceed to Phase 2 until all FAIL items are resolved
 
 Commit: chore(audit): pre-launch audit complete, all FAIL items resolved
-Update progress.md: Stage 1G complete. Phase 1 complete.
+Update progress.md: Stage 1H complete. Phase 1 complete.
 
 **Phase 1 is done. Everything is built. Proceed to Phase 2.**
 

@@ -78,7 +78,7 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
 
 [ ] 13. Assets (generate when pages need them, not all at the end):
           Hero video (cinematic brands) → Kling AI (prompt from design-system.md Section 6)
-          Hero photos (3-5) → fal.ai
+          Hero sections always use animated SVG or custom canvas/JS — never a photo, never fal.ai.
           Blog post card images + article header images → fal.ai (one card + one header per article)
           Gallery (trade businesses only — contractors, painters, fencers, electricians, landscapers,
           cleaners, builders, and any hands-on service business):
