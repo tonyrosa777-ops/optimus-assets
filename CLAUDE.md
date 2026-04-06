@@ -232,6 +232,10 @@ reasonably write ourselves.
 ## Hero Architecture Rule
 Every hero section ships with exactly 3 layers. No exceptions. No photos. No static backgrounds.
 
+**There is NO photo in the hero. Ever.** The client photo / brand image belongs in the About section,
+not the hero. A photo placeholder in the hero is a build failure — flag it and replace it with the
+3-layer animation stack before the phase is marked complete.
+
 **Layer 1 — Canvas Particle System (HeroParticles.tsx)**
 Choose particle type from the animation-specialist Selection Matrix based on brand axes.
 Renders behind all content (z-0). Always present.
@@ -247,6 +251,20 @@ Renders at z-0 or z-5 (behind text, above particles). Always present.
 **Layer 3 — Framer Motion Stagger Text**
 All hero text enters with staggered fade-up: H1 first, tagline at 0.15s delay, CTAs at 0.3s delay.
 Renders above canvas and SVG (z-10). Always present.
+
+**Tagline shimmer is mandatory.** The hero tagline (the short phrase below the H1) ALWAYS receives
+the `text-shimmer` CSS animation. No exceptions. Copy it from the Gray Method Training or
+Enchanted Madison build. "Where healthcare finally makes sense." should shimmer. "Stop paying
+twice your mortgage" should not even be in the hero — the actual client tagline from site.ts
+must be used. Verify the tagline reads correctly in the browser before phase sign-off.
+
+**Hero text must always be readable.** Hero headings and body copy always use `color: var(--text-primary)`
+(which is #f5f5f5 on dark builds). If the background is dark and the text is dark, this is a build
+failure. Do a visual check: can you read every word without highlighting? If not, fix the color token.
+
+**Second CTA is always the quiz.** The hero's secondary button always links to `/quiz` with label
+from `hero.ctaSecondary`. It is never a webinar, info session, events page, or external link.
+The secondary CTA slot belongs to the quiz on every build, without exception.
 
 This 3-layer stack is non-negotiable. The animation-specialist agent selects the specific
 variants for layers 1 and 2. The text stagger is the same on every build.
@@ -304,21 +322,24 @@ a working Calendly demo URL so the widget loads and the demo is convincing.
 A blank calendar box kills the demo. A working calendar closes the sale.
 
 **Testimonials Page**
-Always built as a core page at /testimonials. Always ships with 32 testimonials.
-Never conditional. Never "use what the client has." Write all 32.
+Always built as a core page at /testimonials. Always ships with 36 testimonials.
+Never conditional. Never "use what the client has." Write all 36.
 
 Testimonial writing rules (non-negotiable):
 - Written in the voice of the target audience from initial-business-data.md/design-system.md
-- 32 total. Written by the content-writer agent from scratch, grounded in audience psychology.
-- Any real testimonials the client provides are included and count toward the 32.
+- 36 total. Written by the content-writer agent from scratch, grounded in audience psychology.
+- Any real testimonials the client provides are included and count toward the 36.
   Remaining slots are written to match the same voice and specificity.
-- Paginated 8 per page on the /testimonials page (4 pages total)
+- Paginated 9 per page on the /testimonials page (4 pages total = 4 × 9 = 36)
+- Grid is always 3 columns × 3 rows — this makes every page a complete, consistent square.
+  NEVER use 8 per page: 8 in a 3-col grid = 2 full rows + 2 orphans = broken layout on all 4 pages.
+  9 per page is the only number that fills 3 columns perfectly. This is non-negotiable.
 - ZERO em dashes (—) in any testimonial. Use commas, periods, ellipses only.
 - Human tone: short sentences, specific details, sounds like a phone review, not a press quote.
 - Vary by: service type, outcome, persona, and length (2 sentences to 4 sentences)
 
 Homepage testimonials section: shows 3-4 featured quotes + "See All Testimonials" → /testimonials.
-Page layout: featured quote full-width → paginated grid (8 per page) → filter by service → booking CTA.
+Page layout: featured quote full-width → paginated grid (9 per page, 3-col × 3-row) → filter by service → booking CTA.
 
 **Blog**
 9-10 articles minimum. SEO and AEO foundation. Always built. See Phase 7 in build-checklist.md.
@@ -352,6 +373,35 @@ Decision gate (after scaffold):
 
 These are built in every Phase 1 agent sweep. They are never optional, never deferred,
 never listed as "if applicable." If a phase sign-off doesn't include all of them: it is not done.
+
+## Page Animation Rule
+Every page ships with a brand-appropriate animation. The hero has the full 3-layer stack.
+Every other page must have at minimum a lightweight animation in its header/hero section —
+never a static plain background with text sitting flat.
+
+**Non-negotiable per-page minimums:**
+- `/services` and individual service pages: a CSS animation (floating particles, shimmer overlay,
+  or breathing orb) behind the page header. Match the brand's palette and motion vocabulary.
+- `/testimonials`: ambient particle or shimmer effect in the featured quote header.
+  The booking CTA teaser section at the bottom must also have a gradient or animation treatment.
+- `/blog` index: subtle animated gradient or shimmer on the featured post hero.
+- `/about`: SlideIn animations for stats and photo. The section header should have a FadeUp.
+- `/contact` and `/booking`: at minimum a breathing orb or gradient animation behind the CTA header.
+- `/quiz`: entrance animation on each step transition (slide left/right between steps).
+
+**Practical rule:** Before marking any page complete, scroll through it at full speed.
+If it feels static or flat compared to the homepage, it needs an animation. The user should
+feel the luxury quality on every page, not just the hero.
+
+**How to choose the right animation:**
+1. Read design-system.md — brand axes (warm/cool, energetic/calm) dictate motion style.
+2. Calming brands (wellness, therapy, hospitality): slow breathing orbs, soft particle drift.
+3. High-energy brands (fitness, trades, junk removal): fast particles, sharp reveals, bold stagger.
+4. Never reuse the exact homepage hero particle system on interior pages — scale it down
+   or use a CSS-only variant so it feels intentional, not copy-pasted.
+
+A website with one animated page and seven static pages is not a luxury product. It is a demo
+that loses the sale the moment the client clicks away from the hero.
 
 ## Conversion Flow Rule
 Never embed third-party redirects that take users off the [DOMAIN] domain.

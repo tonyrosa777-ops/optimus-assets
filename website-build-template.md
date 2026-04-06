@@ -169,15 +169,49 @@ const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
 ### Layout
 
 ```
-[Left 55%]                          [Right 45%]
-  Eyebrow label (mono, primary)       Client photo or brand image
-  H1 Headline (display, shimmer)      Rounded border + inset glow
-  Tagline (word-by-word reveal)
-  [CTA Primary] [CTA Secondary]
+[Full width — single column centered, or left-aligned]
+  Eyebrow label (mono, primary)
+  H1 Headline (display, bold)
+  Tagline (shimmer animation — MANDATORY on every build)
+  [CTA Primary: /booking]  [CTA Secondary: /quiz — always the quiz, never anything else]
   Trust micro-copy (★ · years · stat)
+
+Behind all text: 3-layer animation stack (HeroParticles + animated SVG + stagger text)
 ```
 
-Mobile: single column, image hidden or below copy.
+**NO photo in the hero. The client photo goes in the About section only.**
+A photo placeholder in the hero is a build failure. The right side of the hero (if using
+a split layout) must contain the animated SVG, not a portrait.
+
+Mobile: single column, full width. The animated SVG scales or fades on small viewports.
+
+**Tagline shimmer is mandatory.** Apply `text-shimmer` CSS class to the tagline on every build.
+Example CSS (define in globals.css):
+```css
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.text-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--text-primary) 0%,
+    var(--primary) 40%,
+    var(--text-primary) 60%,
+    var(--primary) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+```
+
+**Hero text contrast check (pre-phase-complete):** After building, scroll the hero in the browser
+and confirm every word is readable without highlighting. If text blends into the background,
+the color token is wrong. Always use `color: var(--text-primary)` for headings and body on dark
+backgrounds. This check applies to ALL page headers, not just the homepage hero.
 
 ### Animation 1 — Canvas Particle System (`HeroParticles.tsx`)
 
@@ -235,13 +269,16 @@ Radial gradient blobs behind the content. Pure CSS `@keyframes`:
 
 ### CTA Pair Pattern
 
+**The secondary CTA is ALWAYS the quiz. Never a webinar, info session, events link, or external URL.**
+If the hero data in site.ts doesn't have a quiz CTA, add one. The quiz link is non-negotiable.
+
 ```tsx
 <div className="flex gap-4 flex-wrap">
   <Button variant="gold" size="lg" href="/booking">
-    {hero.ctaPrimary}         {/* "Schedule a Free Call" */}
+    {hero.ctaPrimary}         {/* "Book a Free Consultation" */}
   </Button>
   <Button variant="ghost" size="lg" href="/quiz">
-    {hero.ctaSecondary}       {/* "Take the Quiz" */}
+    {hero.ctaSecondary}       {/* "Take the Quiz" — always /quiz, always */}
   </Button>
 </div>
 
@@ -361,12 +398,17 @@ Each service page follows this skeleton:
 //   Optional: transformation stat ("Lost 18lbs in 90 days")
 ```
 
-### Full Reviews Page (`/reviews`)
+### Full Testimonials Page (`/testimonials`)
 
-- All testimonials from `site.ts`
-- Filter by program type (optional, use URL params)
-- Featured quote at top (full-width, large type)
-- Grid below
+- 36 total testimonials from `site.ts` — always write all 36, never use fewer
+- **Pagination: 9 per page, 4 pages = 36 total.** This is the only correct page size.
+  - 9 per page fills a 3-column grid as exactly 3 rows × 3 columns on every page.
+  - 8 per page (old rule — DO NOT USE) produces 2 full rows + 2 orphans = broken layout.
+  - Do not hard-code any other value. 9 per page. 4 pages. 36 total.
+- Featured quote at top (full-width, large type) — not counted in the 36
+- Paginated grid below: `grid-cols-1 md:grid-cols-3`, 9 items per page
+- Filter by service/program type (optional, use URL params)
+- Booking CTA teaser section at the bottom — must be animated (gradient or orb), never static
 - Video testimonials section (if available) — YouTube embeds
 
 ### Data Shape
@@ -1216,6 +1258,22 @@ If total nav links > 4:
 - Remaining links: grouped under a "More" dropdown
 - Never let the nav overflow or wrap to a second line at 390px
 
+### Dropdown Behavior Rule
+
+Category nav items (Services, Service Areas, and any multi-page grouping) use a
+hover-open container + `<Link href="/parent">` as the trigger — never a `<button>`.
+
+- Hovering the trigger reveals the sub-page list (CSS group-hover or onMouseEnter/Leave on the container div)
+- Clicking the trigger navigates to the category parent page (`/services`, `/service-areas`, etc.)
+- Sub-page links in the dropdown navigate to their respective child routes
+
+**Never** make a category nav item a `<button>` that only toggles the dropdown.
+A button with no href means clicking "Services" does nothing — the user can't reach
+the services page without accidentally hovering first. This breaks UX on touch and is
+the most common nav friction point.
+
+See Pattern #26 in build-log.md for full implementation.
+
 ---
 
 ## Asset Placement Rules
@@ -1371,6 +1429,24 @@ The homepage version can be height-constrained with `overflow: hidden` to show t
 week of availability without the full calendar chrome.
 
 See Pattern #13 in build-log.md for full implementation details.
+
+### Fallback When NEXT_PUBLIC_CALENDLY_URL Is Unset
+
+When the env var is not configured, do **NOT** render a static placeholder, an empty
+container, or a "not configured" message. This kills the demo.
+
+**Default fallback:** implement the demo-booking-calendar-seeded-availability pattern —
+a visually realistic calendar UI with seeded available/unavailable slots, a time-slot
+picker, and a mock confirmation state. The visitor sees a working interactive calendar.
+The data is local; no Calendly account is required.
+
+Decision logic in `BookingWidget.tsx`:
+```tsx
+const calendlyUrl = url ?? process.env.NEXT_PUBLIC_CALENDLY_URL;
+if (!calendlyUrl) return <DemoBookingCalendar />;  // seeded fallback
+```
+
+See Pattern #25 in build-log.md for the full seeded calendar implementation.
 
 ---
 
