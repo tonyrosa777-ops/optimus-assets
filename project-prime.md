@@ -260,14 +260,50 @@ npx create-next-app@latest [project-folder-name] \
 ```
 
 Then per website-build-template.md:
-1. Install dependencies: framer-motion, react-intersection-observer, react-hook-form, zod
+1. Install dependencies: framer-motion, react-intersection-observer, react-hook-form, zod,
+   @fal-ai/client (always — used in Stage 1G for blog card + article header images)
    Add optional deps only for confirmed sections (Sanity, Stripe, @radix-ui/react-*)
 2. Create globals.css with CSS custom property tokens — use design-system.md Section 2 values
 3. Create /src/data/site.ts with schema structure from website-build-template.md (empty values)
 4. Create full directory structure — stub all files
 5. Create animation wrappers in /src/components/animations/
 6. Create vercel.json at repo root: { "rootDirectory": "[project-folder-name]" }
-7. Commit: chore(init): scaffold per website-build-template.md with design tokens
+7. Create .env.local at project root with ALL placeholder keys:
+
+```bash
+# Site
+NEXT_PUBLIC_SITE_URL=https://[DOMAIN]
+NEXT_PUBLIC_SHOW_PRICING_TOOLS=true
+
+# Calendly — replace with client URL before demo
+NEXT_PUBLIC_CALENDLY_URL=https://calendly.com/demo/30min
+
+# fal.ai — image generation for blog cards, article headers, gallery
+# Get key at: fal.ai/dashboard → API Keys
+FAL_KEY=
+
+# Resend — transactional email (contact forms, quiz submissions)
+RESEND_API_KEY=
+
+# Sanity CMS — blog
+SANITY_PROJECT_ID=
+SANITY_DATASET=production
+NEXT_PUBLIC_SANITY_PROJECT_ID=
+NEXT_PUBLIC_SANITY_DATASET=production
+
+# Shop (Premium tier only — leave blank if client didn't purchase Premium)
+PRINTFUL_API_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+```
+
+   ⚠️ FAL_KEY is blank at scaffold. Add the key before Stage 1G runs.
+   Without FAL_KEY set, fal.ai calls will fail and blog images won't generate.
+   NEXT_PUBLIC_CALENDLY_URL defaults to the Calendly demo URL so the booking
+   widget renders during the build without waiting for the client's real URL.
+
+8. Commit: chore(init): scaffold per website-build-template.md with design tokens
 
 Update progress.md: Stage 1C complete — scaffold committed.
 
@@ -702,13 +738,22 @@ Update progress.md: Stage 1F complete.
 
 ### STAGE 1G — Assets
 
+⚠️ PRE-FLIGHT — check .env.local before generating a single image:
+  - FAL_KEY is set and non-empty → BLOCK if blank. Add key now, then continue.
+    Get key at: fal.ai/dashboard → API Keys → Create Key
+    Without FAL_KEY, every fal.ai call fails silently and blog images won't exist.
+  - NEXT_PUBLIC_CALENDLY_URL is set → WARN if still the demo default; note for client
+
 Generate as needed. Each asset commits with the page that uses it.
 
 1. Hero video (cinematic brands): Kling AI — prompt from design-system.md Section 6
    Hero sections use animated SVG or custom canvas/JS — never a photo, never fal.ai.
    Animation selection is handled in Stage 1C by the animation-specialist agent.
-2. Blog post card images + article header images: fal.ai — one card + one header per article.
-   Prompt from the article topic + design-system.md mood/photography style.
+2. Blog post card images + article header images: fal.ai (@fal-ai/client, model: fal-ai/flux-pro/v1.1)
+   One card image + one header image per article. 9-10 articles = 18-20 images total.
+   Prompt = article topic + design-system.md Section 6 (photography style + mood).
+   Save to /public/images/blog/[article-slug]-card.jpg and [article-slug]-header.jpg
+   Commit each batch of images with the article that uses them.
 4. Gallery (trade businesses — always include):
    Check BUSINESS_TYPE in CLAUDE.md. If the business is a trade (contractor, painter,
    fencer, electrician, landscaper, cleaner, builder, or any hands-on service):

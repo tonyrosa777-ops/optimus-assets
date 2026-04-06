@@ -112,8 +112,10 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
 
 [ ] 16. Add all Vercel env vars:
         Always: NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_SHOW_PRICING_TOOLS=false,
-                NEXT_PUBLIC_CALENDLY_URL, SANITY_PROJECT_ID, SANITY_DATASET
-        Shop only: STRIPE_SECRET_KEY (live), STRIPE_WEBHOOK_SECRET, PRINTFUL_API_KEY
+                NEXT_PUBLIC_CALENDLY_URL, SANITY_PROJECT_ID, SANITY_DATASET,
+                FAL_KEY (same key used during build — images already generated, key kept for future updates)
+        Shop only: STRIPE_SECRET_KEY (live), STRIPE_WEBHOOK_SECRET, PRINTFUL_API_KEY,
+                   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 
 [ ] 17. Register Stripe webhook if shop is live:
         Stripe → Developers → Webhooks → https://www.[domain]/api/stripe/webhook
