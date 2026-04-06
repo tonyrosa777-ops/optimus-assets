@@ -169,34 +169,61 @@ const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
 ### Layout
 
 ```
-[Full width — single column centered, or left-aligned]
-  Eyebrow label (mono, primary)
-  H1 Headline (display, bold)
-  Tagline (shimmer animation — MANDATORY on every build)
-  [CTA Primary: /booking]  [CTA Secondary: /quiz — always the quiz, never anything else]
+[Left lg:w-1/2]                         [Right lg:w-1/2]
+  Eyebrow label (mono, primary)            [BrandName]Canvas.tsx
+  H1 = siteConfig.tagline + shimmer        position: relative
+  Subheadline (emotional hook copy)        height: clamp(340px, 50vw, 540px)
+  [CTA Primary: /booking]                  canvas fills container absolutely
+  [CTA Secondary: /quiz]
   Trust micro-copy (★ · years · stat)
-
-Behind all text: 3-layer animation stack (HeroParticles + animated SVG + stagger text)
 ```
 
+Mobile: `flex-col` — text first, canvas below. Canvas scales naturally to 100% width.
+
 **NO photo in the hero. The client photo goes in the About section only.**
-A photo placeholder in the hero is a build failure. The right side of the hero (if using
-a split layout) must contain the animated SVG, not a portrait.
+A photo placeholder in the hero is a build failure. The right panel contains the Brand Canvas, never a portrait.
 
-Mobile: single column, full width. The animated SVG scales or fades on small viewports.
+```tsx
+// Canonical hero layout — copy this structure
+<section className="relative min-h-screen flex items-start pt-24 md:pt-40">
+  <HeroParticles />  {/* Layer 1 — full background */}
+  <div className="container mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-0">
+    {/* Layer 3 — text, left panel */}
+    <div className="w-full lg:w-1/2 lg:pr-12">
+      <p className="font-mono text-primary">{eyebrow}</p>
+      <h1 className="hero-shimmer font-display font-bold">{siteConfig.tagline}</h1>
+      <p className="text-secondary">{hero.subheadline}</p>  {/* emotional hook copy goes here */}
+      <div className="flex gap-4">
+        <Button href="/booking">{hero.ctaPrimary}</Button>
+        <Button href="/quiz" variant="ghost">{hero.ctaSecondary}</Button>
+      </div>
+    </div>
+    {/* Layer 2 — Brand Canvas, right panel */}
+    <div className="w-full lg:w-1/2 relative" style={{ height: "clamp(340px, 50vw, 540px)" }}>
+      <BrandNameCanvas />
+    </div>
+  </div>
+</section>
+```
 
-**Tagline shimmer is mandatory.** Apply `text-shimmer` CSS class to the tagline on every build.
-Example CSS (define in globals.css):
+**H1 = siteConfig.tagline always.** The tagline is the brand identity statement and always gets
+the H1 slot. Emotional hook copy ("Stop paying twice your mortgage") goes in the subheadline `<p>`.
+Never put ad-hook copy in the H1. Never use a separate `hero.headline` field in the H1.
+
+**Shimmer is mandatory on the H1.** Two shimmer classes — define both in globals.css, pick one:
+
 ```css
 @keyframes shimmer {
   0% { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
-.text-shimmer {
+
+/* Use for brands with gold/amber/warm primary token */
+.hero-shimmer {
   background: linear-gradient(
     90deg,
     var(--text-primary) 0%,
-    var(--primary) 40%,
+    var(--primary) 40%,   /* gold/amber sweep */
     var(--text-primary) 60%,
     var(--primary) 100%
   );
@@ -206,7 +233,25 @@ Example CSS (define in globals.css):
   background-clip: text;
   animation: shimmer 3s linear infinite;
 }
+
+/* Use for brands with sage/green/cool/neutral primary token */
+.hero-shimmer-sage {
+  background: linear-gradient(
+    90deg,
+    var(--text-primary) 0%,
+    var(--primary) 40%,   /* sage/cool sweep */
+    #ffffff 55%,
+    var(--primary) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
 ```
+
+Pick by checking design-system.md brand axes: warm brands → `.hero-shimmer`, cool brands → `.hero-shimmer-sage`.
 
 **Hero text contrast check (pre-phase-complete):** After building, scroll the hero in the browser
 and confirm every word is readable without highlighting. If text blends into the background,
@@ -233,20 +278,51 @@ const EMBER_COUNT = 58;
 // Canvas resizes with window via ResizeObserver
 ```
 
-### Animation 2 — Three Breathing Orbs
+### Animation 2 — [BrandName]Canvas.tsx (Brand Canvas)
 
-Radial gradient blobs behind the content. Pure CSS `@keyframes`:
+A custom canvas animation that lives in the right panel. Named after the brand. Built by the
+animation-specialist agent. Every brand canvas follows the same 5-phase lifecycle:
 
-```tsx
-// Orb 1 — Bottom left, primary color, 12s breathing cycle
-// Orb 2 — Top right, muted primary, offset phase (+4s delay)
-// Orb 3 — Top center, accent, scale + opacity pulse
+```
+Phase 1 — STREAM:    N particles spawn at canvas edges, follow quadratic bezier curves
+                     toward a center target. t += speed per frame.
+                     When all particles reach t >= 0.94 → fire Phase 2.
 
-<div className="orb orb-1" /> // position: absolute, pointer-events: none
-<div className="orb orb-2" />
-<div className="orb orb-3" />
+Phase 2 — RISE:      Particles cleared. Brand shape extrudes using springOut(t):
+                     springOut(t) = 1 - 2^(-9t) * cos(t * 10π * 0.68)
+                     Physical spring overshoot. Duration: ~500ms.
+
+Phase 3 — COOL:      Shape color animates: white-hot → brand accent → brand primary.
+                     heatRGB(t) interpolates between RGB stops.
+
+Phase 4 — ARC:       Secondary element draws progressively via ctx.arc().
+                     (Rail for fence, protective arc for shield, etc.)
+
+Phase 5 — IDLE:      breathe = sin(elapsed * 0.00088). Oscillates coolingT + arc alpha.
+                     Ambient living pulse. No new particles.
 ```
 
+**Per-brand customization (only these change — everything else is identical):**
+
+| Brand | Shape drawn | Secondary element | Heat endpoint |
+|-------|-------------|-------------------|---------------|
+| Placed Right Fence | `drawPicket()` — spear-point rects | Rail across tops | Gold |
+| Helen Grondin (health) | `drawCross()` — two roundRect arms | Arc around cross | Sage green |
+| [Your brand] | Brand-specific shape | Brand-specific accent | Brand primary |
+
+**Implementation rules:**
+```tsx
+// Always cast — never leave as nullable
+const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+
+// Container sizing
+<div className="w-full lg:w-1/2 relative" style={{ height: "clamp(340px, 50vw, 540px)" }}>
+  <BrandNameCanvas />  {/* fills container with position: absolute; inset: 0 */}
+</div>
+```
+
+**Breathing orbs (fallback):** For simpler/interior-page use cases where a full brand canvas is
+too heavy, use breathing orbs as a lightweight CSS alternative:
 ```css
 @keyframes breathe {
   0%, 100% { transform: scale(1); opacity: 0.15; }
@@ -254,8 +330,9 @@ Radial gradient blobs behind the content. Pure CSS `@keyframes`:
 }
 .orb { animation: breathe 12s ease-in-out infinite; }
 .orb-2 { animation-delay: -4s; }
-.orb-3 { animation: breathe 8s ease-in-out infinite; }
 ```
+Orbs are valid on interior page headers (services, contact, booking). They are NOT a substitute
+for the Brand Canvas in the homepage hero.
 
 ### Animation Sequence (Hero Load Order)
 

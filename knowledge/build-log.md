@@ -88,6 +88,7 @@ Specific approaches that produced measurable results.
 | 25 | Demo booking calendar with hash-based seeded availability — `(year*400 + month*31 + day) % 10` maps dates deterministically; fully interactive without backend; Calendly silently integrates when URL env var is set | Conversion / UX / Demo | Where2 Junk | Apr 2026 |
 | 26 | Hover-open + click-navigate nav dropdowns — outer container div gets `onMouseEnter/Leave`; inner trigger is `<Link href="/parent">` not `<button>`; hovering reveals sub-pages, clicking navigates to category page | Navigation / UX | Where2 Junk | Apr 2026 |
 | 27 | "More" overflow dropdown for crowded desktop nav — `Set(['Gallery','FAQ','Pricing','Shop'])` filtered from main loop, grouped behind `≡ ∨` click-toggle button; primary conversion links stay always visible | Navigation / UX | Where2 Junk | Apr 2026 |
+| 28 | Brand Canvas 5-phase pattern — STREAM (particle bezier flow) → RISE (springOut shape extrude) → COOL (heat palette → brand primary) → ARC (secondary element draw) → IDLE (breathe oscillation); springOut = `1 - 2^(-9t) * cos(t*10π*0.68)`; H1 = siteConfig.tagline + shimmer; text left / canvas right split; `canvas.getContext("2d") as CanvasRenderingContext2D` always cast | Animation / Architecture | Helen Grondin | Apr 2026 |
 
 ---
 

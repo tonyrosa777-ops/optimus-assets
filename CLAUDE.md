@@ -240,23 +240,45 @@ not the hero. A photo placeholder in the hero is a build failure — flag it and
 Choose particle type from the animation-specialist Selection Matrix based on brand axes.
 Renders behind all content (z-0). Always present.
 
-**Layer 2 — Animated SVG (brand-specific)**
-An SVG that visually represents this specific business. Not a generic shape.
-Options: logo assembly with phase-in animation, abstract brand shape, illustrated icon
-with SVG path draws and Framer Motion sequential reveals.
-Canonical reference: Sylvia Rich used StStephensCrest.tsx (coat of arms with
-sequential phase animations). Build the equivalent for every brand.
-Renders at z-0 or z-5 (behind text, above particles). Always present.
+**Layer 2 — [BrandName]Canvas.tsx (Brand Canvas — brand-specific)**
+A canvas-based animation that visually represents this specific business. NOT an SVG. NOT a generic
+shape. A custom `<canvas>` component named after the brand (e.g. `HealthShieldCanvas.tsx`,
+`ForgeCanvas.tsx`). Lives in the right panel of the two-column hero split.
+
+Every brand canvas follows the same 5-phase lifecycle:
+1. **STREAM** — N particles spawn at canvas edges and flow along quadratic bezier curves toward a
+   center target. Each frame: `t += speed`. When all particles reach `t >= 0.94` → fire phase 2.
+2. **RISE** — Particles cleared. Brand shape extrudes using `springOut(t)`:
+   `1 - 2^(-9t) * cos(t * 10π * 0.68)` — gives physical spring overshoot. Duration: ~500ms.
+3. **COOL** — Shape color animates through heat palette: white-hot → brand accent → brand primary.
+   `heatRGB(t)` interpolates between stops. The shape literally "becomes" the brand as it cools.
+4. **ARC** — Secondary element draws progressively (rail across fence pickets, arc around shield).
+   Drawn via `ctx.arc(x, y, r, start, end * progress)`.
+5. **IDLE** — `breathe = sin(elapsed * 0.00088)`. Oscillates coolingT + arc alpha — ambient pulse.
+
+What changes per brand: the shape drawn in RISE (drawPicket, drawCross, drawFlame, etc.),
+the heat palette endpoint (cools to brand primary), and the secondary element in ARC.
+The 5-phase sequence and springOut function are identical on every build.
+
+Canvas container: `position: relative`, explicit height `clamp(340px, 50vw, 540px)`.
+Canvas fills container with `position: absolute; inset: 0`.
+Always cast: `canvas.getContext("2d") as CanvasRenderingContext2D` — never leave nullable,
+nested draw functions will fail TypeScript strict mode.
 
 **Layer 3 — Framer Motion Stagger Text**
-All hero text enters with staggered fade-up: H1 first, tagline at 0.15s delay, CTAs at 0.3s delay.
-Renders above canvas and SVG (z-10). Always present.
+H1 first, subheadline at 0.15s delay, CTAs at 0.3s delay.
+Renders above canvas (z-10). Always present.
 
-**Tagline shimmer is mandatory.** The hero tagline (the short phrase below the H1) ALWAYS receives
-the `text-shimmer` CSS animation. No exceptions. Copy it from the Gray Method Training or
-Enchanted Madison build. "Where healthcare finally makes sense." should shimmer. "Stop paying
-twice your mortgage" should not even be in the hero — the actual client tagline from site.ts
-must be used. Verify the tagline reads correctly in the browser before phase sign-off.
+**H1 = siteConfig.tagline always.** The tagline IS the H1 — it gets the shimmer class because
+it is the brand identity statement. Emotional hook copy ("Stop paying twice your mortgage") goes
+in the subheadline below the H1. Never put ad-hook copy in the H1.
+Two shimmer classes — pick based on dominant brand token:
+- `.hero-shimmer` — amber/gold sweep (for brands with gold/warm primary)
+- `.hero-shimmer-sage` — sage/white sweep (for brands with cool/green/neutral primary)
+
+**Tagline shimmer is mandatory.** The H1 (siteConfig.tagline) ALWAYS receives a shimmer class.
+"Where healthcare finally makes sense." is the H1 with shimmer. Verify it renders in the browser
+before phase sign-off. Wrong: any copy other than the brand tagline in the H1.
 
 **Hero text must always be readable.** Hero headings and body copy always use `color: var(--text-primary)`
 (which is #f5f5f5 on dark builds). If the background is dark and the text is dark, this is a build
