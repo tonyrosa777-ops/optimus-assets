@@ -1446,71 +1446,78 @@ Never create a page that has no presence on the homepage. If the page exists, it
 
 ---
 
-## Calendly Booking Widget
+## Booking Calendar (Custom UI — Calendly API)
 
-**Use Calendly. Not cal.com. Not a redirect link.**
+**Build a custom date picker, not a Calendly iframe.**
 
-Calendly is the standard booking tool across all Optimus projects. It must be embedded
-directly inside the site — never as a redirect to calendly.com. The goal is that the
-visitor never feels like they left the site.
+The booking calendar looks 100% native to the site — brand colors, brand typography, brand
+button style. A visitor should not be able to tell it uses Calendly under the hood.
+Under the hood, two API routes call Calendly to fetch slots and submit bookings.
 
-### Environment Variable
+### Environment Variables
 
 ```env
-NEXT_PUBLIC_CALENDLY_URL=https://calendly.com/[clientname]/[eventtype]
+CALENDLY_API_KEY=                        # Server-side only — never NEXT_PUBLIC
+NEXT_PUBLIC_CALENDLY_EVENT_TYPE_URI=     # The event type URI (safe to expose)
 ```
 
-Add to Vercel environment variables at project setup. This is a standard variable on
-every project that has a booking flow.
+`CALENDLY_API_KEY` is server-only. Never expose it to the client bundle.
 
-### Inline Widget Component
+### API Routes
+
+```ts
+// /api/calendly/slots — GET ?date=2026-04-10
+// Calls: GET https://api.calendly.com/event_type_available_times
+//   ?event_type={NEXT_PUBLIC_CALENDLY_EVENT_TYPE_URI}
+//   &start_time={date}T00:00:00Z&end_time={date}T23:59:59Z
+// Returns: { slots: string[] }  (ISO datetime strings)
+
+// /api/calendly/book — POST { slot, name, email }
+// Calls: POST https://api.calendly.com/scheduling_links  (or direct event creation)
+// Returns: { success: boolean, confirmationUrl?: string }
+```
+
+### Component Structure (`BookingCalendar.tsx`)
+
+```
+Month grid — navigate prev/next month
+  → Click date → fetch /api/calendly/slots?date=YYYY-MM-DD
+  → Render time slot buttons (brand-colored, disabled for unavailable)
+  → Click time → show confirm form: name + email + submit
+  → POST /api/calendly/book → success state with confirmation
+```
 
 ```tsx
-// components/sections/BookingWidget.tsx
-"use client";
-import { useEffect } from "react";
-
-interface BookingWidgetProps {
-  url?: string;
-  className?: string;
-}
-
-export function BookingWidget({ url, className }: BookingWidgetProps) {
-  const calendlyUrl = url ?? process.env.NEXT_PUBLIC_CALENDLY_URL ?? "";
-
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://assets.calendly.com/assets/external/widget.js";
-    script.async = true;
-    document.body.appendChild(script);
-    return () => { document.body.removeChild(script); };
-  }, []);
-
-  return (
-    <div
-      className={`calendly-inline-widget ${className ?? ""}`}
-      data-url={`${calendlyUrl}?background_color=0a0a0a&text_color=f5f5f5&primary_color=${encodeURIComponent(
-        "var(--primary-hex, c8a96e)"
-      )}`}
-      style={{ minWidth: "320px", height: "700px" }}
-    />
-  );
-}
+// Styled to the brand — example selected state
+<button
+  className="bg-[var(--primary)] text-[var(--bg-base)] font-mono rounded-lg px-4 py-2"
+  onClick={() => selectSlot(slot)}
+>
+  {formatTime(slot)}
+</button>
 ```
 
-**Brand color params** — pass background_color, text_color, and primary_color as URL params.
-Pull primary_color from the client's design system. The widget will match the site's theme.
+**Placement** — render `<BookingCalendar />` in `/app/booking/page.tsx` and as a teaser
+section on the homepage (show current week only, full calendar on /booking).
 
-**Placement** — embed in `/app/booking/page.tsx` and as a teaser section on the homepage.
-The homepage version can be height-constrained with `overflow: hidden` to show the first
-week of availability without the full calendar chrome.
+### Demo Mode (No API Key)
 
-See Pattern #13 in build-log.md for full implementation details.
+When `CALENDLY_API_KEY` is not set, the `/api/calendly/slots` route returns deterministic
+seeded availability — same pattern as build-log.md Pattern #25. The calendar is fully
+interactive: dates are clickable, slots appear, the confirm form works (posts to a mock
+success endpoint). A visitor cannot tell it is seeded.
 
-### Fallback When NEXT_PUBLIC_CALENDLY_URL Is Unset
+Decision logic in the API route:
+```ts
+if (!process.env.CALENDLY_API_KEY) {
+  return NextResponse.json({ slots: seededSlots(date) });
+}
+// ...real Calendly call
+```
 
-When the env var is not configured, do **NOT** render a static placeholder, an empty
-container, or a "not configured" message. This kills the demo.
+A blank or broken calendar kills the demo. A seeded working calendar closes the sale.
+
+See Pattern #13 and #25 in build-log.md for seeded availability implementation.
 
 **Default fallback:** implement the demo-booking-calendar-seeded-availability pattern —
 a visually realistic calendar UI with seeded available/unavailable slots, a time-slot

@@ -295,14 +295,19 @@ variants for layers 1 and 2. The text stagger is the same on every build.
 Every project ships with ALL of the following, no exceptions, no client-by-client decisions:
 
 **Pricing Page (sales tool — deleted before launch)**
-Built in Phase 1. In the nav bar throughout the entire build and demo process.
+Built in Phase 1. If the sweep completes without a /pricing page, that is a build failure.
+In the nav bar throughout the entire build and demo process.
 Deleted as part of the pre-launch audit — it is an Optimus sales tool, not a client deliverable.
 The pre-launch-auditor agent flags /pricing still existing as a hard FAIL.
 
+Nav display: the "Pricing" link renders in amber with a ⬥ marker (e.g. `⬥ Pricing`) so it is
+instantly visually distinct from client-facing nav items. This signals to anyone viewing the demo
+that it is an internal tool, not a page the client owns.
+
 Fixed Optimus pricing structure — same on every build, never customized per client:
-- Starter: $1,500 — core pages + animated hero
-- Pro: $3,000 — everything in Starter + blog + quiz + booking calendar (MOST POPULAR — this is the sell)
-- Premium: $5,500 — everything in Pro + shop
+- Starter: $1,500 — core pages + canvas+SVG animated hero
+- Pro: $3,000 — Starter + blog architecture, quiz lead capture, booking calendar (MOST POPULAR — this is the sell)
+- Premium: $5,500 — Pro + shop (anchors Pro as reasonable, never gets a badge)
 
 Pro gets the "Most Popular" badge. Starter and Premium are anchors.
 Premium never gets a badge — its job is to make $3,000 feel reasonable.
@@ -332,16 +337,26 @@ Never omit the header CTA. It is the highest-visibility quiz entry point.
 Reference implementation: tonyrosa777-ops/enchanted-madison quiz.
 
 **Inline Booking Calendar**
-Uses Calendly under the hood via react-calendly InlineWidget.
-Visually native to the site — brand colors injected via Calendly URL params.
-Lives on a dedicated /booking page AND as a homepage teaser section.
-NEVER implemented as an href link or redirect. The calendar renders inside the page.
-Configured via NEXT_PUBLIC_CALENDLY_URL env var — never hardcoded.
+Custom-built calendar UI — a date picker that looks completely native to the site.
+Uses the site's brand colors, typography, and design tokens. Not a Calendly iframe.
+Under the hood, it calls the Calendly API to fetch available slots and submit bookings.
 
-The calendar must render a real, interactive widget during demo — never an empty container.
-If the client hasn't provided their Calendly URL yet, set NEXT_PUBLIC_CALENDLY_URL to
-a working Calendly demo URL so the widget loads and the demo is convincing.
-A blank calendar box kills the demo. A working calendar closes the sale.
+Architecture:
+- `/api/calendly/slots` — GET, calls Calendly API for available times on a given date
+- `/api/calendly/book` — POST, submits a booking via Calendly API
+- `CALENDLY_API_KEY` — server-side env var (never NEXT_PUBLIC — key must stay server-only)
+- `NEXT_PUBLIC_CALENDLY_EVENT_TYPE_URI` — the Calendly event type URI (public, safe to expose)
+- Custom `<BookingCalendar />` component: month grid → date selection → time slot picker → confirm form
+
+The component is 100% branded: brand-color selected states, brand font, brand button style.
+A user looking at it should not be able to tell it uses Calendly under the hood.
+
+Lives on a dedicated /booking page AND as a homepage teaser section.
+NEVER implemented as an href link or Calendly iframe redirect.
+
+Demo mode: if `CALENDLY_API_KEY` is not set, render seeded fake availability (deterministic
+hash of date → available times) so the calendar is fully interactive during demo.
+A blank or broken calendar kills the demo. A working calendar closes the sale.
 
 **Testimonials Page**
 Always built as a core page at /testimonials. Always ships with 36 testimonials.
@@ -398,29 +413,34 @@ never listed as "if applicable." If a phase sign-off doesn't include all of them
 
 ## Page Animation Rule
 Every page ships with a brand-appropriate animation. The hero has the full 3-layer stack.
-Every other page must have at minimum a lightweight animation in its header/hero section —
-never a static plain background with text sitting flat.
+Every other page gets ambient effects only — never the full canvas+SVG assembly.
+
+**The full 3-layer stack (HeroParticles + BrandCanvas + stagger text) is homepage hero only.**
+Interior pages use lightweight ambient effects that match the brand's mood without the weight
+of a full canvas animation. The hierarchy is:
+
+- Homepage hero: full 3-layer stack (particles + brand canvas + stagger)
+- Interior page headers: ambient only — rising ash particles, subtle twinkles, shimmer text, or breathing orbs
 
 **Non-negotiable per-page minimums:**
-- `/services` and individual service pages: a CSS animation (floating particles, shimmer overlay,
-  or breathing orb) behind the page header. Match the brand's palette and motion vocabulary.
-- `/testimonials`: ambient particle or shimmer effect in the featured quote header.
-  The booking CTA teaser section at the bottom must also have a gradient or animation treatment.
-- `/blog` index: subtle animated gradient or shimmer on the featured post hero.
-- `/about`: SlideIn animations for stats and photo. The section header should have a FadeUp.
-- `/contact` and `/booking`: at minimum a breathing orb or gradient animation behind the CTA header.
-- `/quiz`: entrance animation on each step transition (slide left/right between steps).
+- `/services` and individual service pages: rising ash particles or subtle twinkle canvas behind
+  the page header (small canvas, low particle count). Never a static plain gradient.
+- `/testimonials`: shimmer text effect on the featured quote header. Subtle twinkle or ash particles
+  behind it. Booking CTA teaser at the bottom gets a breathing orb or gradient animation.
+- `/blog` index: shimmer overlay or subtle animated gradient on the featured post hero header.
+- `/about`: SlideIn animations for stats and photo. FadeUp on section headers.
+- `/contact` and `/booking`: breathing orb behind the CTA header. Never flat.
+- `/quiz`: slide left/right transition between each step.
+
+**What "ambient effects" means in practice:**
+- Rising ash: small canvas, ~20–30 particles that drift upward and fade. Not the 145-particle full system.
+- Subtle twinkles: occasional 4-point glimmer flashes. Low density.
+- Shimmer text: `.hero-shimmer` or `.hero-shimmer-sage` on the page H1. Always.
+- Breathing orb: 1–2 radial gradient blobs, CSS-only, 12s cycle.
 
 **Practical rule:** Before marking any page complete, scroll through it at full speed.
-If it feels static or flat compared to the homepage, it needs an animation. The user should
+If it feels static or flat compared to the homepage, add ambient effects. The user should
 feel the luxury quality on every page, not just the hero.
-
-**How to choose the right animation:**
-1. Read design-system.md — brand axes (warm/cool, energetic/calm) dictate motion style.
-2. Calming brands (wellness, therapy, hospitality): slow breathing orbs, soft particle drift.
-3. High-energy brands (fitness, trades, junk removal): fast particles, sharp reveals, bold stagger.
-4. Never reuse the exact homepage hero particle system on interior pages — scale it down
-   or use a CSS-only variant so it feels intentional, not copy-pasted.
 
 A website with one animated page and seven static pages is not a luxury product. It is a demo
 that loses the sale the moment the client clicks away from the hero.
