@@ -333,20 +333,21 @@ Data layer (`src/data/quiz.ts` — all quiz logic, zero UI dependency):
 - `QUIZ_RESULTS` — keyed by `QuizType`: name, tagline, body[] paragraphs, recommendedProgram { name, href, reason }
 - `scoreQuiz(answers: QuizType[]): QuizType` — counts type occurrences, returns the highest; deterministic, pure, testable
 
-UI layer (`src/app/quiz/QuizClient.tsx` — 4 phases via single `phase` state):
+UI layer (`src/app/quiz/QuizClient.tsx` — 3 phases via single `phase` state):
 1. **intro** — hook headline + "Start the quiz" CTA
 2. **question** — 8 questions rendered one at a time via `questionIndex` (0–7)
    - Each answer click → sets `pendingAnswer` for 400ms: selected answer glows brand primary, others dim to 30% opacity → auto-advances
+   - On Q8 (last question): same 400ms timeout → `scoreQuiz(newAnswers)` → sets `resultType` → advances directly to results. No interstitial.
    - Back navigation → slices `answers` array to discard future answers, re-highlights the saved answer for that question
    - `direction` (1 or -1) → AnimatePresence x-offset: forward slides right-to-left, back slides left-to-right
-3. **emailgate** — progress bar shows 8/8 (complete); name + email fields with inline validation (regex, no library); submit → `scoreQuiz(answers)` → sets `resultType` → fires POST /api/quiz (non-blocking) → always advances to results regardless of email success
-4. **results** — renders `QUIZ_RESULTS[resultType]`: name, tagline, body paragraphs, recommended program card with link, then `<BookingCalendar />` inline directly below — never a link to /booking. The user typed themselves, saw their result, and the calendar is right there. One decision, one click. The email is a follow-up asset for people who don't book on the spot — the conversion moment is the results screen while motivation is highest.
+3. **results** — renders `QUIZ_RESULTS[resultType]`: name, tagline, body paragraphs, recommended program card with link, then `<BookingCalendar />` inline directly below — never a link to /booking. The user typed themselves, saw their result, and the calendar is right there. One decision, one click.
 
-API layer (`src/app/api/quiz/route.ts`):
-- One email only — to the client (lead notification)
-- Client email: result archetype name + full Q&A breakdown (question text + selected answer text)
-- No email to the user. They get results on screen instantly. Calendly collects their email during booking.
-- Non-fatal: if `RESEND_API_KEY` is not set, email is skipped and logged to console; results screen always renders
+There is no email gate phase. No name/email is collected by the quiz. Calendly's booking
+form collects name and email as part of its own flow — nothing is lost. The friction wall
+of an email gate at peak motivation is the worst possible place to ask for anything.
+
+No `/api/quiz` email route. The client is notified of bookings through Calendly's own
+booking confirmation notifications — not through a separate quiz API call.
 
 Quiz CTA placement — two mandatory locations:
 1. Site header: "Take the Quiz" button always visible in nav, always routes to /quiz

@@ -1119,11 +1119,13 @@ export function scoreQuiz(answers: QuizType[]): QuizType {
 
 ---
 
-### UI Layer (`src/app/quiz/QuizClient.tsx`) — 4 phases
+### UI Layer (`src/app/quiz/QuizClient.tsx`) — 3 phases
 
 ```tsx
 "use client";
-type Phase = "intro" | "question" | "emailgate" | "results";
+type Phase = "intro" | "question" | "results";
+// No emailgate phase. No name/email collected by the quiz.
+// Calendly collects name + email as part of its own booking flow.
 
 // State
 const [phase, setPhase] = useState<Phase>("intro");
@@ -1143,8 +1145,12 @@ function handleAnswer(type: QuizType) {
     setAnswers(next);
     setPendingAnswer(null);
     setDirection(1);
-    if (questionIndex < 7) setQuestionIndex(i => i + 1);
-    else setPhase("emailgate");                    // all 8 done → email gate
+    if (questionIndex < 7) {
+      setQuestionIndex(i => i + 1);
+    } else {
+      setResultType(scoreQuiz(newAnswers));        // score immediately on Q8
+      setPhase("results");                         // straight to results, no gate
+    }
   }, 400);
 }
 
@@ -1171,9 +1177,9 @@ function goBack() {
 
 **Progress bar**
 ```tsx
-// Shows during "question" and "emailgate" phases
-const progress = phase === "emailgate" ? 100 : (questionIndex / 8) * 100;
-// emailgate shows 8/8 — user feels complete before email ask
+// Shows during "question" phase only
+const progress = (questionIndex / 8) * 100;
+// Hits 100% on Q8 answer → instantly transitions to results
 ```
 
 **AnimatePresence slides (direction-aware)**
@@ -1193,20 +1199,6 @@ const variants = {
 </AnimatePresence>
 ```
 
-**Phase: emailgate — submit**
-```tsx
-async function handleEmailGate(name: string, email: string) {
-  const computed = scoreQuiz(answers);
-  setResultType(computed);
-  // Non-blocking — always advance to results regardless of email success
-  fetch("/api/quiz", {
-    method: "POST",
-    body: JSON.stringify({ name, email, answers, questions: QUIZ_QUESTIONS, resultType: computed }),
-  }).finally(() => setPhase("results"));
-}
-// Inline validation: email regex + name length — no library
-```
-
 **Phase: results**
 ```tsx
 const result = QUIZ_RESULTS[resultType!];
@@ -1215,53 +1207,19 @@ const result = QUIZ_RESULTS[resultType!];
 // 2. result.tagline — shimmer class
 // 3. result.body[] — 3-4 paragraphs of personalized copy
 // 4. result.recommendedProgram card — name, reason, link to program page
-// 5. <BookingCalendar /> — rendered INLINE, not a link to /booking
+// 5. <BookingCalendar name="" email="" /> — INLINE, not a link to /booking
+//    Calendly's booking form collects name + email itself — pass empty strings.
 //    User typed themselves → saw their result → calendar is right there.
 //    One decision, one click. This is the conversion moment.
-
-// The email is a follow-up asset for people who don't book on the spot.
-// Never gate the result behind the email — results render on screen immediately.
-// Email sends non-blocking in the background.
 ```
 
 ---
 
-### API Layer (`src/app/api/quiz/route.ts`)
+### API Layer
 
-```ts
-export async function POST(req: Request) {
-  const { name, email, answers, questions, resultType } = await req.json();
-  const result = QUIZ_RESULTS[resultType as QuizType];
-
-  if (!process.env.RESEND_API_KEY) {
-    console.log("[quiz] RESEND_API_KEY not set — skipping emails");
-    return NextResponse.json({ ok: true });
-  }
-
-  const resend = new Resend(process.env.RESEND_API_KEY);
-
-  // Build Q&A breakdown for client email
-  const qaBreakdown = questions.map((q: QuizQuestion, i: number) =>
-    `<tr><td>${q.question}</td><td>${q.answers.find(a => a.type === answers[i])?.text}</td></tr>`
-  ).join("");
-
-  // One email only — to the client. No email to the user.
-  // User gets results on screen instantly. Calendly collects their email during booking.
-  await resend.emails.send({
-    from: "quiz@[domain]",
-    to: "[client-email]",
-    subject: `New quiz lead: ${name} — ${result.name}`,
-    html: `<table>
-      <tr><td>Name</td><td>${name}</td></tr>
-      <tr><td>Email</td><td><a href="mailto:${email}">${email}</a></td></tr>
-      <tr><td>Result</td><td>${result.name} — ${result.tagline}</td></tr>
-      ${qaBreakdown}
-    </table>`,
-  });
-
-  return NextResponse.json({ ok: true });
-}
-```
+**There is no `/api/quiz` route.** The quiz does not collect name or email — there is nothing
+to POST. The client is notified of bookings through Calendly's own booking confirmation
+notifications. No Resend call. No API route needed.
 
 ---
 
@@ -1270,7 +1228,7 @@ export async function POST(req: Request) {
 ```tsx
 // Full-width section linking to /quiz
 // Headline: "Not sure where to start?"
-// Sub: "Take the 2-minute quiz — get a personalized recommendation + results in your inbox."
+// Sub: "Take the 2-minute quiz — get a personalized recommendation instantly."
 // CTA button → /quiz (not inline — the full quiz lives on its own page)
 // Background: subtle ambient animation (breathing orb or shimmer overlay)
 ```
