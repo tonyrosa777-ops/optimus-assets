@@ -328,7 +328,7 @@ gets a qualified lead notification. Both emails are sent via Resend in parallel.
 **Architecture — two layers, fully decoupled:**
 
 Data layer (`src/data/quiz.ts` — all quiz logic, zero UI dependency):
-- `QuizType` — 4 result archetypes named for this brand's audience segments
+- `QuizType` — 4 result archetypes named for THIS brand's actual audience segments. Read `initial-business-data.md` and `market-intelligence.md` before writing these. Never copy archetypes from a prior build.
 - `QUIZ_QUESTIONS` — 8 questions, each with exactly 4 answers, every answer tagged with a `QuizType`
 - `QUIZ_RESULTS` — keyed by `QuizType`: name, tagline, body[] paragraphs, recommendedProgram { name, href, reason }
 - `scoreQuiz(answers: QuizType[]): QuizType` — counts type occurrences, returns the highest; deterministic, pure, testable

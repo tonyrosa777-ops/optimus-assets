@@ -1,6 +1,6 @@
 # Website Build Template — Luxury Personal Brand
 
-> Derived from the Gray Method Training build. Apply this template to any service-based personal brand, coach, consultant, or creator website. Replace all brand-specific copy, colors, and assets — the architecture, animation patterns, and conversion infrastructure stay the same.
+> Universal scaffold for any service-based personal brand, coach, consultant, or creator website. The architecture, animation patterns, and conversion infrastructure are fixed. Every brand-specific value — colors, copy, quiz archetypes, service names, testimonials — is derived from that project's `initial-business-data.md` and `market-intelligence.md`. Never copy content from a prior build. Read the client's files.
 
 ---
 
@@ -26,22 +26,25 @@ Define these CSS custom properties in `globals.css` before writing any component
 
 ```css
 :root {
-  /* Brand Colors — swap these per client */
-  --primary: rgb(200, 169, 110);        /* Gold/accent */
-  --primary-muted: rgba(200, 169, 110, 0.6);
-  --accent: rgb(232, 98, 26);           /* Secondary accent */
+  /* Brand Colors — READ design-system.md, then fill these in */
+  --primary: rgb(R, G, B);              /* Brand primary — from design-system.md */
+  --primary-muted: rgba(R, G, B, 0.6);
+  --accent: rgb(R, G, B);              /* Brand accent — from design-system.md */
 
-  /* Background Scale (dark theme) */
+  /* Background Scale (dark theme — standard across all builds) */
   --bg-base: #0a0a0a;
   --bg-elevated: #141414;
   --bg-card: #1a1a1a;
 
-  /* Text Scale */
+  /* Text Scale (standard across all builds) */
   --text-primary: #f5f5f5;
   --text-secondary: rgba(245, 245, 245, 0.7);
   --text-muted: rgba(245, 245, 245, 0.4);
 }
 ```
+
+> Color values for `--primary` and `--accent` come exclusively from `design-system.md`.
+> Never copy hex values from a prior project. Every brand has different tokens.
 
 **Typography:**
 - `font-display` — Headlines (large, bold, high impact)
@@ -352,7 +355,7 @@ If the hero data in site.ts doesn't have a quiz CTA, add one. The quiz link is n
 ```tsx
 <div className="flex gap-4 flex-wrap">
   <Button variant="gold" size="lg" href="/booking">
-    {hero.ctaPrimary}         {/* "Book a Free Consultation" */}
+    {hero.ctaPrimary}         {/* label from site.ts hero.ctaPrimary */}
   </Button>
   <Button variant="ghost" size="lg" href="/quiz">
     {hero.ctaSecondary}       {/* "Take the Quiz" — always /quiz, always */}
@@ -361,7 +364,7 @@ If the hero data in site.ts doesn't have a quiz CTA, add one. The quiz link is n
 
 {/* Trust micro-copy below buttons */}
 <p className="text-muted font-mono text-sm mt-4">
-  {hero.trustCopy}             {/* "4.9★ rating · 11+ years · 100% recommend" */}
+  {hero.trustCopy}             {/* from site.ts — e.g. star rating · years in business · key stat */}
 </p>
 ```
 
@@ -381,11 +384,13 @@ If the hero data in site.ts doesn't have a quiz CTA, add one. The quiz link is n
 
 Data shape:
 ```ts
+// Content sourced from initial-business-data.md + market-intelligence.md
+// Emoji must match the semantic meaning of the pain point, not be decorative
 painPoints: [
-  { emoji: "⚡", headline: "Can't stay consistent", body: "..." },
-  { emoji: "🪫", headline: "Always drained", body: "..." },
-  { emoji: "📉", headline: "Stuck on results", body: "..." },
-  { emoji: "🧠", headline: "Stress derails everything", body: "..." },
+  { emoji: "[relevant emoji]", headline: "[pain point from audience research]", body: "..." },
+  { emoji: "[relevant emoji]", headline: "[pain point from audience research]", body: "..." },
+  { emoji: "[relevant emoji]", headline: "[pain point from audience research]", body: "..." },
+  { emoji: "[relevant emoji]", headline: "[pain point from audience research]", body: "..." },
 ]
 ```
 
@@ -469,10 +474,10 @@ Each service page follows this skeleton:
 // Grid: 3-col desktop, 1-col mobile
 // Each card:
 //   Avatar (circular, 60px)
-//   Name + identifier (e.g., "Sarah M. · 6-month client")
+//   Name + identifier (e.g., "J.M. · [service type] client")
 //   Star rating (5 gold stars)
 //   Quote (2-4 sentences, first-person)
-//   Optional: transformation stat ("Lost 18lbs in 90 days")
+//   Optional: transformation stat (outcome specific to this brand's results)
 ```
 
 ### Full Testimonials Page (`/testimonials`)
@@ -491,15 +496,17 @@ Each service page follows this skeleton:
 ### Data Shape
 
 ```ts
+// All 36 testimonials written by content-writer agent from initial-business-data.md
+// Voice, outcomes, and service types must match THIS client's audience — never copied from another build
 testimonials: [
   {
-    name: "Ava R.",
-    identifier: "3-month 1:1 client",
+    name: string,                  // First name + last initial only (e.g. "J.M.")
+    identifier: string,            // Service type + duration (e.g. "6-month client")
     rating: 5,
-    quote: "...",
-    program: "one-on-one",
-    stat: "Down 22lbs",            // optional
-    photo: "testimonialAva",       // key into photos.ts
+    quote: string,                 // Human voice — no em dashes, specific details, phone-review tone
+    program: string,               // Slug matching a service in site.ts services[]
+    stat?: string,                 // Optional outcome metric relevant to THIS brand's results
+    photo?: string,                // Key into photos.ts if available
   }
 ]
 ```
@@ -578,7 +585,7 @@ export const revalidate = 3600; // hourly
 
 **Stack:** Custom React Context cart + Stripe hosted checkout + Printful API (POD fulfillment) + Resend (owner order alerts)
 
-> This architecture was battle-tested in production on `coachandreaabellamarie.com`. Every gotcha below was discovered in a real live-money transaction. Follow it exactly.
+> This architecture was battle-tested in production on a live e-commerce build (see `tonyrosa777-ops/andrea-abella-marie`). Every gotcha below was discovered in a real live-money transaction. Follow it exactly.
 
 ### Fulfillment Model
 
@@ -598,7 +605,7 @@ The webhook splits cart items by product ID at checkout time. POD items go strai
 ```ts
 export interface Product {
   id: string | number       // For POD: use Printful sync product ID (number)
-                            // For manual: use a stable slug string (e.g. "resilience-necklace")
+                            // For manual: use a stable slug string (e.g. "handmade-item-name")
   name: string
   price: number
   description: string
@@ -867,10 +874,12 @@ This is the fulfillment engine. It fires after every successful payment.
 
 ```ts
 // Manual-fulfillment item IDs — anything in this set routes to owner email, NOT Printful
+// Populate with the slug IDs of any manual/handmade items for THIS client
+// These route to owner email for manual fulfillment — NOT to Printful
 const MANUAL_ITEM_IDS = new Set([
-  "resilience-necklace",
-  "inner-peace-lotus-earrings",
-  // add more handmade/manual items here
+  // "[handmade-item-slug-1]",
+  // "[handmade-item-slug-2]",
+  // Source from this project's shop.ts or printful-seeded-products.json
 ]);
 
 export async function POST(req: NextRequest) {
@@ -982,8 +991,8 @@ async function sendOrderAlertToOwner(
 
   try {
     await resend.emails.send({
-      from: "orders@yourdomain.com",       // must be on a Resend-verified domain
-      to: "owner@email.com",
+      from: process.env.RESEND_FROM_EMAIL!,   // e.g. orders@[client-domain].com — Resend-verified
+      to: process.env.OWNER_EMAIL!,           // client's notification email — set in Vercel env vars
       subject: `New Order — $${total}`,
       text: `New order!\n${manualFlag}\nCustomer: ${customer?.name} <${customer?.email}>\nTotal: $${total}\n\nItems:\n${itemLines}\n\nStripe: ${session.id}`,
     });
@@ -997,7 +1006,7 @@ async function sendOrderAlertToOwner(
 1. Create account at resend.com (free — 3,000 emails/month)
 2. Add and verify your sending domain (GoDaddy: use "Auto-configure" — it sets DKIM + SPF automatically)
 3. Create an API key → add to Vercel as `RESEND_API_KEY`
-4. Use `from: "orders@yourdomain.com"` — must match the verified domain
+4. Set `RESEND_FROM_EMAIL=orders@[client-domain].com` in Vercel — must match the verified domain
 
 ---
 
@@ -1053,7 +1062,7 @@ Before any live purchase:
 ### Checklist: Stripe Setup
 
 - [ ] Stripe account in live mode
-- [ ] Webhook registered at `https://www.yourdomain.com/api/stripe/webhook` (with www if that's your canonical)
+- [ ] Webhook registered at `https://www.[client-domain].com/api/stripe/webhook` (with www if that's your canonical)
 - [ ] Webhook event: `checkout.session.completed` only
 - [ ] Webhook secret copied → Vercel `STRIPE_WEBHOOK_SECRET`
 - [ ] `shipping_address_collection` allowed countries match your Printful shipping zones
@@ -1077,10 +1086,12 @@ separate system with its own data layer and email logic.
 All quiz logic lives here. Zero UI dependency. Fully testable in isolation.
 
 ```ts
-// 4 result archetypes — name these for THIS brand's actual audience segments
+// 4 result archetypes — derived from initial-business-data.md + market-intelligence.md
+// Name these for THIS brand's actual audience segments. Read both files before writing.
+// Never copy archetypes from a prior build — they reflect a different brand's audience.
+// Reference builds for structure only: tonyrosa777-ops/gray-method-training (quiz.ts)
 export type QuizType = "archetype-a" | "archetype-b" | "archetype-c" | "archetype-d";
-// e.g. Gray Method: "mom" | "diet-cycler" | "dismissed" | "busy-pro"
-// e.g. Health insurance: "overwhelmed-employee" | "self-employed" | "family-planner" | "healthy-minimalist"
+// Replace with meaningful slugs: e.g. "first-timer" | "relapsed" | "skeptic" | "ready-now"
 
 export interface QuizAnswer {
   text: string;       // Display label (with leading emoji)
@@ -1790,7 +1801,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 RESEND_API_KEY=re_...
 PRINTFUL_API_KEY=...
 NEXT_PUBLIC_CALENDLY_URL=https://calendly.com/clientname/meeting
-NEXT_PUBLIC_SITE_URL=https://www.yourdomain.com
+NEXT_PUBLIC_SITE_URL=https://www.[client-domain].com
 NEXT_PUBLIC_SHOW_PRICING_TOOLS=true
 ```
 
@@ -1801,7 +1812,7 @@ NEXT_PUBLIC_SHOW_PRICING_TOOLS=true
 - [ ] `STRIPE_WEBHOOK_SECRET` — from Stripe → Webhooks → your endpoint → Signing secret
 - [ ] `RESEND_API_KEY` — from Resend → API Keys (see onboarding checklist — domain must be verified first)
 - [ ] `NEXT_PUBLIC_CALENDLY_URL` — client's Calendly event link
-- [ ] `NEXT_PUBLIC_SITE_URL` — canonical domain with protocol and www (e.g. `https://www.yourdomain.com`)
+- [ ] `NEXT_PUBLIC_SITE_URL` — canonical domain with protocol and www (e.g. `https://www.[client-domain].com`)
 - [ ] `INSTAGRAM_ACCESS_TOKEN`
 - [ ] `NEXT_PUBLIC_SHOW_PRICING_TOOLS=false`
 
