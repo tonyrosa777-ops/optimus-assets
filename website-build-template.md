@@ -1208,8 +1208,18 @@ async function handleEmailGate(name: string, email: string) {
 **Phase: results**
 ```tsx
 const result = QUIZ_RESULTS[resultType!];
-// Render: result.name (large), result.tagline (shimmer), result.body[] paragraphs,
-// result.recommendedProgram card (name, reason, link), booking CTA
+// Render in order:
+// 1. result.name — large, prominent
+// 2. result.tagline — shimmer class
+// 3. result.body[] — 3-4 paragraphs of personalized copy
+// 4. result.recommendedProgram card — name, reason, link to program page
+// 5. <BookingCalendar /> — rendered INLINE, not a link to /booking
+//    User typed themselves → saw their result → calendar is right there.
+//    One decision, one click. This is the conversion moment.
+
+// The email is a follow-up asset for people who don't book on the spot.
+// Never gate the result behind the email — results render on screen immediately.
+// Email sends non-blocking in the background.
 ```
 
 ---

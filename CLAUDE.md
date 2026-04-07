@@ -340,7 +340,7 @@ UI layer (`src/app/quiz/QuizClient.tsx` — 4 phases via single `phase` state):
    - Back navigation → slices `answers` array to discard future answers, re-highlights the saved answer for that question
    - `direction` (1 or -1) → AnimatePresence x-offset: forward slides right-to-left, back slides left-to-right
 3. **emailgate** — progress bar shows 8/8 (complete); name + email fields with inline validation (regex, no library); submit → `scoreQuiz(answers)` → sets `resultType` → fires POST /api/quiz (non-blocking) → always advances to results regardless of email success
-4. **results** — renders `QUIZ_RESULTS[resultType]`: name, tagline, body paragraphs, recommended program card with link, booking CTA
+4. **results** — renders `QUIZ_RESULTS[resultType]`: name, tagline, body paragraphs, recommended program card with link, then `<BookingCalendar />` inline directly below — never a link to /booking. The user typed themselves, saw their result, and the calendar is right there. One decision, one click. The email is a follow-up asset for people who don't book on the spot — the conversion moment is the results screen while motivation is highest.
 
 API layer (`src/app/api/quiz/route.ts`):
 - `Promise.all([emailToClient, emailToUser])` — two Resend emails sent in parallel
