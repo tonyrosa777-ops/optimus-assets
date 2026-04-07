@@ -353,6 +353,11 @@ Quiz CTA placement — two mandatory locations:
 2. Homepage CTA block: full section that launches the quiz (links to /quiz page — not inline)
 Never omit the header CTA. It is the highest-visibility quiz entry point.
 
+Question count: 8 is the ceiling, not the floor. Use the minimum number of questions needed
+to reliably assign an archetype. If 5 questions type the user cleanly, use 5. Do not pad
+to 8 because Gray Method used 8. The auto-advance glow buys back some engagement time,
+but drop-off still compounds with every extra question.
+
 Reference implementation: tonyrosa777-ops/gray-method-training quiz.
 
 **Inline Booking Calendar**
