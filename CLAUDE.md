@@ -343,10 +343,10 @@ UI layer (`src/app/quiz/QuizClient.tsx` — 4 phases via single `phase` state):
 4. **results** — renders `QUIZ_RESULTS[resultType]`: name, tagline, body paragraphs, recommended program card with link, then `<BookingCalendar />` inline directly below — never a link to /booking. The user typed themselves, saw their result, and the calendar is right there. One decision, one click. The email is a follow-up asset for people who don't book on the spot — the conversion moment is the results screen while motivation is highest.
 
 API layer (`src/app/api/quiz/route.ts`):
-- `Promise.all([emailToClient, emailToUser])` — two Resend emails sent in parallel
-- Client email: lead notification with result type + full Q&A breakdown (question text + selected answer text)
-- User email: personalized — result name, tagline, full body copy, recommended program card, book-a-call CTA
-- Non-fatal: if `RESEND_API_KEY` is not set, both emails are skipped and logged to console; results screen always renders
+- One email only — to the client (lead notification)
+- Client email: result archetype name + full Q&A breakdown (question text + selected answer text)
+- No email to the user. They get results on screen instantly. Calendly collects their email during booking.
+- Non-fatal: if `RESEND_API_KEY` is not set, email is skipped and logged to console; results screen always renders
 
 Quiz CTA placement — two mandatory locations:
 1. Site header: "Take the Quiz" button always visible in nav, always routes to /quiz

@@ -1062,8 +1062,10 @@ Before any live purchase:
 
 ## Section 8 — Quiz (Scored Lead Funnel)
 
-**Goal:** Type the prospect, compute a result archetype, deliver personalized results to the user
-and a qualified lead notification to the client. This is a lead magnet funnel, not a contact form.
+**Goal:** Type the prospect, compute a result archetype, show results instantly on screen,
+and notify the client of a qualified lead. This is a lead magnet funnel, not a contact form.
+The user gets instant gratification on screen — no email to the user. Calendly collects
+their email as part of the booking flow on the results screen.
 
 **Critical distinction:** The quiz posts to `/api/quiz`, not `/api/contact`. It is a completely
 separate system with its own data layer and email logic.
@@ -1243,33 +1245,19 @@ export async function POST(req: Request) {
     `<tr><td>${q.question}</td><td>${q.answers.find(a => a.type === answers[i])?.text}</td></tr>`
   ).join("");
 
-  await Promise.all([
-    // Email 1 → client: qualified lead notification
-    resend.emails.send({
-      from: "quiz@[domain]",
-      to: "[client-email]",
-      subject: `New quiz lead: ${name} — ${result.name}`,
-      html: `<table>
-        <tr><td>Name</td><td>${name}</td></tr>
-        <tr><td>Email</td><td><a href="mailto:${email}">${email}</a></td></tr>
-        <tr><td>Result</td><td>${result.name} — ${result.tagline}</td></tr>
-        ${qaBreakdown}
-      </table>`,
-    }),
-    // Email 2 → user: personalized results
-    resend.emails.send({
-      from: "results@[domain]",
-      to: email,
-      subject: `Your result — ${result.name}`,
-      html: `<h1>${result.name}</h1>
-        <p>${result.tagline}</p>
-        ${result.body.map(p => `<p>${p}</p>`).join("")}
-        <h2>Recommended: ${result.recommendedProgram.name}</h2>
-        <p>${result.recommendedProgram.reason}</p>
-        <a href="${result.recommendedProgram.href}">Learn More</a>
-        <a href="/booking">Book a Free Call</a>`,
-    }),
-  ]);
+  // One email only — to the client. No email to the user.
+  // User gets results on screen instantly. Calendly collects their email during booking.
+  await resend.emails.send({
+    from: "quiz@[domain]",
+    to: "[client-email]",
+    subject: `New quiz lead: ${name} — ${result.name}`,
+    html: `<table>
+      <tr><td>Name</td><td>${name}</td></tr>
+      <tr><td>Email</td><td><a href="mailto:${email}">${email}</a></td></tr>
+      <tr><td>Result</td><td>${result.name} — ${result.tagline}</td></tr>
+      ${qaBreakdown}
+    </table>`,
+  });
 
   return NextResponse.json({ ok: true });
 }
