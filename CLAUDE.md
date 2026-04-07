@@ -321,20 +321,39 @@ The pricing page always contains:
 4. CTA on each tier that opens the booking calendar inline (never a link away)
 
 **Interactive Quiz**
-Built as a multi-step component on the homepage AND as a standalone /quiz page.
-Structure: opening hook CTA → problem selection → qualifying questions → lead capture form
-→ result screen with recommended service + booking CTA.
-The quiz ends at the booking calendar — never at a dead end.
-Quiz answers are emailed to the client via Resend on submission.
-The homepage version is a CTA block that launches the quiz inline (not a page link).
+A scored lead funnel with typed output — not a contact form with extra steps. The quiz
+computes a result archetype and delivers personalized results to the user via email. The client
+gets a qualified lead notification. Both emails are sent via Resend in parallel.
+
+**Architecture — two layers, fully decoupled:**
+
+Data layer (`src/data/quiz.ts` — all quiz logic, zero UI dependency):
+- `QuizType` — 4 result archetypes named for this brand's audience segments
+- `QUIZ_QUESTIONS` — 8 questions, each with exactly 4 answers, every answer tagged with a `QuizType`
+- `QUIZ_RESULTS` — keyed by `QuizType`: name, tagline, body[] paragraphs, recommendedProgram { name, href, reason }
+- `scoreQuiz(answers: QuizType[]): QuizType` — counts type occurrences, returns the highest; deterministic, pure, testable
+
+UI layer (`src/app/quiz/QuizClient.tsx` — 4 phases via single `phase` state):
+1. **intro** — hook headline + "Start the quiz" CTA
+2. **question** — 8 questions rendered one at a time via `questionIndex` (0–7)
+   - Each answer click → sets `pendingAnswer` for 400ms: selected answer glows brand primary, others dim to 30% opacity → auto-advances
+   - Back navigation → slices `answers` array to discard future answers, re-highlights the saved answer for that question
+   - `direction` (1 or -1) → AnimatePresence x-offset: forward slides right-to-left, back slides left-to-right
+3. **emailgate** — progress bar shows 8/8 (complete); name + email fields with inline validation (regex, no library); submit → `scoreQuiz(answers)` → sets `resultType` → fires POST /api/quiz (non-blocking) → always advances to results regardless of email success
+4. **results** — renders `QUIZ_RESULTS[resultType]`: name, tagline, body paragraphs, recommended program card with link, booking CTA
+
+API layer (`src/app/api/quiz/route.ts`):
+- `Promise.all([emailToClient, emailToUser])` — two Resend emails sent in parallel
+- Client email: lead notification with result type + full Q&A breakdown (question text + selected answer text)
+- User email: personalized — result name, tagline, full body copy, recommended program card, book-a-call CTA
+- Non-fatal: if `RESEND_API_KEY` is not set, both emails are skipped and logged to console; results screen always renders
 
 Quiz CTA placement — two mandatory locations:
-1. Site header: a "Take the Quiz" button always appears in the header/nav as a primary CTA.
-   It is always visible, always clickable, always routes to /quiz.
-2. Homepage CTA block: a full section on the homepage that launches the quiz inline.
+1. Site header: "Take the Quiz" button always visible in nav, always routes to /quiz
+2. Homepage CTA block: full section that launches the quiz (links to /quiz page — not inline)
 Never omit the header CTA. It is the highest-visibility quiz entry point.
 
-Reference implementation: tonyrosa777-ops/enchanted-madison quiz.
+Reference implementation: tonyrosa777-ops/gray-method-training quiz.
 
 **Inline Booking Calendar**
 Custom-built calendar UI — a date picker that looks completely native to the site.

@@ -1060,70 +1060,221 @@ Before any live purchase:
 
 ---
 
-## Section 8 — Quiz (Engagement + Lead Acquisition)
+## Section 8 — Quiz (Scored Lead Funnel)
 
-**Goal:** Segment the prospect, generate qualified lead data, deliver personalized CTA.
+**Goal:** Type the prospect, compute a result archetype, deliver personalized results to the user
+and a qualified lead notification to the client. This is a lead magnet funnel, not a contact form.
 
-### 3-Step Flow
+**Critical distinction:** The quiz posts to `/api/quiz`, not `/api/contact`. It is a completely
+separate system with its own data layer and email logic.
 
+---
+
+### Data Layer (`src/data/quiz.ts`) — write this first, before any UI
+
+All quiz logic lives here. Zero UI dependency. Fully testable in isolation.
+
+```ts
+// 4 result archetypes — name these for THIS brand's actual audience segments
+export type QuizType = "archetype-a" | "archetype-b" | "archetype-c" | "archetype-d";
+// e.g. Gray Method: "mom" | "diet-cycler" | "dismissed" | "busy-pro"
+// e.g. Health insurance: "overwhelmed-employee" | "self-employed" | "family-planner" | "healthy-minimalist"
+
+export interface QuizAnswer {
+  text: string;       // Display label (with leading emoji)
+  type: QuizType;     // Which archetype this answer maps to
+}
+
+export interface QuizQuestion {
+  question: string;
+  answers: QuizAnswer[];  // Always exactly 4
+}
+
+export interface QuizResult {
+  name: string;               // Archetype name
+  tagline: string;            // One-liner shown large on results screen
+  body: string[];             // 3-4 paragraphs of personalized copy
+  recommendedProgram: {
+    name: string;
+    href: string;
+    reason: string;           // 1-2 sentence explanation of why this fits
+  };
+}
+
+// 8 questions, each with 4 answers tagged to a QuizType
+export const QUIZ_QUESTIONS: QuizQuestion[] = [ /* ... 8 questions ... */ ];
+
+// Results keyed by archetype
+export const QUIZ_RESULTS: Record<QuizType, QuizResult> = { /* ... */ };
+
+// Scoring: pure function, deterministic, testable
+export function scoreQuiz(answers: QuizType[]): QuizType {
+  const counts = {} as Record<QuizType, number>;
+  for (const a of answers) counts[a] = (counts[a] ?? 0) + 1;
+  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0] as QuizType;
+}
 ```
-Step 0 — Intro screen
-  Headline: "Find Your Perfect Plan"
-  3 bullet points explaining what the quiz does
-  CTA: "Start the Quiz →"
 
-Step 1 — Problems (multi-select, 6 options)
-  Headline: "What's holding you back right now?"
-  Options with emojis (visual, scannable)
-  Continue button (disabled until ≥1 selected)
+---
 
-Step 2 — Goals (single-select, 4 options)
-  Headline: "What matters most to you?"
-  Options with emojis
-  Continue button (disabled until 1 selected)
-
-Step 3 — Lead capture form
-  Fields: Name (required), Email (required), Message (optional)
-  CTA: "Get My Personalized Plan →"
-  Trust copy below button: "No spam. Just your results."
-
-Post-submit — Results screen
-  Show selected problems + goal
-  Personalized message based on selections
-  Primary CTA: "Schedule Your Free Call"
-  Secondary CTA: "Explore Programs"
-```
-
-### Implementation (`QuizClient.tsx`)
+### UI Layer (`src/app/quiz/QuizClient.tsx`) — 4 phases
 
 ```tsx
+"use client";
+type Phase = "intro" | "question" | "emailgate" | "results";
+
 // State
-const [step, setStep] = useState(0);              // 0=intro, 1=problems, 2=goals, 3=form, 4=results
-const [selectedProblems, setSelectedProblems] = useState<string[]>([]);
-const [selectedGoal, setSelectedGoal] = useState<string>("");
+const [phase, setPhase] = useState<Phase>("intro");
+const [questionIndex, setQuestionIndex] = useState(0);       // 0–7
+const [answers, setAnswers] = useState<QuizType[]>([]);      // accumulates one per question
+const [pendingAnswer, setPendingAnswer] = useState<QuizType | null>(null);
+const [direction, setDirection] = useState(1);               // 1=forward, -1=back
+const [resultType, setResultType] = useState<QuizType | null>(null);
+```
 
-// Progress bar
-const progress = step === 0 ? 0 : ((step - 1) / 3) * 100;
+**Phase: question — answer interaction**
+```tsx
+function handleAnswer(type: QuizType) {
+  setPendingAnswer(type);                          // triggers glow animation (400ms)
+  setTimeout(() => {
+    const next = [...answers.slice(0, questionIndex), type];
+    setAnswers(next);
+    setPendingAnswer(null);
+    setDirection(1);
+    if (questionIndex < 7) setQuestionIndex(i => i + 1);
+    else setPhase("emailgate");                    // all 8 done → email gate
+  }, 400);
+}
 
-// Step transitions via AnimatePresence + variants
-<AnimatePresence mode="wait">
-  <motion.div key={step} initial="hidden" animate="visible" exit="exit">
-    {renderStep(step)}
+// Answer button styles (apply per-answer inside the map):
+// selected (answers[questionIndex] === answer.type): full opacity, gold border
+// pending (pendingAnswer === answer.type): glows brand primary
+// others when pending: opacity-30
+// default: normal card style
+```
+
+**Phase: question — back navigation**
+```tsx
+function goBack() {
+  if (questionIndex > 0) {
+    setDirection(-1);
+    setQuestionIndex(i => i - 1);
+    setAnswers(prev => prev.slice(0, questionIndex - 1));  // discard future answers
+  } else {
+    setPhase("intro");
+  }
+}
+// Re-entering a question: answers[questionIndex] highlights the previously saved answer
+```
+
+**Progress bar**
+```tsx
+// Shows during "question" and "emailgate" phases
+const progress = phase === "emailgate" ? 100 : (questionIndex / 8) * 100;
+// emailgate shows 8/8 — user feels complete before email ask
+```
+
+**AnimatePresence slides (direction-aware)**
+```tsx
+const variants = {
+  enter: (dir: number) => ({ x: dir * 60, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir: number) => ({ x: dir * -60, opacity: 0 }),
+};
+
+<AnimatePresence mode="wait" custom={direction}>
+  <motion.div key={questionIndex} custom={direction} variants={variants}
+    initial="enter" animate="center" exit="exit"
+    transition={{ duration: 0.25 }}>
+    {/* current question */}
   </motion.div>
 </AnimatePresence>
-
-// Form submission → /api/contact with quiz data appended
-// Include: name, email, message, selectedProblems, selectedGoal
 ```
 
-### Quiz CTA Section (Homepage)
+**Phase: emailgate — submit**
+```tsx
+async function handleEmailGate(name: string, email: string) {
+  const computed = scoreQuiz(answers);
+  setResultType(computed);
+  // Non-blocking — always advance to results regardless of email success
+  fetch("/api/quiz", {
+    method: "POST",
+    body: JSON.stringify({ name, email, answers, questions: QUIZ_QUESTIONS, resultType: computed }),
+  }).finally(() => setPhase("results"));
+}
+// Inline validation: email regex + name length — no library
+```
+
+**Phase: results**
+```tsx
+const result = QUIZ_RESULTS[resultType!];
+// Render: result.name (large), result.tagline (shimmer), result.body[] paragraphs,
+// result.recommendedProgram card (name, reason, link), booking CTA
+```
+
+---
+
+### API Layer (`src/app/api/quiz/route.ts`)
+
+```ts
+export async function POST(req: Request) {
+  const { name, email, answers, questions, resultType } = await req.json();
+  const result = QUIZ_RESULTS[resultType as QuizType];
+
+  if (!process.env.RESEND_API_KEY) {
+    console.log("[quiz] RESEND_API_KEY not set — skipping emails");
+    return NextResponse.json({ ok: true });
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  // Build Q&A breakdown for client email
+  const qaBreakdown = questions.map((q: QuizQuestion, i: number) =>
+    `<tr><td>${q.question}</td><td>${q.answers.find(a => a.type === answers[i])?.text}</td></tr>`
+  ).join("");
+
+  await Promise.all([
+    // Email 1 → client: qualified lead notification
+    resend.emails.send({
+      from: "quiz@[domain]",
+      to: "[client-email]",
+      subject: `New quiz lead: ${name} — ${result.name}`,
+      html: `<table>
+        <tr><td>Name</td><td>${name}</td></tr>
+        <tr><td>Email</td><td><a href="mailto:${email}">${email}</a></td></tr>
+        <tr><td>Result</td><td>${result.name} — ${result.tagline}</td></tr>
+        ${qaBreakdown}
+      </table>`,
+    }),
+    // Email 2 → user: personalized results
+    resend.emails.send({
+      from: "results@[domain]",
+      to: email,
+      subject: `Your result — ${result.name}`,
+      html: `<h1>${result.name}</h1>
+        <p>${result.tagline}</p>
+        ${result.body.map(p => `<p>${p}</p>`).join("")}
+        <h2>Recommended: ${result.recommendedProgram.name}</h2>
+        <p>${result.recommendedProgram.reason}</p>
+        <a href="${result.recommendedProgram.href}">Learn More</a>
+        <a href="/booking">Book a Free Call</a>`,
+    }),
+  ]);
+
+  return NextResponse.json({ ok: true });
+}
+```
+
+---
+
+### Homepage Quiz CTA Section
 
 ```tsx
-// Teaser section before footer
+// Full-width section linking to /quiz
 // Headline: "Not sure where to start?"
-// Sub: "Take the 2-minute quiz..."
-// Large CTA button → /quiz
-// Background: subtle gradient or pattern
+// Sub: "Take the 2-minute quiz — get a personalized recommendation + results in your inbox."
+// CTA button → /quiz (not inline — the full quiz lives on its own page)
+// Background: subtle ambient animation (breathing orb or shimmer overlay)
 ```
 
 ---

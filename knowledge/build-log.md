@@ -89,6 +89,7 @@ Specific approaches that produced measurable results.
 | 26 | Hover-open + click-navigate nav dropdowns — outer container div gets `onMouseEnter/Leave`; inner trigger is `<Link href="/parent">` not `<button>`; hovering reveals sub-pages, clicking navigates to category page | Navigation / UX | Where2 Junk | Apr 2026 |
 | 27 | "More" overflow dropdown for crowded desktop nav — `Set(['Gallery','FAQ','Pricing','Shop'])` filtered from main loop, grouped behind `≡ ∨` click-toggle button; primary conversion links stay always visible | Navigation / UX | Where2 Junk | Apr 2026 |
 | 28 | Brand Canvas 5-phase pattern — STREAM (particle bezier flow) → RISE (springOut shape extrude) → COOL (heat palette → brand primary) → ARC (secondary element draw) → IDLE (breathe oscillation); springOut = `1 - 2^(-9t) * cos(t*10π*0.68)`; H1 = siteConfig.tagline + shimmer; text left / canvas right split; `canvas.getContext("2d") as CanvasRenderingContext2D` always cast | Animation / Architecture | Helen Grondin | Apr 2026 |
+| 29 | Scored quiz lead funnel — data layer (quiz.ts: QuizType, QUIZ_QUESTIONS×8, QUIZ_RESULTS, scoreQuiz); 4 UI phases (intro→question→emailgate→results); 400ms pendingAnswer glow + auto-advance; direction-aware AnimatePresence; emailgate at end not start; Promise.all dual Resend emails (client gets Q&A breakdown, user gets personalized results); non-fatal email failure — results always render; posts to /api/quiz not /api/contact | Conversion / Lead Gen | Gray Method Training | Apr 2026 |
 
 ---
 
