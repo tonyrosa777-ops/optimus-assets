@@ -2,9 +2,9 @@
 
 **Type:** Women's personal training / online fitness coaching
 **Client:** Adam Gray, Coach
-**Completed:** Apr 2026 (build shipped Mar 29, 2026 — 1 build day)
-**Build sessions:** 1 continuous session (28 commits, all on 2026-03-29)
-**Live URL:** gray-method-training.vercel.app
+**Completed:** Apr 2026 (initial build Mar 29, 2026; follow-up session Apr 2026)
+**Build sessions:** 2 sessions — initial (28 commits, 2026-03-29) + follow-up (8 commits, Apr 2026)
+**Live URL:** gray-method-training.vercel.app (pre-launch — DNS not yet pointed)
 
 ---
 
@@ -16,7 +16,8 @@
 - **Commerce migration mid-build** — Recognized that the initial Snipcart implementation was transitional after seeing the Andrea Abella Marie architecture; made the call to migrate to Stripe + custom cart mid-Phase 8. Clean migration with reference repo available
 - **All copy in `src/data/site.ts`** — Zero hardcoded strings in JSX. Client can hand this to any developer without hunting through components
 - **Pricing page as sales tool** — ROI calculator + comparison chart built and deployed for the sales conversation. Env-gated for pre-launch removal
-- **Quiz as conversion infrastructure** — Multi-step quiz (problems → goals → lead capture → program recommendation) routes visitors to the right offer automatically
+- **Quiz as conversion infrastructure** — Multi-step quiz routes visitors to right offer; email gate removed in follow-up session to eliminate friction; Calendly inline on results screen captures booking intent while motivation is high
+- **Behold.so decision** — When user pushed back on the Instagram Graph API + Upstash + Vercel Cron architecture as too complex, quickly identified and switched to Behold.so (1 env var, no developer app, no cron jobs). The managed service was the right call for a small coaching business
 
 ---
 
@@ -28,6 +29,11 @@
 | 2 | `fs` / `path` imports in `PhotoPlaceholder.tsx` caused Turbopack client bundle error | Replaced with `useState + onError` fallback — no server modules in client files |
 | 3 | CLAUDE.md Rule 4 references Snipcart skill as mandatory, but Snipcart was replaced entirely in Phase 8 | Rule not updated during build — workflow gap, needs toolkit update |
 | 4 | Phase 10 SEO (JSON-LD, sitemap, alt text) and Phase 11 QA not complete at project close | Still pending — Adam needs to run the pre-launch checklist before going live |
+| 5 | Instagram Graph API + Upstash Redis + Vercel Cron — built entire token refresh infrastructure (1 cron, 1 Redis store, 1 API route) then removed it when Behold.so was identified as the simpler solution | Replaced with single Behold env var; Upstash/cron code committed and removed in same session |
+| 6 | Quiz shipped with email gate — added friction before results were shown; user explicitly requested removal to maximize instant-gratification conversion | Removed email gate; Q8 auto-advances to results; Calendly at the end captures email during booking |
+| 7 | Behold API bugs — 3 compounding issues: `sizes.*` nesting mismatch, double URL construction, CDN priority order reversed | Fixed across 3 sequential commits; real Behold JSON payload analysis was key |
+| 8 | `PhotoPlaceholder` `onError` fired on production even with real headshot in place — client couldn't see his own photo on the live site | Replaced with direct `next/image`; scaffold components must not remain after real assets arrive |
+| 9 | `NEXT_PUBLIC_SITE_URL` set without `https://` protocol in .env.local — affected OG tags and structured data | Fixed in .env.local; flagged for Vercel env var update |
 
 ---
 
@@ -37,6 +43,7 @@
 - **Stripe + Printful custom cart** — full Stripe checkout + Printful variant API (already in vault from Andrea Abella Marie; applied fresh to a new build)
 - **`react-intersection-observer`** — `triggerOnce` API confirmed (not `once`)
 - **`website-build-template.md`** — new project-close deliverable created from this build: reusable architecture doc covering hero, animations, sections, quiz, blog, shop, pricing page pattern
+- **Behold.so** — managed Instagram feed service; replaces entire Graph API + Redis token store + cron system with one env var; auto-refreshes token; Behold CDN URLs are stable (no expiry); free plan available
 
 ---
 
@@ -48,6 +55,10 @@
 4. **Add pattern entry**: `quiz-multistep-lead-capture-program-recommendation` — 3-step quiz → program CTA
 5. **Update CLAUDE.md Rule 4** — Snipcart reference should be updated to Stripe + Printful custom cart architecture
 6. **Consider adding `website-build-template.md` to end-to-end-workflow.md** as a standard project-close deliverable
+7. **Add error entry** (follow-up session): `behold-api-integration-pitfalls` — 3 compounding Behold bugs
+8. **Add error entry** (follow-up session): `photo-placeholder-onerror-fires` — scaffold must be removed when real asset arrives
+9. **Flag workflow gap**: `client-launch-checklist.md` needs `https://` protocol check on `NEXT_PUBLIC_SITE_URL`
+10. **Flag workflow gap**: CLAUDE.md Instagram Feed Rules mention Graph API — should recommend Behold.so for small clients
 
 ---
 

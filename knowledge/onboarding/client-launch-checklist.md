@@ -99,7 +99,8 @@ STRIPE_WEBHOOK_SECRET      whsec_...           (from Stripe → Webhooks → end
 RESEND_API_KEY             re_...              (from Phase 2A)
 PRINTFUL_API_KEY           ...                 (Printful → Settings → API, if shop)
 NEXT_PUBLIC_CALENDLY_URL   https://calendly.com/...  (client's booking link)
-NEXT_PUBLIC_SITE_URL       https://www.domain.com    (canonical, with www if applicable)
+NEXT_PUBLIC_SITE_URL       https://www.domain.com    (canonical — MUST include https:// — affects OG tags + JSON-LD)
+NEXT_PUBLIC_BEHOLD_FEED_ID https://feeds.behold.so/... (if Instagram feed is active)
 NEXT_PUBLIC_SHOW_PRICING_TOOLS  false          (removes dev-only pricing tools)
 SANITY_PROJECT_ID          ...                 (if blog/CMS is active)
 SANITY_DATASET             production
@@ -141,6 +142,8 @@ NEXT_PUBLIC_SHOW_PRICING_TOOLS=true
 - [ ] Dev-only components removed: ROI calculator, pricing tools (`NEXT_PUBLIC_SHOW_PRICING_TOOLS=false`)
 - [ ] All console.log statements removed
 - [ ] Real photos in place (no fal.ai placeholders if client has photography)
+- [ ] No `PhotoPlaceholder` components remain — replace with `next/image` once real assets are confirmed (scaffold `onError` can fire on production even when image exists)
+- [ ] `NEXT_PUBLIC_SITE_URL` includes `https://` protocol (missing protocol breaks OG tags and JSON-LD structured data)
 - [ ] All copy reviewed by client
 - [ ] OG image verified (visit site in Twitter Card Validator)
 - [ ] Mobile tested on real device (not just responsive mode)
