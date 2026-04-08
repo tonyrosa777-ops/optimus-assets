@@ -470,6 +470,27 @@ feel the luxury quality on every page, not just the hero.
 A website with one animated page and seven static pages is not a luxury product. It is a demo
 that loses the sale the moment the client clicks away from the hero.
 
+## Section Alternation Rule
+The full homepage must alternate background tones so that no two adjacent sections
+share the same background. Every transition shifts tone. This is non-negotiable.
+
+**Before building any homepage section**, write the full section order with a dark/light
+assignment as a comment block at the top of `app/page.tsx`. Plan the rhythm first,
+then build. Fixing alternation after the fact costs 3–5 refactor commits.
+
+Two background tones:
+- **Dark:** `background: var(--primary)` — cards use `rgba(255,255,255,0.04)` bg,
+  `rgba(255,255,255,0.08)` border. Text uses `var(--text-primary)`.
+- **Light:** `background: var(--bg-base)` or `var(--bg-elevated)` — standard card styling.
+
+Rules:
+- Zero adjacent sections may share the same background tone. Not "avoid 3 in a row" — zero.
+- Gallery/photo sections should almost always be light — dark backgrounds compete with images.
+- The rhythm map must be committed in the same commit as the first homepage section.
+- If a section is added or reordered later, update the rhythm map and verify no adjacency clash.
+
+Reference pattern: `knowledge/patterns/homepage-dark-light-section-rhythm.md`
+
 ## Conversion Flow Rule
 Never embed third-party redirects that take users off the [DOMAIN] domain.
 All conversion flows (booking, scheduling, purchase, inquiry) must be embedded

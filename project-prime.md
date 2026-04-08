@@ -387,7 +387,7 @@ Commit: feat(layout): nav + footer
     ✓ Hero text starts within ~32px of the navigation bar bottom — NOT mid-screen
       If text is mid-screen: hero section is using `items-center`. Change to `items-start`
       and ensure content div has `pt-24 md:pt-40`. Do not commit until this passes.
-    ✓ Dark/light section rhythm — no 3 consecutive same-background sections
+    ✓ Dark/light section rhythm — ZERO adjacent sections share the same background (strict alternation, not just "no 3 in a row")
     ✓ No horizontal overflow at 390px (check every section)
     ✓ Quiz options render as emoji + label cards, not plain text list
     ✓ Booking calendar InlineWidget renders (not an empty box)

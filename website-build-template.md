@@ -1706,22 +1706,41 @@ Assemble sections in this order. Each is a separate component, full viewport wid
 
 ```tsx
 // app/page.tsx
+//
+// Section rhythm — no two adjacent sections share a background.
+// D = dark (var(--primary)), L = light (var(--bg-base) / var(--bg-elevated))
+// Verify this map before building. Update it when adding or reordering sections.
+//
+//  1. Hero            → D
+//  2. PainPoints      → L
+//  3. FounderStory    → D
+//  4. Philosophy      → L
+//  5. Services        → D
+//  6. ShopPreview     → L
+//  7. Stats           → D
+//  8. Testimonials    → L
+//  9. InstagramFeed   → D  (optional — if removed, QuizCTA becomes D)
+// 10. QuizCTA         → L
+// 11. BlogPreview     → D
+// 12. BookingPreview  → L
+// 13. FinalCTA        → D
+//
 export default function HomePage() {
   return (
     <>
-      <Hero />              {/* 1. Hook */}
-      <PainPoints />        {/* 2. Empathy */}
-      <FounderStory />      {/* 3. Trust — teaser for /about */}
-      <Philosophy />        {/* 4. Methodology / Why */}
-      <Services />          {/* 5. What you offer — teaser for /services */}
-      <ShopPreview />       {/* 6. Products — teaser for /shop (if applicable) */}
-      <Stats />             {/* 7. Social proof — numbers */}
-      <Testimonials />      {/* 8. Social proof — humans */}
-      <InstagramFeed />     {/* 9. Live / current (optional) */}
-      <QuizCTA />           {/* 10. Engagement hook — teaser for /quiz */}
-      <BlogPreview />       {/* 11. Authority content — teaser for /blog */}
-      <BookingPreview />    {/* 12. Calendly widget inline — teaser for /booking */}
-      <FinalCTA />          {/* 13. Last chance CTA */}
+      <Hero />              {/* 1.  D — Hook */}
+      <PainPoints />        {/* 2.  L — Empathy */}
+      <FounderStory />      {/* 3.  D — Trust — teaser for /about */}
+      <Philosophy />        {/* 4.  L — Methodology / Why */}
+      <Services />          {/* 5.  D — What you offer — teaser for /services */}
+      <ShopPreview />       {/* 6.  L — Products — teaser for /shop (if applicable) */}
+      <Stats />             {/* 7.  D — Social proof — numbers */}
+      <Testimonials />      {/* 8.  L — Social proof — humans */}
+      <InstagramFeed />     {/* 9.  D — Live / current (optional) */}
+      <QuizCTA />           {/* 10. L — Engagement hook — teaser for /quiz */}
+      <BlogPreview />       {/* 11. D — Authority content — teaser for /blog */}
+      <BookingPreview />    {/* 12. L — Calendly widget inline — teaser for /booking */}
+      <FinalCTA />          {/* 13. D — Last chance CTA */}
     </>
   );
 }

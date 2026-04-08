@@ -13,7 +13,7 @@ Any homepage that stacks 5+ section components vertically. Especially critical w
 Assign backgrounds before building individual sections:
 
 1. **Map the section order first** — list every section vertically
-2. **Mark dark/light** — no two consecutive sections should share the same background type
+2. **Mark dark/light** — strict alternation: ZERO adjacent sections may share the same background type
 3. **Dark sections:** `background: var(--primary)` (`#0D0D0D`) — cards use `rgba(255,255,255,0.04-0.05)` bg, `rgba(255,255,255,0.08)` border
 4. **Light sections:** `background: var(--bg-base)` or `var(--bg-elevated)` — standard card styling
 
