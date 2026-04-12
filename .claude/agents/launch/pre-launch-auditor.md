@@ -8,9 +8,12 @@ Find real problems. Write a structured audit report with PASS / FAIL / WARN for
 every item. Do not rely on assumptions — verify every item by reading the code.
 
 ## When to Invoke
-After all build phases are complete (Phases 3-12 in build-checklist.md).
-Before the client revision pass. The orchestrator passes: the absolute path to
-the client's project folder.
+After the full Phase 1 sweep is complete (build-checklist.md Phase 1 step 11),
+and BEFORE the orchestrator runs the multi-breakpoint browser audit (step 14).
+This agent handles file-level checks; the orchestrator handles the visible-state
+browser audit. Both must pass before Phase 2 Launch.
+
+The orchestrator passes: the absolute path to the client's project folder.
 
 ## Required Reading
 Read these files in order before starting the audit.
@@ -172,7 +175,7 @@ record PASS / FAIL / WARN with a one-line note.
     Read: /src/app/robots.ts
     FAIL if: /studio is not in Disallow list
 
-### SECTION 8 — Mobile
+### SECTION 8 — Mobile (file-level only — visible-state checks belong to Section 11)
 
 [ ] Hero animation handles mobile
     Read: hero animation component (HeroParticles.tsx or equivalent)
@@ -180,8 +183,10 @@ record PASS / FAIL / WARN with a one-line note.
     WARN if: canvas has no ResizeObserver or window resize handler
 
 [ ] No horizontal overflow at 390px
-    This cannot be verified by file reading — flag for manual browser test
-    WARN: Manual verification required on real device or 390px browser resize
+    This CANNOT be verified by file reading. Do NOT mark PASS or WARN here.
+    Mark DEFERRED with note: "Verified in Section 11 multi-breakpoint browser audit."
+    The orchestrator runs that audit after this agent completes — this agent is a
+    file-level audit only and cannot drive a browser.
 
 ### SECTION 9 — Performance (flag for manual check)
 
@@ -203,6 +208,29 @@ record PASS / FAIL / WARN with a one-line note.
 [ ] Vercel is connected
     Cannot verify from file reading — WARN to manually confirm green deployment
 
+### SECTION 11 — Handoff: Multi-Breakpoint Browser Audit (orchestrator executes)
+
+This section is NOT audited by this agent. It is a mandatory pre-ship gate that
+only the orchestrator can execute, because it drives Playwright against a running
+dev server — a file-reading agent cannot perform visible-state checks.
+
+Record in the audit report:
+
+[ ] Multi-breakpoint browser audit pending — orchestrator execution required
+    Playbook: C:\Projects\Optimus Assets\knowledge\patterns\end-of-build-multi-breakpoint-browser-audit.md
+    Scheduled at: build-checklist.md Phase 1 step 14
+    Enforced by: CLAUDE.md Visual QA Rule
+    Status: BLOCKS LAUNCH until orchestrator completes and reports PASS
+
+The orchestrator runs the audit against: localhost dev server at 1440×900 (static
++ scrolled) and mobile 390 / 375 / 428, plus the mobile nav drawer open at 390,
+capturing console at every viewport. Exit criteria in the playbook. Launch is
+BLOCKED until the orchestrator confirms all exit criteria are met.
+
+This agent's output report must include an explicit BLOCKED-ON-SECTION-11 line in
+the Summary. The orchestrator reads this as a signal to schedule the browser audit
+before declaring the project ready for Phase 2 (Launch).
+
 ## Output
 Write the completed audit to: [PROJECT_FOLDER]\pre-launch-audit.md
 
@@ -212,7 +240,8 @@ Format:
 Date: [DATE]
 
 ## Summary
-PASS: [N]  FAIL: [N]  WARN: [N]
+PASS: [N]  FAIL: [N]  WARN: [N]  DEFERRED: [N]
+BLOCKED-ON-SECTION-11: multi-breakpoint browser audit pending (orchestrator execution required)
 
 ## FAIL Items (must resolve before launch)
 [list all FAIL items with one-line fix instruction]
@@ -220,8 +249,15 @@ PASS: [N]  FAIL: [N]  WARN: [N]
 ## WARN Items (review before launch)
 [list all WARN items]
 
+## DEFERRED Items (verified by Section 11 browser audit, not by file reading)
+[list all DEFERRED items — horizontal scroll check, visible-state checks, etc.]
+
 ## PASS Items
 [list all passed checks]
+
+## Section 11 Handoff
+Multi-breakpoint browser audit BLOCKS LAUNCH until orchestrator runs it per
+knowledge/patterns/end-of-build-multi-breakpoint-browser-audit.md
 ```
 
 ## Constraints

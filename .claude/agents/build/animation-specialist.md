@@ -85,29 +85,49 @@ Best for: Service businesses with warm palettes, lifestyle brands
 
 ---
 
-### Layer 2 — Animated SVG Element (required — brand-specific)
+### Layer 2 — Brand Canvas Animation (required — brand-specific)
 
-An SVG that represents THIS specific business. Not a generic shape. Not a placeholder.
-Renders at z-5 (above particles, below text). Name it after what it depicts.
-Examples: StStephensCrest.tsx, FencePostSVG.tsx, WreathSVG.tsx, GlampringStar.tsx
+A `<canvas>` animation named `[BrandName]Canvas.tsx` that visually represents THIS business.
+NOT an SVG. NOT a generic shape. Renders at z-5 (above particles, below text).
 
-**Selection approach:**
-1. Look at the business type and brand axes from design-system.md Section 8
-2. Pick a visual motif that represents this business — a tool, an icon, a symbol,
-   a coat of arms, a leaf, a flame, a compass rose, whatever fits
-3. Build it as an SVG with Framer Motion sequential path/opacity animations
-   (paths draw in one by one, elements phase in with staggered delays)
-4. It does not need to be complex. Even a simple SVG that phases in elegantly elevates the hero.
+**DEFAULT APPROACH: Creative niche-specific canvas particle animation.**
+The brand canvas must be a genuinely eye-catching, luxurious custom JavaScript canvas
+animation conceptually tied to the client's niche. Think deeply about what visual metaphor
+fits this business BEFORE writing any code.
 
-**Reference implementations (pick the closest and adapt):**
-- Sylvia Rich: StStephensCrest.tsx — coat of arms, sequential phase animations, gold on dark
-  Source: C:\Projects\Sylvia Rich\src\components\StStephensCrest.tsx (if accessible)
-- Enchanted Madison: romantic/glamping motif — read C:\Projects\Enchanted Madison\src\components\
-- andrea-abella-marie: cosmic sunrise SVG — radial gradients + ray animations
-  Source: C:\Projects\andrea-abella-marie\src\components\Hero.tsx (extract SVG section)
+**Selection process (non-negotiable — this prevents the iteration waste from JCM):**
 
-If no suitable reference exists: build it from scratch using SVG paths + Framer Motion.
-The SVG does not need to be elaborate — 3-5 animated elements is enough.
+Step 1 — Brainstorm 10 creative concepts:
+  Read design-system.md Section 8 (Brand Personality Axes) + the business type.
+  Write 10 genuinely creative canvas animation concepts. Each must be:
+  - Visually distinct from the others
+  - Conceptually tied to this specific business niche (not generic floating particles)
+  - Achievable in a single `<canvas>` component with requestAnimationFrame
+  - Eye-catching and luxurious — this is the first thing the client sees in the demo
+
+Step 2 — Harsh critic evaluation:
+  Evaluate all 10 concepts yourself with brutal honesty. Score each 1-5 on:
+  - **Niche relevance**: Does it immediately scream "this business"? (1 = generic, 5 = unmistakable)
+  - **Visual impact**: Will it impress in the first 2 seconds? (1 = forgettable, 5 = jaw-drop)
+  - **Technical feasibility**: Can it be built cleanly without iteration? (1 = risky, 5 = confident)
+  - **Uniqueness**: Has this been done on a prior Optimus build? (1 = derivative, 5 = fresh)
+  Select the single highest-scoring concept. Write 1 sentence explaining why it wins.
+
+Step 3 — Build ONLY the winning concept. No pivots mid-implementation.
+
+Reference implementations (read for structure and quality bar, not to copy):
+- tonyrosa777-ops/Sylvia-Rich-Hungary-Consul-NE — gold dust particles, coat of arms reveal
+- tonyrosa777-ops/where-2-junk — junk/debris particle system
+- tonyrosa777-ops/Placed-Right-Fence — forge ember extrusion, industrial heat
+
+**FALLBACK: Logo-based chaos→convergence→explosion.**
+If the creative canvas doesn't land after one honest build attempt, fall back to the proven
+LogoParticles pattern (Pattern #36 from JCM Graphics): particles stream from edges → converge
+into logo shape → explosion reveal → idle breathe. Requires client logo PNG with transparent
+background. This is the safe backup, not the starting point.
+
+Reference: C:\Projects\JCM Graphics\src\components\JCMCanvas.tsx
+Pattern doc: C:\Projects\Optimus Assets\knowledge\patterns\chaos-convergence-explosion-logo-reveal.md
 
 **SVG option — atmospheric effects (use when a pictorial icon doesn't fit):**
 

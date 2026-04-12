@@ -112,9 +112,10 @@ Create progress.md using this structure:
 | 10 | SEO + AEO | ⬜ Not Started |
 | 11 | Infrastructure | ⬜ Not Started |
 | 12 | Assets | ⬜ Not Started |
-| 13 | Pre-Launch Audit | ⬜ Not Started |
-| 14 | Client Revision Pass | ⬜ Not Started |
-| 15 | Close | ⬜ Not Started |
+| 13 | Pre-Launch Audit (file-level, pre-launch-auditor agent) | ⬜ Not Started |
+| 14 | Multi-Breakpoint Browser Audit (orchestrator runs Playwright) | ⬜ Not Started |
+| 15 | Client Revision Pass | ⬜ Not Started |
+| 16 | Close | ⬜ Not Started |
 
 ---
 
@@ -275,8 +276,9 @@ Then per website-build-template.md:
 NEXT_PUBLIC_SITE_URL=https://[DOMAIN]
 NEXT_PUBLIC_SHOW_PRICING_TOOLS=true
 
-# Calendly — replace with client URL before demo
-NEXT_PUBLIC_CALENDLY_URL=https://calendly.com/demo/30min
+# Calendly — custom BookingCalendar (API-driven, not iframe)
+CALENDLY_API_KEY=
+NEXT_PUBLIC_CALENDLY_EVENT_TYPE_URI=
 
 # fal.ai — image generation for blog cards, article headers, gallery
 # Get key at: fal.ai/dashboard → API Keys
@@ -399,15 +401,19 @@ Commit: feat(homepage): all sections complete
     Each slug: hero → what you get → who it's for → how it works → testimonials → FAQ → CTA
 15. /contact — React Hook Form + Zod, Google Maps iframe, contact info, hours
 16. /faq — Radix accordion, all Q&As from site.ts
-17. /testimonials — always built, always core. Always ships with 32 testimonials.
-    Content-writer agent writes all 32 in the voice of the target audience from
+17. /testimonials — always built, always core. Always ships with 36 testimonials.
+    Content-writer agent writes all 36 in the voice of the target audience from
     design-system.md + market-intelligence.md Section 2 (audience psychology).
-    Real client testimonials are included and count toward 32 — remaining are written
+    Real client testimonials are included and count toward 36 — remaining are written
     to match the same voice, specificity, and human tone.
     Zero em dashes. Short sentences. Sounds like a phone review.
     Varied by: service type, outcome, persona, length (2-4 sentences each).
-    Page: featured quote full-width → paginated grid 8 per page (4 pages) →
+    Page: featured quote full-width → paginated grid **9 per page, 4 pages, 36 total**
+    (3 columns × 3 rows — perfect square every page, zero orphan rows) →
     filter by service type (URL params) → booking CTA.
+    **Never 8 per page, never 32 total.** 8 per page in a 3-col grid = 2 full rows +
+    2 orphan cards on every page. The 2-col 8-per-page variant is abandoned.
+    9 per page is the only correct pagination.
     Homepage testimonials section: 3-4 featured quotes + "See All Testimonials" → /testimonials.
 Commit: feat(pages): about, services, contact, faq, testimonials + nav/sitemap wired
 
@@ -570,13 +576,27 @@ Quiz data lives in site.ts quiz object (written by content-writer — see Quiz D
 Commit: feat(quiz): multi-step quiz with emoji options — homepage CTA + /quiz page, Resend wired
 
 **Inline Booking Calendar (always — non-negotiable, every project):**
-23. /booking page — Calendly InlineWidget filling the page. Brand colors via URL params.
-    Uses process.env.NEXT_PUBLIC_CALENDLY_URL. Never an href link. Never a redirect.
-    The calendar renders inside the site. Visitor never leaves the domain.
-24. Homepage booking teaser section — same InlineWidget, constrained height with scroll.
+Custom-built calendar UI that looks 100% native to the site. NOT a Calendly iframe.
+Under the hood it calls the Calendly API for slots and bookings.
+
+Architecture:
+  - `/api/calendly/slots` — GET, fetches available times from Calendly API for a given date
+  - `/api/calendly/book` — POST, submits booking via Calendly API
+  - `CALENDLY_API_KEY` — server-side env var (never NEXT_PUBLIC)
+  - `NEXT_PUBLIC_CALENDLY_EVENT_TYPE_URI` — the event type URI (safe to expose)
+  - `<BookingCalendar />` — custom component: month grid → date pick → time slot → confirm form
+  Brand-color selected states, brand font, brand button style. User cannot tell it uses Calendly.
+
+Demo mode: if `CALENDLY_API_KEY` is not set, render seeded fake availability (deterministic
+hash of date → 3-5 available times) so the calendar is fully interactive during demo.
+A blank or broken calendar kills the demo. A working calendar closes the sale.
+
+23. Build BookingCalendar component + /api/calendly/slots + /api/calendly/book routes
+24. /booking page — BookingCalendar filling the page. Never an href link. Never a redirect.
+25. Homepage booking teaser section — same BookingCalendar, constrained to a preview.
     This is distinct from the quiz CTA — it's the direct "ready to book" section.
-25. Wire /booking to nav + sitemap.ts in same commit.
-Commit: feat(booking): Calendly inline calendar — /booking page + homepage section
+26. Wire /booking to nav + sitemap.ts in same commit.
+Commit: feat(booking): custom BookingCalendar — /booking page + homepage section + API routes
 
 **Pricing Page (always — Optimus sales tool, deleted before launch):**
 Reference implementation: C:\Projects\Xpertise-Painting\website\app\pricing\page.tsx
@@ -584,19 +604,22 @@ Read that file before building. Adapt the structure — NOT the Xpertise-specifi
 
 26. Build src/app/pricing/page.tsx as a "use client" self-contained file.
     Fixed Optimus tier structure — identical on every project:
-    - Starter: $1,500 — core pages + animated hero ($750 deposit)
-    - Pro: $3,000 — everything in Starter + blog + quiz + booking calendar ($1,500 deposit)
-      "Most Popular" badge. This is the sell.
-    - Premium: $5,500 — everything in Pro + shop ($2,750 deposit)
+    - Starter: $1,500 — core pages + animated hero + FAQ page
+    - Pro: $3,000 — everything in Starter + blog + quiz + booking calendar +
+      gallery page + testimonials page. "Most Popular" badge. This is the sell.
+    - Premium: $5,500 — everything in Pro + shop
       No badge — anchors Pro as the reasonable middle.
+    
+    **Never on the pricing page:** "deposit," "upfront," or payment-split language.
+    The price is the price. Anthony offers deposit splits verbally as a backup close.
+    **Never listed as a feature:** "Google Business Profile optimization" — not an Optimus service.
 
     Section A — Tier cards:
-    - tiers[] array: id, label, name, price, deposit, recommended, features[], cta
+    - tiers[] array: id, label, name, price, recommended, features[], cta
     - Features are CUSTOMIZED to this client's business type — not the painting-specific list
       from the reference. Pull from site.ts services and market-intelligence.md.
-    - "Most Popular" badge on Pro. Deposit shown as "(${deposit} deposit today)".
-    - Each tier CTA opens the Calendly InlineWidget inline — same widget as /booking page.
-      Import InlineWidget from react-calendly. Inject brand colors via URL params.
+    - "Most Popular" badge on Pro. Price shown as the full amount only — no deposit breakdown.
+    - Each tier CTA opens the BookingCalendar inline — same component as /booking page.
 
     Section B — ROI Calculator (ROICalculator component in same file):
     - Slider 1: Average job/project value — min $500, max $20,000, step $100
@@ -696,12 +719,12 @@ Commit: feat(shop): shop scaffold — cart, drawer, seeded grid, route stubs
           Commit: chore(shop): removed shop — not in client scope
           Do NOT add STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, or PRINTFUL_API_KEY to Vercel.
 
-**Booking:**
-26. Client sets up Calendly (wait if pending)
-27. Add NEXT_PUBLIC_CALENDLY_URL to .env.local
-28. Build BookingWidget (inline embed, not redirect, brand color URL params)
-29. Embed on /booking page AND homepage teaser. Test: submit booking, confirm email received.
-Commit: feat(booking): Calendly inline widget wired
+**Booking (custom BookingCalendar — already built in Stage 1E steps 23-26):**
+If CALENDLY_API_KEY is now available, add it to .env.local and verify:
+  - /api/calendly/slots returns real availability for today's date
+  - /api/calendly/book submits a test booking, confirm email received
+If CALENDLY_API_KEY is not yet available, the seeded demo mode is already functional.
+No additional build work needed — BookingCalendar was built with the /booking page above.
 
 Update progress.md: Stage 1E complete — all pages, blog, shop, booking built.
 
@@ -742,16 +765,28 @@ Update progress.md: Stage 1F complete.
   - FAL_KEY is set and non-empty → BLOCK if blank. Add key now, then continue.
     Get key at: fal.ai/dashboard → API Keys → Create Key
     Without FAL_KEY, every fal.ai call fails silently and blog images won't exist.
-  - NEXT_PUBLIC_CALENDLY_URL is set → WARN if still the demo default; note for client
+  - CALENDLY_API_KEY is set → WARN if blank; BookingCalendar will use seeded demo mode
+
+**fal.ai image generation is NEVER optional and NEVER deferred.**
+If this stage completes without card + header images for every blog article, it is a build failure.
 
 Generate as needed. Each asset commits with the page that uses it.
 
 1. Hero video (cinematic brands): Kling AI — prompt from design-system.md Section 6
    Hero sections use animated SVG or custom canvas/JS — never a photo, never fal.ai.
-   Animation selection is handled in Stage 1C by the animation-specialist agent.
+   Animation selection is handled in Stage 1D by the animation-specialist agent.
 2. Blog post card images + article header images: fal.ai (@fal-ai/client, model: fal-ai/flux-pro/v1.1)
    One card image + one header image per article. 9-10 articles = 18-20 images total.
-   Prompt = article topic + design-system.md Section 6 (photography style + mood).
+
+   ⚠️ PROMPT QUALITY GATE — before running ANY generation:
+   Write ALL prompts first. Review as a set. Every prompt must be:
+   - Truly distinct from every other prompt (no two should produce visually similar images)
+   - Specific to the article topic (not generic stock-photo descriptions)
+   - Grounded in design-system.md Section 6 (photography style + mood)
+   - Creative: describe lighting, composition, mood, angle, specific visual details
+   If any two prompts would produce near-identical results, rewrite before generating.
+   First-time quality is the goal — re-running fal.ai wastes time and money.
+
    Save to /public/images/blog/[article-slug]-card.jpg and [article-slug]-header.jpg
    Commit each batch of images with the article that uses them.
 4. Gallery (trade businesses — always include):
@@ -768,9 +803,14 @@ Update progress.md: Stage 1G complete — [N] assets generated.
 
 ---
 
-### STAGE 1H — Pre-Launch Audit
+### STAGE 1H — Pre-Launch Audit (File-Level)
 
 All Stage 1A-1G work must be complete and committed before this runs.
+
+This is the file-level audit. It checks configuration, wiring, copy, schema, env
+vars, route existence — everything that can be verified by reading files. It
+CANNOT check visible-state bugs (layout, overflow, hydration, console noise).
+That is Stage 1I.
 
 ### Agent: pre-launch-auditor
 
@@ -786,12 +826,113 @@ Output file: [PROJECT_FOLDER]\pre-launch-audit.md
 - pre-launch-audit.md exists and has Summary section
 - FAIL count → if > 0: list all FAIL items, fix each before proceeding
 - WARN count → escalate to human for review
-- Do NOT proceed to Phase 2 until all FAIL items are resolved
+- DEFERRED count → expected; these are visible-state items that Stage 1I will verify
+- BLOCKED-ON-SECTION-11 line must appear in Summary → this is the signal to run Stage 1I
+- Do NOT proceed to Phase 2 until all FAIL items are resolved AND Stage 1I passes
 
-Commit: chore(audit): pre-launch audit complete, all FAIL items resolved
-Update progress.md: Stage 1H complete. Phase 1 complete.
+Commit: chore(audit): file-level pre-launch audit complete, all FAIL items resolved
+Update progress.md: Stage 1H complete. Proceed to Stage 1I.
 
-**Phase 1 is done. Everything is built. Proceed to Phase 2.**
+**Phase 1 is NOT done yet — Stage 1I (browser audit) is still required.**
+
+---
+
+### STAGE 1I — Multi-Breakpoint Browser Audit (Orchestrator Runs Playwright)
+
+**This is the final gate before Phase 2. Mandatory. Non-delegable. Orchestrator-executed.**
+
+The file-level audit cannot see what the user sees. This stage drives Playwright
+against a running dev server at four viewports, captures screenshots, and reads
+the console at each. It catches visible-only bugs: text wraps, overflow, hydration
+warnings, orphan H1 lines, transparent mobile nav overlays, fixed-rem font
+regressions, missing ambient page animations.
+
+**Full playbook:** `C:\Projects\Optimus Assets\knowledge\patterns\end-of-build-multi-breakpoint-browser-audit.md`
+**Enforcement:** CLAUDE.md Visual QA Rule
+**Reference checklist:** website-build-template.md Checklist: Before Launch → Visual QA
+
+#### Execution (orchestrator drives — NOT a subagent)
+
+This stage uses `mcp__playwright__*` tools and a background `npm run dev` task.
+Subagents cannot drive a browser in this architecture. The orchestrator runs it
+directly.
+
+**Setup**
+1. `cd [PROJECT_FOLDER]/<next-app-folder>` → `npm run dev` with `run_in_background: true`
+2. Read the background task output file until `✓ Ready in Xms` appears
+3. **Save the background task ID** — required for `TaskStop` at the end
+
+**Desktop 1440×900**
+4. `browser_resize(1440, 900)` → `browser_navigate("http://localhost:3000")`
+5. `browser_wait_for(text: "<a phrase from new post-hydration content>")` — pick an
+   H1 phrase or CTA label that only appears after hydration. Static shell text lies.
+6. `browser_take_screenshot(filename: "verify-desktop-hero-top.png")`
+7. `browser_console_messages(level: "error")` → expect `[]`
+8. `browser_console_messages(level: "warning")` → expect `[]`
+9. `browser_evaluate(function: "() => { window.scrollTo(0, 400); return window.scrollY; }")`
+   — do NOT use navigate or any scroll parameter; `window.scrollTo` is the only
+   reliable method
+10. `browser_take_screenshot(filename: "verify-desktop-nav-scrolled.png")` → verify
+    navbar blur/background/logo shrink transitions
+11. `browser_evaluate(function: "() => window.scrollTo(0, 0)")` → reset before mobile
+
+**Mobile 390×844 (FIRST — most common real viewport)**
+12. `browser_resize(390, 844)` → screenshot `verify-mobile-hero-390.png`
+13. `browser_console_messages` error + warning → expect `[]` for both
+14. Visually verify: hero fits above the fold, no H1 orphans, no horizontal scroll
+
+**Mobile 375×812 (narrowest — catches wraps)**
+15. `browser_resize(375, 812)` → screenshot `verify-mobile-375.png`
+16. Console check → `[]` both levels
+17. Visually verify: no wrapped words orphaned, no overflow
+
+**Mobile 428×926 (widest single column)**
+18. `browser_resize(428, 926)` → screenshot `verify-mobile-428.png`
+19. Console check → `[]` both levels
+20. Visually verify: no desktop-layout leak, no clipped images
+
+**Mobile nav drawer at 390**
+21. `browser_resize(390, 844)` → `browser_snapshot(depth: 3)`
+22. Find "Open navigation menu" ref → `browser_click(element: "mobile hamburger", ref: "<ref>")`
+23. `browser_take_screenshot(filename: "verify-mobile-nav-open.png")`
+24. Verify: dark opaque overlay (not transparent), branding matches desktop nav,
+    CTA visible at bottom of panel
+25. **Re-snapshot:** `browser_snapshot(depth: 4)` to get fresh refs
+26. Find **INNER** "Close navigation menu" X (the one INSIDE the dialog, NOT the
+    original hamburger — the hamburger ref is now behind the overlay and will
+    cause a 5-second Playwright timeout if you click it)
+27. `browser_click(element: "X close button inside the mobile nav dialog", ref: "<new ref>")`
+
+**Fix loop (if any issue found)**
+28. Fix the issue
+29. **Re-verify ALL FOUR viewports** — not just where the bug was caught. A CSS
+    variable change affects every viewport. A typography token change affects
+    every page.
+30. Re-read console at each viewport after the fix
+31. Commit one-fix-per-commit with the breakpoint referenced in the commit body:
+    `fix(hero): clamp --text-display to prevent H1 orphan wrap (caught at 390px during end-of-build audit)`
+32. Push after every commit (standing rule)
+
+**Exit criteria (all must be true — orchestrator verifies)**
+- [ ] 0 console errors at every viewport (desktop + all three mobile)
+- [ ] 0 console warnings at every viewport
+- [ ] Hero fits above the fold at every mobile width (eyebrow + H1 + tagline + primary CTA)
+- [ ] No H1 orphan lines at any mobile width
+- [ ] No horizontal scroll at 375
+- [ ] Mobile nav drawer overlay is dark and opaque
+- [ ] Every interior page has a brand-appropriate ambient animation (Page Animation Rule)
+- [ ] Homepage passes the Section Alternation Rule scroll-check
+
+**Shutdown**
+33. `TaskStop(task_id: "<saved from step 3>")` — `mcp__playwright__browser_close`
+    does NOT stop the dev server; it only closes the tab. The Next.js process
+    keeps running and wastes context. `TaskStop` is the only way to actually
+    kill it.
+
+Commit: `chore(audit): multi-breakpoint browser audit complete, all viewports verified`
+Update progress.md: Stage 1I complete. Phase 1 complete.
+
+**Phase 1 is now done. Everything is built AND visually verified. Proceed to Phase 2.**
 
 ---
 
@@ -815,6 +956,9 @@ Update progress.md: Task 2A complete — infrastructure live.
    "Please read every page. For each edit: which page + what to change + what it should say."
 2. Make all revisions in one session. Keep edits in site.ts wherever possible.
 3. Commit: fix(copy): client revision pass [date]
+4. **Re-run Stage 1I (multi-breakpoint browser audit) before re-sending** — any
+   revision batch that touches layout, copy, or typography can regress visible
+   state. No exceptions. Full playbook in Stage 1I above.
 Update progress.md: Task 2B complete.
 
 ### Task 2C — Close

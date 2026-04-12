@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Projects/andrea-abella-marie/**)",
+      "Read(//c/Projects/Xpertise-Painting/**)",
+      "Read(//c/Projects/**)"
+    ]
+  }
+}

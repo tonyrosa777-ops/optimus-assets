@@ -1851,6 +1851,69 @@ NEXT_PUBLIC_SHOW_PRICING_TOOLS=true
 - [ ] DNS + Vercel project connected
 - [ ] Vercel Root Directory: blank (Next.js at repo root)
 
+### Visual QA — Multi-Breakpoint Browser Audit (MANDATORY)
+This is the final gate before shipping. Nothing gets handed to the client
+until every item below is green. File-reading audits cannot catch visible-only
+bugs — only a live browser at the right viewport width can.
+
+Full playbook + gotchas:
+`C:\Projects\Optimus Assets\knowledge\patterns\end-of-build-multi-breakpoint-browser-audit.md`
+
+**Setup**
+- [ ] Dev server started with `run_in_background: true`
+- [ ] Output file read until `✓ Ready in Xms` appears
+- [ ] Background task ID saved (needed for `TaskStop` at the end)
+
+**Desktop 1440×900**
+- [ ] `browser_resize(1440, 900)` → navigate → `browser_wait_for` post-hydration text
+- [ ] Screenshot: hero top of page — hero renders correctly
+- [ ] `window.scrollTo(0, 400)` via `browser_evaluate` → screenshot scrolled nav state
+- [ ] Console: 0 errors, 0 warnings
+- [ ] Scroll back to top before switching viewports
+
+**Mobile 390×844 (iPhone 14/15 — most common real viewport, audit FIRST)**
+- [ ] `browser_resize(390, 844)` → screenshot
+- [ ] Hero fits above the fold (eyebrow + H1 + tagline + primary CTA all visible)
+- [ ] No H1 orphan lines, no horizontal scroll
+- [ ] Console: 0 errors, 0 warnings
+
+**Mobile 375×812 (iPhone SE — narrowest, catches wraps first)**
+- [ ] `browser_resize(375, 812)` → screenshot
+- [ ] No wrapped words orphaned, no overflow, no horizontal scroll
+- [ ] Console: 0 errors, 0 warnings
+
+**Mobile 428×926 (iPhone Pro Max — widest single column)**
+- [ ] `browser_resize(428, 926)` → screenshot
+- [ ] No desktop-layout leak, no clipped images
+- [ ] Console: 0 errors, 0 warnings
+
+**Mobile nav drawer @ 390**
+- [ ] `browser_snapshot` → find "Open navigation menu" ref → click → screenshot
+- [ ] Overlay is dark and opaque, not transparent
+- [ ] Branding header matches desktop nav
+- [ ] CTA visible at bottom of panel
+- [ ] Re-snapshot → click INNER "Close navigation menu" X (NOT the hamburger ref —
+      the hamburger is behind the overlay and causes a 5s Playwright timeout)
+
+**Page Animation Rule check**
+- [ ] Every interior page (services, testimonials, blog, about, contact, booking, quiz)
+      ships with a brand-appropriate ambient animation in its header — no static pages
+
+**Section Alternation Rule check**
+- [ ] Homepage alternates dark / light section backgrounds with zero adjacent matches
+
+**If you fix a bug mid-audit**
+- [ ] Re-verify ALL affected breakpoints, not just the one where you caught it
+      (a CSS variable change affects every viewport)
+- [ ] Re-read console at each viewport after the fix
+
+**Commit + shutdown**
+- [ ] One commit per distinct fix (do not bundle unrelated fixes)
+- [ ] Breakpoint referenced in commit body (`caught at 390px`)
+- [ ] Pushed after every commit
+- [ ] `TaskStop(task_id)` — `mcp__playwright__browser_close` does NOT stop the dev
+      server, it only closes the tab; `TaskStop` is the only way to actually kill it
+
 ---
 
 ## Applying This Template to a New Client

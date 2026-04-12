@@ -179,6 +179,31 @@ When any phase completes with a non-obvious finding or pattern:
 At project close:
 1. Add a row to the Project Retrospectives table in `build-log.md`
 
+## Image Generation Rule (fal.ai)
+fal.ai image generation is NEVER optional and NEVER deferred. Every blog article ships
+with both a card image and a header image. Every trade business ships with a gallery of
+12-16 images. These are generated during the sweep, not "later."
+
+**Prompt quality gate — non-negotiable:**
+Before running ANY fal.ai generation batch, write ALL prompts first and review them as a set.
+Every prompt must be:
+- Truly distinct from every other prompt in the batch (no two prompts that would produce
+  visually similar images)
+- Specific to the article topic or gallery subject (not generic stock-photo descriptions)
+- Grounded in design-system.md Section 6 (Photography & Media Direction)
+- Creative and visually compelling — describe lighting, composition, mood, specific details
+
+Wrong: "A person getting a haircut in a salon" × 10 with minor variations.
+Right: Each prompt tells a different visual story — different angle, different moment,
+different emotional beat, different subject within the business's domain.
+
+If a prompt batch has two prompts that would produce near-identical results, rewrite
+before generating. The cost of re-running fal.ai is higher than the cost of writing
+better prompts. First-time quality is the goal.
+
+**Enforcement:** If the sweep completes without blog card images + header images for
+every article, that is a build failure. The pre-launch auditor checks for these files.
+
 ## Content Standards
 - Testimonials must read like a real human typed them on a phone. Never use the em dash (—).
   Humans use commas, periods, and ellipses. Em dashes are a copywriter/AI tell.
@@ -245,6 +270,37 @@ A canvas-based animation that visually represents this specific business. NOT an
 shape. A custom `<canvas>` component named after the brand (e.g. `HealthShieldCanvas.tsx`,
 `ForgeCanvas.tsx`). Lives in the right panel of the two-column hero split.
 
+**Default approach: creative niche-specific canvas particle animation.**
+The brand canvas should be a genuinely eye-catching, luxurious custom JavaScript canvas animation
+that is conceptually tied to the client's niche. Think deeply about what visual metaphor fits
+this business before writing a single line of code.
+
+**Selection process (non-negotiable — prevents iteration waste):**
+1. Read design-system.md Section 8 (Brand Personality Axes) + the business type
+2. Brainstorm 10 genuinely creative canvas animation concepts. Each must be:
+   - Visually distinct from the others
+   - Conceptually tied to this specific business niche (not generic particles)
+   - Achievable in a single `<canvas>` component with requestAnimationFrame
+   - Eye-catching and luxurious — this is the first thing the client sees
+3. Spawn a harsh critic agent to evaluate all 10 concepts. The critic scores each on:
+   - Niche relevance (does it scream "this business"?)
+   - Visual impact (will it impress in the first 2 seconds?)
+   - Technical feasibility (can it be built without 5 iterations?)
+   - Uniqueness (has this been done on a prior Optimus build?)
+   The critic selects the single best concept with written rationale.
+4. Build ONLY the winning concept. No pivots mid-implementation.
+
+Reference implementations (read these for structure, not to copy):
+- tonyrosa777-ops/Sylvia-Rich-Hungary-Consul-NE — gold dust particles, coat of arms
+- tonyrosa777-ops/where-2-junk — junk/debris particle system
+- tonyrosa777-ops/Placed-Right-Fence — forge ember extrusion
+
+**Fallback: logo-based chaos→convergence→explosion.**
+If the creative canvas doesn't land after one honest build attempt, fall back to the proven
+LogoParticles pattern (Pattern #36 from JCM Graphics): particles stream from edges → converge
+into logo shape → explosion reveal → idle breathe. This requires a client logo PNG with
+transparent background. It is the safe option, not the default.
+
 Every brand canvas follows the same 5-phase lifecycle:
 1. **STREAM** — N particles spawn at canvas edges and flow along quadratic bezier curves toward a
    center target. Each frame: `t += speed`. When all particles reach `t >= 0.94` → fire phase 2.
@@ -305,15 +361,21 @@ instantly visually distinct from client-facing nav items. This signals to anyone
 that it is an internal tool, not a page the client owns.
 
 Fixed Optimus pricing structure — same on every build, never customized per client:
-- Starter: $1,500 — core pages + canvas+SVG animated hero
-- Pro: $3,000 — Starter + blog architecture, quiz lead capture, booking calendar (MOST POPULAR — this is the sell)
+- Starter: $1,500 — core pages + canvas+SVG animated hero + FAQ page
+- Pro: $3,000 — Starter + blog architecture, quiz lead capture, booking calendar,
+  gallery page, testimonials page (MOST POPULAR — this is the sell)
 - Premium: $5,500 — Pro + shop (anchors Pro as reasonable, never gets a badge)
 
 Pro gets the "Most Popular" badge. Starter and Premium are anchors.
 Premium never gets a badge — its job is to make $3,000 feel reasonable.
 
+**Never include on pricing page:**
+- "Deposit," "upfront," or any payment-split language. The price is the price.
+  Anthony offers deposit splits verbally as a backup close — it is never on the page.
+- "Google Business Profile optimization" — Optimus does not offer this service.
+
 The pricing page always contains:
-1. Three tier cards (Starter / Pro / Premium) with feature lists and deposit breakdown (50% upfront)
+1. Three tier cards (Starter / Pro / Premium) with feature lists — price only, no deposit math
 2. ROI Calculator — two sliders (average job/project value + clients per month) + package selector
    → outputs: monthly revenue, break-even timeline, 12-month ROI per tier
 3. Full comparison chart — feature rows grouped by category, checkmarks per tier
@@ -479,9 +541,16 @@ assignment as a comment block at the top of `app/page.tsx`. Plan the rhythm firs
 then build. Fixing alternation after the fact costs 3–5 refactor commits.
 
 Two background tones:
-- **Dark:** `background: var(--primary)` — cards use `rgba(255,255,255,0.04)` bg,
-  `rgba(255,255,255,0.08)` border. Text uses `var(--text-primary)`.
+- **Dark:** `background: var(--primary)` with a **radial gradient overlay** — never flat solid
+  black or flat solid color. Use `radial-gradient(ellipse at 50% 0%, rgba(accent, 0.08), transparent 70%)`
+  or similar to add ambient warmth/depth at the top of each dark section. Cards use
+  `rgba(255,255,255,0.04)` bg, `rgba(255,255,255,0.08)` border. Text uses `var(--text-primary)`.
 - **Light:** `background: var(--bg-base)` or `var(--bg-elevated)` — standard card styling.
+
+**Dark sections must never look flat.** A pure solid-color dark section reads as unfinished.
+Every dark section gets a subtle radial gradient at the top — brand accent or warm white at
+very low opacity (0.05–0.10), fading to transparent. This is a one-line CSS addition per
+section. There is no excuse for flat dark blocks.
 
 Rules:
 - Zero adjacent sections may share the same background tone. Not "avoid 3 in a row" — zero.
@@ -519,6 +588,51 @@ Flag any static placeholder as a blocker and propose the interactive component b
 Any script that outputs files into /public must commit those files as part of the
 same task commit. Generated images, videos, and data files are never a separate
 follow-up step. Generated assets are part of the task that created them.
+
+## Visual QA Rule (Pre-Ship Browser Audit — Mandatory)
+No Optimus build ships — no project is marked complete, no PR is merged to
+production, no demo URL is sent to the client — until a live multi-breakpoint
+browser audit has been run with Playwright against the dev server. This is the
+final gate. It is not optional and it is not delegable.
+
+The audit drives Playwright through four viewports and captures screenshots at
+each, reads the console at each, and opens/closes the mobile nav drawer:
+  1. Desktop 1440×900 — static + scrolled (navbar state change)
+  2. Mobile 390×844 — iPhone 14/15, most common real-user viewport (first)
+  3. Mobile 375×812 — iPhone SE, narrowest — catches wraps first
+  4. Mobile 428×926 — iPhone Pro Max, widest single-column
+  5. Mobile 390 with nav drawer open — verifies overlay, branding, CTA
+
+Full workflow, gotchas, and exit criteria live in:
+  C:\Projects\Optimus Assets\knowledge\patterns\end-of-build-multi-breakpoint-browser-audit.md
+
+Workflow integration (all five enforcement points):
+  - build-checklist.md Phase 1 step 14 — human-facing schedule, before Phase 2 Launch
+  - project-prime.md Stage 1I — orchestrator execution layer, runs after Stage 1H
+    (pre-launch-auditor file-level audit)
+  - website-build-template.md Checklist: Before Launch → Visual QA — template reference
+  - .claude/agents/launch/pre-launch-auditor.md Section 11 — file-level agent emits
+    BLOCKED-ON-SECTION-11 in its Summary so the orchestrator knows to run the audit
+
+The pre-launch-auditor agent defers ALL visible-state checks to this audit —
+file-reading agents cannot verify layout, overflow, hydration, or console noise.
+
+The audit is ALSO re-run after every client revision batch in Phase 2 (Task 2B
+in project-prime.md, step 19 in build-checklist.md) — no revision ships back to
+the client without re-passing the audit.
+
+Mandatory exit criteria before marking the audit complete:
+  - 0 console errors and 0 console warnings at every viewport
+  - No H1 orphan lines at any mobile width
+  - No horizontal scroll at 375
+  - Hero fits above the fold (eyebrow + H1 + tagline + primary CTA) at every mobile width
+  - Mobile nav drawer opens, overlay is dark and opaque, closes cleanly via its inner X
+  - Any fix applied mid-audit triggers a full re-verify of all four viewports
+  - Dev server explicitly stopped with TaskStop — `browser_close` does NOT stop it
+
+Skipping any of these = audit incomplete = build not ready to ship. No exceptions.
+TypeScript says the code compiles. Tests say the logic works. Only a browser at
+the right viewport width tells you the product looks right.
 
 ## Communication Rule
 Be opinionated. Flag tradeoffs. Cite research. When there is a clearly better

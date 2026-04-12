@@ -218,11 +218,17 @@ Required structure:
 The closing brand statement is the only truly custom element per build.
 Write it as if you are the business owner signing a letter to their best customer.
 
-### Testimonials — always write 32 (non-negotiable)
-Every build ships with exactly 32 testimonials in site.ts. Never fewer.
+### Testimonials — always write 36 (non-negotiable)
+Every build ships with exactly 36 testimonials in site.ts. Never fewer. Never more.
+
+**Why 36, not 32:** the /testimonials page renders a 3-column grid. 9 per page ×
+4 pages = 36, which fills a 3×3 square on every page with zero orphan rows. The
+old rule was 8 per page × 4 pages = 32, but 8 in a 3-col grid produces 2 full
+rows + 2 orphan cards on every page — a broken layout. The 2-col 8-per-page
+variant is abandoned. 9 per page is the only correct pagination.
 
 Process:
-1. Include any real testimonials the client provided — these count toward 32.
+1. Include any real testimonials the client provided — these count toward 36.
 2. Write the remaining slots from scratch in the voice of the target audience.
    Source: design-system.md Section 7 (Tone of Voice) + market-intelligence.md Section 2
    (audience psychology — what they fear, want, and care about).
@@ -237,9 +243,9 @@ Rules for every testimonial (no exceptions):
 - No marketing language. No superlatives like "world-class" or "second to none."
 - Read each one aloud. If it sounds like an ad, rewrite it.
 
-Paginate in site.ts: group into pages of 8 (4 pages × 8 testimonials = 32 total).
-The /testimonials page renders these paginated. The homepage shows 3-4 featured quotes
-from the first group.
+Paginate in site.ts: group into **pages of 9 (4 pages × 9 testimonials = 36 total)**.
+The /testimonials page renders these paginated in a 3-column × 3-row grid on each
+page. The homepage shows 3-4 featured quotes from the first group.
 
 ### Content Standards (non-negotiable)
 - NEVER use em dashes (—) in any copy. Use commas, periods, or ellipses.
