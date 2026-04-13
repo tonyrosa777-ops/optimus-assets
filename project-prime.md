@@ -358,7 +358,11 @@ Wait for both agents to complete.
 
 Update progress.md: Stage 1D complete — content-writer and animation-specialist done.
 
-**Human checkpoint:** Review hero animation and site.ts hero copy. Approve before Stage 1E.
+**Human checkpoint:** Review hero animation and site.ts hero copy. Verify:
+  - Primary CTA drives to booking (not "Call Now" — phone belongs in nav bar only)
+  - Secondary CTA drives to quiz (/quiz)
+  - Both CTAs ultimately funnel to the booking calendar
+  Approve before Stage 1E.
 
 ---
 

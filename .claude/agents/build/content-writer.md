@@ -69,8 +69,14 @@ Hero copy requirements:
   (not generic — "New England's Premier Fencing Contractor" beats "Quality Fencing Services")
 - Tagline: One sentence. Supports the H1. Addresses the primary audience fear or desire.
   This tagline ALSO populates the site header alongside the logo — it renders on every page.
-- Primary CTA: Action verb + specific outcome. Not "Learn More." ("Get Your Free Estimate")
-- Secondary CTA: Lower commitment. ("See Our Work" or "How It Works")
+- Primary CTA: Action verb → booking. This is the direct path to the calendar.
+  Examples: "Book Your Free Estimate" / "Schedule Service" / "Book Now"
+  Never "Call Now" — the phone number lives in the nav bar, not the hero CTA.
+  Never "Learn More" or "See Our Work" — the primary CTA drives bookings.
+- Secondary CTA: Always the quiz. Label from hero.ctaSecondary.
+  Examples: "Take the Quiz" / "Find Your Perfect [Service]"
+  The quiz strategically leads to booking after the result screen, so both CTAs
+  funnel to the calendar — one direct, one through qualification.
 
 Header note: The site header renders:
   [Logo / Business Name] + [Company Tagline] + [Nav links] + ["Take the Quiz" CTA button]

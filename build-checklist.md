@@ -95,6 +95,9 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
 
 [ ] 12. Human review checkpoints during the sweep:
           → Hero copy (H1, tagline, CTA pair) — approve or request correction
+            ✓ Primary CTA → booking ("Book Now" / "Schedule Service" — never "Call Now")
+            ✓ Secondary CTA → quiz (always /quiz — never "See Our Work" or external link)
+            ✓ Phone number CTA belongs in nav bar only, not the hero
           → Hero animation — approve or request correction
           → Any [MISSING:] flags in site.ts — fill the gap, then continue
 

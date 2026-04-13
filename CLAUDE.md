@@ -340,9 +340,18 @@ before phase sign-off. Wrong: any copy other than the brand tagline in the H1.
 (which is #f5f5f5 on dark builds). If the background is dark and the text is dark, this is a build
 failure. Do a visual check: can you read every word without highlighting? If not, fix the color token.
 
+**Primary CTA is always booking.** The hero's primary button drives directly to the booking
+calendar — "Book Your Free Estimate," "Schedule Service," "Book Now," etc. It is NEVER
+"Call Now" — the phone number CTA belongs in the navigation bar, not the hero. It is never
+"Learn More" or "See Our Work." The primary CTA's job is to get the visitor onto the calendar.
+
 **Second CTA is always the quiz.** The hero's secondary button always links to `/quiz` with label
 from `hero.ctaSecondary`. It is never a webinar, info session, events page, or external link.
 The secondary CTA slot belongs to the quiz on every build, without exception.
+
+**Both CTAs funnel to booking.** The primary CTA goes directly to the calendar. The quiz CTA
+qualifies the lead first, then surfaces the calendar on the result screen. Two paths, same
+destination. This is the entire conversion architecture of the homepage hero.
 
 This 3-layer stack is non-negotiable. The animation-specialist agent selects the specific
 variants for layers 1 and 2. The text stagger is the same on every build.
