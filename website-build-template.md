@@ -51,6 +51,18 @@ Define these CSS custom properties in `globals.css` before writing any component
 - `font-body` — Paragraph text (readable, neutral)
 - `font-mono` — Labels, eyebrows, UI micro-copy
 
+**Typography Scale (define these utility classes in globals.css):**
+```css
+.text-display { font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1.1; }  /* Hero H1 */
+.text-h1      { font-size: clamp(2rem, 4vw, 3rem);   line-height: 1.15; } /* Interior page H1s */
+.text-h2      { font-size: clamp(1.5rem, 3vw, 2.25rem); line-height: 1.2; }
+.text-h3      { font-size: clamp(1.25rem, 2.5vw, 1.75rem); line-height: 1.25; }
+.text-h4      { font-size: clamp(1.1rem, 2vw, 1.35rem); line-height: 1.3; }
+```
+All interior page H1s use `hero-shimmer font-display text-h1`. The hero H1 uses
+`hero-shimmer font-display text-display`. Do not reference a `text-h1` class without
+defining it first — this has caused build failures when agents assume it exists.
+
 ---
 
 ## Directory Structure
@@ -260,6 +272,47 @@ Pick by checking design-system.md brand axes: warm brands → `.hero-shimmer`, c
 and confirm every word is readable without highlighting. If text blends into the background,
 the color token is wrong. Always use `color: var(--text-primary)` for headings and body on dark
 backgrounds. This check applies to ALL page headers, not just the homepage hero.
+
+### Page Header Standard (all interior pages)
+
+Every interior page (`/about`, `/services`, `/testimonials`, `/blog`, `/contact`, `/booking`,
+`/faq`, `/shop`, `/gallery`, `/quiz`) uses this exact structure for its page header. No agent
+should invent a different structure. This is the reference pattern:
+
+```tsx
+// Page root: fragment — never <main> with inline background
+export default function PageName() {
+  return (
+    <>
+      <Navigation />
+      {/* Page header section */}
+      <section className="relative overflow-hidden bg-[var(--primary)] pt-32 pb-20">
+        {/* Ambient canvas — RisingAsh or brand-appropriate variant */}
+        <RisingAsh />
+        {/* Content sits above canvas */}
+        <div className="relative z-10 container mx-auto px-4 text-center">
+          <h1 className="hero-shimmer font-display text-h1 font-bold">
+            Page Title
+          </h1>
+          <p className="text-secondary mt-4 max-w-2xl mx-auto">
+            Subtitle text
+          </p>
+        </div>
+      </section>
+      {/* Page body sections below */}
+    </>
+  );
+}
+```
+
+Key rules:
+- Fragment `<>` root — never `<main>` with an inline background style
+- Header section: `relative overflow-hidden`, dark gradient background
+- H1: `hero-shimmer font-display text-h1` — always shimmer, always `text-h1` (not `text-display`)
+- Heading + subtitle in the same gradient section (never split across sections)
+- Ambient canvas (RisingAsh or breathing orbs) inside the header section
+- Content div gets `relative z-10` to sit above the canvas
+- Every interior page must have this header — a page that opens with plain text is not finished
 
 ### Animation 1 — Canvas Particle System (`HeroParticles.tsx`)
 

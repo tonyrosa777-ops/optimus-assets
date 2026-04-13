@@ -845,6 +845,14 @@ Generate as needed. Each asset commits with the page that uses it.
    If any two prompts would produce near-identical results, rewrite before generating.
    First-time quality is the goal — re-running fal.ai wastes time and money.
 
+   **Never request readable text in prompts.** AI models produce garbled characters.
+   Rewrite any prompt that describes text on signs, logos, or labels — describe the
+   scene visually without requiring readable text.
+
+   **Visual review before commit:** After generating, visually inspect every image.
+   Regenerate with revised prompt if you see: garbled text, extra limbs, merged objects,
+   distorted faces, or composition that doesn't match intent. Do not commit artifacts.
+
    Save to /public/images/blog/[article-slug]-card.jpg and [article-slug]-header.jpg
    Commit each batch of images with the article that uses them.
 4. Gallery (trade businesses — always include):

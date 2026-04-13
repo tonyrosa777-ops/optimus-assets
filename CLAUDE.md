@@ -201,6 +201,19 @@ If a prompt batch has two prompts that would produce near-identical results, rew
 before generating. The cost of re-running fal.ai is higher than the cost of writing
 better prompts. First-time quality is the goal.
 
+**Never request readable text in image prompts.** AI image models cannot render legible
+text — they produce garbled characters (e.g., "REJUPED" instead of "REJECTED"). Rewrite
+any prompt that describes text on a sign, logo, label, or screen to describe the scene
+visually without requiring readable text.
+
+**Visual review before commit — non-negotiable.** After generating, visually inspect every
+image before committing. Common artifacts that require regeneration with a revised prompt:
+- Garbled or nonsense text baked into the image
+- Deformed subjects (extra limbs, merged objects, distorted faces)
+- Duplicate elements that shouldn't repeat
+- Composition that doesn't match the prompt intent
+If any image fails visual review, revise the prompt and regenerate. Do not commit artifacts.
+
 **Enforcement:** If the sweep completes without blog card images + header images for
 every article, that is a build failure. The pre-launch auditor checks for these files.
 
@@ -580,9 +593,26 @@ conversion nudge, use the quiz CTA (different format, different intent) — not 
 The full homepage must alternate background tones so that no two adjacent sections
 share the same background. Every transition shifts tone. This is non-negotiable.
 
-**Before building any homepage section**, write the full section order with a dark/light
-assignment as a comment block at the top of `app/page.tsx`. Plan the rhythm first,
-then build. Fixing alternation after the fact costs 3–5 refactor commits.
+**Before building any homepage section**, write the full section order as a comment block
+at the top of `app/page.tsx` with THREE columns: section name, dark/light, and purpose.
+Purpose is the conversion intent: "empathy," "social proof," "education," "conversion,"
+"commerce," "content preview," etc. No two adjacent sections may share the same purpose.
+This catches duplicate CTA sections (both marked "conversion") that color alternation misses.
+
+Example rhythm map:
+```
+// Hero           — dark  — conversion (primary CTA + quiz CTA)
+// Pain Points    — light — empathy
+// Services       — dark  — education
+// Stats          — light — social proof
+// Testimonials   — dark  — social proof (OK — not adjacent to Stats after reorder)
+// Quiz CTA       — light — conversion (mid-page nudge, different format than hero)
+// Blog Preview   — dark  — content preview
+// Shop Teaser    — light — commerce
+// Booking        — dark  — conversion (final CTA — only ONE at bottom)
+```
+
+Plan the rhythm first, then build. Fixing alternation after the fact costs 3–5 refactor commits.
 
 Two background tones:
 - **Dark:** `background: var(--primary)` with a **radial gradient overlay** — never flat solid

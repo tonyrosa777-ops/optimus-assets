@@ -63,6 +63,21 @@ record PASS / FAIL / WARN with a one-line note.
     Search: [PROJECT_FOLDER]/src for test@, example.com, noreply@test
     FAIL if: any test email found in API route handlers
 
+### SECTION 1B — Pricing Page Content (if pricing page still exists for demo)
+
+[ ] No Google services on pricing page
+    Search: [PROJECT_FOLDER]/src/app/pricing/ for the word "Google" (case-insensitive)
+    FAIL if: any match found. Optimus does not offer Google services on any tier.
+    Fix: remove every feature that mentions Google from all tiers.
+
+[ ] Client-facing feature names used (not technical names)
+    Read: [PROJECT_FOLDER]/src/app/pricing/page.tsx — scan tier feature lists
+    FAIL if: "Inline Booking Calendar" found — should be "Automated Booking Calendar"
+    FAIL if: "Interactive Quiz" found — should be "Lead-Capture Quiz"
+    FAIL if: "Blog Architecture" or "Sanity Blog" found — should be "Professional Blog"
+    FAIL if: "Shop Scaffold" or "Printful Integration" found — should be "Branded Merch Shop"
+    WARN if: any feature name sounds technical rather than benefit-oriented
+
 ### SECTION 2 — Copy Quality
 
 [ ] Placeholder text
