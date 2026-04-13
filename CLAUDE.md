@@ -369,10 +369,22 @@ Fixed Optimus pricing structure — same on every build, never customized per cl
 Pro gets the "Most Popular" badge. Starter and Premium are anchors.
 Premium never gets a badge — its job is to make $3,000 feel reasonable.
 
+**Client-facing feature names (use these exact labels — this is a sales page):**
+- "Automated Booking Calendar" — NOT "inline booking calendar" or "custom calendar"
+- "Lead-Capture Quiz" — NOT "interactive quiz" or "quiz funnel"
+- "Professional Blog" — NOT "blog architecture" or "Sanity blog"
+- "Branded Merch Shop" — NOT "shop scaffold" or "Printful integration"
+- "Testimonials Showcase" — NOT "testimonials page"
+- "Photo Gallery" — NOT "gallery page"
+Technical names describe what we build. Client-facing names describe what they get.
+
 **Never include on pricing page:**
 - "Deposit," "upfront," or any payment-split language. The price is the price.
   Anthony offers deposit splits verbally as a backup close — it is never on the page.
-- "Google Business Profile optimization" — Optimus does not offer this service.
+- Any Google service on any tier — not "Google Business Profile optimization," not
+  "Google Ads setup," not "Google Analytics," not any Google product. Optimus does
+  not offer Google services. If the word "Google" appears on the pricing page, it is
+  a build failure.
 
 The pricing page always contains:
 1. Three tier cards (Starter / Pro / Premium) with feature lists — price only, no deposit math
@@ -531,6 +543,29 @@ feel the luxury quality on every page, not just the hero.
 
 A website with one animated page and seven static pages is not a luxury product. It is a demo
 that loses the sale the moment the client clicks away from the hero.
+
+## Section Content Deduplication Rule
+Adjacent homepage sections must each serve a distinct PURPOSE and deliver a distinct
+MESSAGE. Two sections that both say "ready to [action]?" or both push the same CTA
+or both frame the same emotional beat are duplicates — even if they have different
+background colors. This is a content architecture failure, not a styling issue.
+
+**Before building homepage sections**, review the section list and ask for each pair
+of adjacent sections: "If a visitor scrolled past these two back-to-back, would they
+feel like they just read the same thing twice?" If yes, one of them must be:
+- Merged into the other
+- Replaced with a different section type (social proof, stats, process steps, FAQ preview)
+- Repositioned with 2+ unrelated sections between them
+
+Specific patterns that are ALWAYS duplicates and must never be adjacent:
+- Two CTA sections ("Ready to X?" / "Ready to Y?" / "Let's get started" / "Book now")
+- Two testimonial-style sections
+- Two sections that both lead with a question headline and end with the same button
+- A "contact us" section directly above or below a "book now" section
+
+One CTA block at the bottom of the homepage is sufficient. If the page needs a mid-page
+conversion nudge, use the quiz CTA (different format, different intent) — not another
+"Ready to...?" block.
 
 ## Section Alternation Rule
 The full homepage must alternate background tones so that no two adjacent sections

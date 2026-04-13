@@ -375,7 +375,20 @@ Every new route is wired to nav + sitemap.ts in the same commit. No exceptions.
 2. Footer (links, social icons, legal, schema address)
 Commit: feat(layout): nav + footer
 
-**Homepage sections:**
+**Homepage sections — plan before building:**
+
+⚠️ BEFORE writing any homepage section code:
+1. Write the full section order as a comment block at the top of app/page.tsx
+2. Assign dark/light to each section — ZERO adjacent sections with same background
+3. Review adjacent pairs for **content deduplication**: no two adjacent sections may
+   serve the same purpose or deliver the same message. Two "Ready to X?" CTA blocks
+   back-to-back is a build failure. Two sections that both end with "Book Now" back-to-back
+   is a build failure. Each section must have a DISTINCT purpose from its neighbors.
+4. One CTA block at the bottom is sufficient. If a mid-page conversion nudge is needed,
+   use the quiz CTA (different format, different intent) — not another "Ready to...?" block.
+5. Get alignment on the section map before building.
+
+Sections:
 3. Pain Points (4 cards, empathy framing, no CTA)
 4. About/Founder teaser → /about
 5. Services preview (3 cards) → /services
@@ -383,16 +396,21 @@ Commit: feat(layout): nav + footer
 7. Testimonials (3-4 quotes — no em dashes)
 8. Quiz CTA → /quiz
 9. Blog preview (placeholder cards → /blog)
-10. Booking preview (Calendly inline or placeholder → /booking)
-11. Final CTA block
-12. Mobile QA pass — test at 390px viewport width before committing:
+10. Shop teaser (2-3 featured products from seeded JSON → /shop) — always included
+11. Booking preview (Calendly inline or placeholder → /booking)
+12. Final CTA block
+13. Mobile QA pass — test at 390px viewport width before committing:
     ✓ Hero text starts within ~32px of the navigation bar bottom — NOT mid-screen
       If text is mid-screen: hero section is using `items-center`. Change to `items-start`
       and ensure content div has `pt-24 md:pt-40`. Do not commit until this passes.
     ✓ Dark/light section rhythm — ZERO adjacent sections share the same background (strict alternation, not just "no 3 in a row")
+    ✓ Section content rhythm — no two adjacent sections with similar messaging or purpose
+      (see Section Content Deduplication Rule below)
     ✓ No horizontal overflow at 390px (check every section)
     ✓ Quiz options render as emoji + label cards, not plain text list
     ✓ Booking calendar InlineWidget renders (not an empty box)
+    ✓ Shop teaser section present on homepage with product cards linking to /shop
+    ✓ /shop visible in nav bar
 Commit: feat(homepage): all sections complete
 
 **Core starter pages:**
@@ -612,7 +630,10 @@ Read that file before building. Adapt the structure — NOT the Xpertise-specifi
     
     **Never on the pricing page:** "deposit," "upfront," or payment-split language.
     The price is the price. Anthony offers deposit splits verbally as a backup close.
-    **Never listed as a feature:** "Google Business Profile optimization" — not an Optimus service.
+    **Never listed as a feature on ANY tier:** Any Google service — not "Google Business
+    Profile optimization," not "Google Ads setup," not "Google Analytics," not "Google
+    My Business," not any Google product. Optimus does not offer Google services. Period.
+    If the word "Google" appears anywhere on the pricing page, it is a build failure.
 
     Section A — Tier cards:
     - tiers[] array: id, label, name, price, recommended, features[], cta
@@ -620,6 +641,16 @@ Read that file before building. Adapt the structure — NOT the Xpertise-specifi
       from the reference. Pull from site.ts services and market-intelligence.md.
     - "Most Popular" badge on Pro. Price shown as the full amount only — no deposit breakdown.
     - Each tier CTA opens the BookingCalendar inline — same component as /booking page.
+
+    **Client-facing feature names (use these exact labels on the pricing page):**
+    This is a sales page shown to clients. Use appealing, benefit-oriented names:
+    - "Automated Booking Calendar" — NOT "inline booking calendar" or "custom calendar"
+    - "Lead-Capture Quiz" — NOT "interactive quiz" or "quiz funnel"
+    - "Professional Blog" — NOT "blog architecture" or "Sanity blog"
+    - "Branded Merch Shop" — NOT "shop scaffold" or "Printful integration"
+    - "Testimonials Showcase" — NOT "testimonials page" or "36 testimonials"
+    - "Photo Gallery" — NOT "gallery page" or "fal.ai gallery"
+    Technical names describe what WE build. Client-facing names describe what THEY get.
 
     Section B — ROI Calculator (ROICalculator component in same file):
     - Slider 1: Average job/project value — min $500, max $20,000, step $100
@@ -761,10 +792,33 @@ Update progress.md: Stage 1F complete.
 
 ### STAGE 1G — Assets
 
-⚠️ PRE-FLIGHT — check .env.local before generating a single image:
-  - FAL_KEY is set and non-empty → BLOCK if blank. Add key now, then continue.
-    Get key at: fal.ai/dashboard → API Keys → Create Key
-    Without FAL_KEY, every fal.ai call fails silently and blog images won't exist.
+⛔ **HUMAN PAUSE — MANDATORY.** Do NOT proceed silently. Do NOT skip this gate.
+
+Before generating a single image, the orchestrator MUST:
+1. Read .env.local and check whether FAL_KEY has a value
+2. If FAL_KEY is blank or missing, **STOP and display this message to the user:**
+
+```
+⛔ FAL.AI KEY REQUIRED — STAGE 1G BLOCKED
+──────────────────────────────────────────
+Blog article images (card + header for every article) and gallery images
+are generated now. Without FAL_KEY, all image generation will fail silently
+and the build ships with missing images — which is a build failure.
+
+ACTION NEEDED:
+  1. Go to fal.ai/dashboard → API Keys → Create Key
+  2. Add to .env.local:  FAL_KEY=your_key_here
+  3. Type GO when the key is set
+
+I will not proceed until the key is confirmed.
+```
+
+3. **Wait for the user to type GO.** Do not auto-continue. Do not assume the key is set.
+4. After GO, re-read .env.local and confirm FAL_KEY is non-empty. If still blank, repeat the message.
+
+If FAL_KEY was already set: announce "FAL_KEY confirmed — proceeding with image generation" and continue.
+
+Also check:
   - CALENDLY_API_KEY is set → WARN if blank; BookingCalendar will use seeded demo mode
 
 **fal.ai image generation is NEVER optional and NEVER deferred.**

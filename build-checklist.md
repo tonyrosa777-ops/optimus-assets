@@ -72,7 +72,8 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
                Premium includes: Pro + shop. No badge — anchors Pro as reasonable.
                Pro gets "Most Popular" badge.
                NEVER include: "deposit," "upfront," payment-split language, or
-               "Google Business Profile optimization."
+               any Google service on any tier (not Google Business Profile, not Google
+               Ads, not Google Analytics — no Google anything. Build failure if present).
                Includes: tier cards (price only) + ROI calculator (sliders:
                avg job value + clients/month → break-even + 12-month ROI per tier) +
                full comparison chart (Foundation / Conversion / Content & SEO / Commerce / Support).
@@ -98,6 +99,9 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
           → Any [MISSING:] flags in site.ts — fill the gap, then continue
 
 [ ] 13. Assets (generate when pages need them — NEVER skip fal.ai step):
+          ⛔ HUMAN PAUSE before generating: Orchestrator checks .env.local for FAL_KEY.
+          If blank → STOP, display message asking user to add fal.ai key, WAIT for GO.
+          Do NOT auto-continue. Do NOT skip. Missing images = build failure.
           Hero: animated canvas/JS (logo-based default) — never a photo, never fal.ai.
           Blog post card images + article header images → fal.ai (one card + one header per article)
             ⚠️ PROMPT QUALITY GATE: Write ALL prompts first, review as a set.
@@ -144,7 +148,9 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
           [ ] No horizontal scroll at 375
           [ ] Mobile nav drawer overlay is dark and opaque, not transparent
           [ ] Every interior page has a brand-appropriate animation (Page Animation Rule)
-          [ ] Homepage passes the Section Alternation Rule scroll-check
+          [ ] Homepage passes the Section Alternation Rule scroll-check (background tones)
+          [ ] Homepage passes the Section Content Deduplication Rule (no adjacent sections
+              with similar messaging, purpose, or CTA — e.g. two "Ready to X?" blocks)
           [ ] Dev server explicitly stopped via TaskStop
 
         If any exit criterion fails: fix, re-verify all affected breakpoints, re-check console.
