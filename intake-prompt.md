@@ -73,6 +73,8 @@ If something is partially clear, fill what you know and flag the uncertain porti
 | Business Name | Site title, logo alt text, footer, meta title |
 | Business Type | Infer from services offered and positioning language |
 | Location | Contact page, footer, Google Maps embed, schema markup, address mentions |
+| Base city | Where the business is physically located — physical address, Google Maps pin, "located in" mentions. Often different from service area. |
+| Service area | The region they actually serve — "serving [area]", "we cover [region]", service area map, ZIP code lists. A contractor in Salem NH may serve all of southern NH + northern MA. |
 | Tagline / elevator pitch | Homepage hero headline + subheadline (combine into 1–2 sentences) |
 | Years in operation | About page, footer copyright year, "founded in" mentions |
 | Current stage | Infer: new domain + thin content = pre-launch; established content + reviews = scaling |
@@ -90,6 +92,8 @@ If something is partially clear, fill what you know and flag the uncertain porti
 | Delivery format | Services page, FAQ, about page — look for in-person / online / hybrid signals |
 | What makes it different | Any "why us", "our difference", "our approach" copy — quote it directly |
 | Signature methodology | Named frameworks, processes, or programs with a proper name |
+| Service radius | How far do they travel? Look for "within X miles", service area maps, ZIP code lists, "serving [radius]" language. If not stated: `⚠️ NOT FOUND — confirm with client` |
+| Travel fee policy | Free within X miles, $Y per mile after, flat travel fee, etc. Look in pricing/FAQ/services pages. Important for service-area page content and pricing transparency. If not stated: `⚠️ NOT FOUND — confirm with client` |
 
 **Note:** Copy pricing exactly as shown on the site. Do not round or estimate.
 If no pricing is public, write: `⚠️ NOT FOUND — confirm with client`

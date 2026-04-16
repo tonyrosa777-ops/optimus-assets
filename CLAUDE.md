@@ -135,6 +135,20 @@ the template establishes. Flag every custom addition in progress.md.
 
 Do not ignore the template's patterns. Do not be constrained by its scope.
 
+## CSS Scaffold Completeness Rule
+Phase 1 globals.css must declare all of the following before any component is built:
+- Complete --space-* scale: --space-xs (0.25rem) through --space-3xl (4rem)
+- All display type sizes as clamp(): --text-display, --text-h1 through --text-h4
+  (exact values in website-build-template.md Design Tokens section)
+- scroll-padding-top on html: 96px mobile / 112px at sm / 128px at lg
+  (must match actual header height at each breakpoint — anchor links will
+  scroll behind the fixed header without this)
+
+After scaffold, grep src/ for any var(-- reference and verify every referenced
+CSS variable is declared in globals.css. An undefined custom property silently
+resolves to the empty string — layout collapses to 0px with zero build warnings
+and zero lint errors. This check is mandatory before Phase 1 proceeds.
+
 ## Design System Rule
 design-system.md is the brand constitution. It was synthesized directly
 from market-intelligence.md and initial-business-data.md. You may not deviate
@@ -178,6 +192,26 @@ When any phase completes with a non-obvious finding or pattern:
 
 At project close:
 1. Add a row to the Project Retrospectives table in `build-log.md`
+
+## Knowledge Base Scope Rule
+CLAUDE.md rules and website-build-template.md patterns must apply to every single
+build — no exceptions, no "if applicable." If a rule does not apply universally,
+it does not belong in CLAUDE.md or the template.
+
+Optional integrations and upsell features stay in knowledge/ only:
+- Sanity CMS — premium tier only (default: manual blog creation for demo)
+- CRM / Go High Level — upsell, not standard
+- Instagram / Behold.so feed — optional, client must have active Instagram
+- Bilingual support — client-specific
+- Credential-specific fields (commission dates, license numbers) — industry-specific
+
+Agents consult knowledge/ when the project's intake data (initial-business-data.md)
+indicates relevance — never by default, never enforced universally.
+
+Before adding any new rule to CLAUDE.md or pattern to website-build-template.md, ask:
+"Does this apply to EVERY build, regardless of client, industry, or tier?"
+If no → it belongs in knowledge/ as a reference pattern.
+If yes → it is a workflow rule and belongs here.
 
 ## Image Generation Rule (fal.ai)
 fal.ai image generation is NEVER optional and NEVER deferred. Every blog article ships
@@ -266,6 +300,16 @@ reasonably write ourselves.
   Choosing the right emoji: match the semantic meaning, not decoration.
   A plumbing service gets 🔧. A lawn care service gets 🌿. Speed stat gets ⚡.
   Wrong: generic ✨ on everything. Right: specific, meaningful, instantly readable.
+
+## Git Identity Rule
+Before the first commit on any new project, verify git identity is set:
+  git config user.name
+  git config user.email
+If either is empty or wrong, set per-repo identity:
+  git config user.name "Anthony Rosa"
+  git config user.email "anthonyrosa14@icloud.com"
+Vercel deploy will fail if the committer email does not match the GitHub account.
+This has caused blocked deploys on two prior builds (Errors #13, #23).
 
 ## Hero Architecture Rule
 Every hero section ships with exactly 3 layers. No exceptions. No photos. No static backgrounds.

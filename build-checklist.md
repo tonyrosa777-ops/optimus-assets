@@ -28,8 +28,24 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
 
 [ ] 7.  Review the 10 variables. Type GO → scaffold runs.
 
+[ ] 7b. Git identity check (before first commit — Errors #13, #23):
+        Run: git config user.email
+        If empty or wrong, set per-repo:
+          git config user.name "Anthony Rosa"
+          git config user.email "anthonyrosa14@icloud.com"
+        Vercel deploy will fail if committer email doesn't match GitHub account.
+
 [ ] 8.  Push to GitHub. Connect to Vercel → Framework: Next.js, Root Directory: set correctly.
         Confirm green build before continuing.
+
+[ ] 8b. CSS scaffold completeness check (Error #39 — non-negotiable):
+        After globals.css scaffold, grep src/ for var(-- references.
+        Verify every referenced CSS variable is declared in globals.css.
+        Required variables: complete --space-* scale (xs through 3xl),
+        all --text-* display sizes as clamp(), scroll-padding-top on html
+        with breakpoint values matching header height.
+        FAIL if any variable is referenced but undefined — layout will
+        silently collapse to 0px with no build/lint warning.
 
 ---
 

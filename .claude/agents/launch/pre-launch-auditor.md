@@ -155,6 +155,22 @@ record PASS / FAIL / WARN with a one-line note.
     Read: /src/app/api/stripe/webhook/route.ts
     FAIL if: webhook route exists but does not call stripe.webhooks.constructEvent()
 
+[ ] Form handlers actually send email — not stubs (Error #19)
+    Read: every API route that handles form submission (/api/contact, /api/quiz, /api/newsletter)
+    Check: the handler body contains a call to resend.emails.send() or equivalent
+    FAIL if: route file exists but handler only returns Response.json({ ok: true }) with no email call
+    Also: grep src/ for onSubmit handlers that call e.preventDefault() with no subsequent fetch()
+    FAIL if: any form has e.preventDefault() but never calls fetch() or an API route
+    (Error #19 — form silently swallows submission. Client discovered post-launch when no inquiries arrived.)
+
+[ ] Hero CTA buttons are not intercepted by background elements (Error #48)
+    Read: hero component (Hero.tsx, HeroSection.tsx, or equivalent)
+    Check: content wrapper div has `relative z-10` class
+    Check: any decorative background element (Image fill, canvas container, overlay div) has `pointer-events-none`
+    FAIL if: content wrapper is missing z-10
+    FAIL if: background element is missing pointer-events-none
+    Note: runtime click verification deferred to Section 11 multi-breakpoint browser audit
+
 ### SECTION 5 — Booking Flow
 
 [ ] Calendly widget is embedded (not a redirect link)
@@ -181,6 +197,16 @@ record PASS / FAIL / WARN with a one-line note.
 [ ] All pages wired to navigation
     Read: nav array in site.ts
     Flag any page in /src/app/ that has no navigation link (could be intentional — WARN not FAIL)
+
+[ ] Mobile nav link count matches sitemap (Error #38)
+    Read: mobile nav drawer component (MobileNav.tsx or equivalent)
+    Count: number of links rendered in the mobile nav drawer
+    Compare: against total routable pages in /src/app/ (exclude API routes, layout files, /studio)
+    FAIL if: any routable page is unreachable from mobile nav
+    Note: desktop nav may use a "More" dropdown to group links — mobile nav must still
+    surface every page as a direct link. The "More" dropdown does not exist on mobile.
+    (Error #38 — orchestrator had screenshot of mobile nav and missed missing pages
+    because the check was open/close/overlay only, not a link count)
 
 ### SECTION 7 — SEO
 

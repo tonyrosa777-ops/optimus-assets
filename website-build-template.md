@@ -40,6 +40,27 @@ Define these CSS custom properties in `globals.css` before writing any component
   --text-primary: #f5f5f5;
   --text-secondary: rgba(245, 245, 245, 0.7);
   --text-muted: rgba(245, 245, 245, 0.4);
+
+  /* Spacing Scale (standard across all builds — Error #39) */
+  --space-xs: 0.25rem;   /* 4px */
+  --space-sm: 0.5rem;    /* 8px */
+  --space-md: 1rem;      /* 16px */
+  --space-lg: 1.5rem;    /* 24px */
+  --space-xl: 2rem;      /* 32px */
+  --space-2xl: 3rem;     /* 48px */
+  --space-3xl: 4rem;     /* 64px */
+}
+
+/* Scroll padding — matches fixed header height at each breakpoint (Error #49).
+   Without this, anchor links (#id) scroll the target behind the fixed navbar. */
+html {
+  scroll-padding-top: 96px;
+}
+@media (min-width: 640px) {
+  html { scroll-padding-top: 112px; }
+}
+@media (min-width: 1024px) {
+  html { scroll-padding-top: 128px; }
 }
 ```
 
@@ -204,7 +225,7 @@ A photo placeholder in the hero is a build failure. The right panel contains the
   <HeroParticles />  {/* Layer 1 — full background */}
   <div className="container mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-0">
     {/* Layer 3 — text, left panel */}
-    <div className="w-full lg:w-1/2 lg:pr-12">
+    <div className="w-full lg:w-1/2 lg:pr-12 relative z-10">
       <p className="font-mono text-primary">{eyebrow}</p>
       <h1 className="hero-shimmer font-display font-bold">{siteConfig.tagline}</h1>
       <p className="text-secondary">{hero.subheadline}</p>  {/* emotional hook copy goes here */}
@@ -214,12 +235,18 @@ A photo placeholder in the hero is a build failure. The right panel contains the
       </div>
     </div>
     {/* Layer 2 — Brand Canvas, right panel */}
-    <div className="w-full lg:w-1/2 relative" style={{ height: "clamp(340px, 50vw, 540px)" }}>
+    <div className="w-full lg:w-1/2 relative pointer-events-none" style={{ height: "clamp(340px, 50vw, 540px)" }}>
       <BrandNameCanvas />
     </div>
   </div>
 </section>
 ```
+
+**Hero click-safety rule (Error #48):** Any decorative background element in the hero
+(fill images, overlay divs, canvas containers) must have `pointer-events-none`.
+The content wrapper div must have `relative z-10`. Without these, invisible background
+elements intercept CTA clicks — impossible to catch visually during dev, only caught
+by actually clicking the buttons in Playwright.
 
 **H1 = siteConfig.tagline always.** The tagline is the brand identity statement and always gets
 the H1 slot. Emotional hook copy ("Stop paying twice your mortgage") goes in the subheadline `<p>`.
