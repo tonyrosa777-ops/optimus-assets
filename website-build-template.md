@@ -1046,6 +1046,7 @@ async function sendOrderAlertToOwner(
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL!,   // e.g. orders@[client-domain].com — Resend-verified
       to: process.env.OWNER_EMAIL!,           // client's notification email — set in Vercel env vars
+      replyTo: customer?.email,               // REQUIRED — owner hits Reply, goes to customer (Error #50)
       subject: `New Order — $${total}`,
       text: `New order!\n${manualFlag}\nCustomer: ${customer?.name} <${customer?.email}>\nTotal: $${total}\n\nItems:\n${itemLines}\n\nStripe: ${session.id}`,
     });
@@ -1060,6 +1061,15 @@ async function sendOrderAlertToOwner(
 2. Add and verify your sending domain (GoDaddy: use "Auto-configure" — it sets DKIM + SPF automatically)
 3. Create an API key → add to Vercel as `RESEND_API_KEY`
 4. Set `RESEND_FROM_EMAIL=orders@[client-domain].com` in Vercel — must match the verified domain
+5. Set `OWNER_EMAIL=owner@gmail.com` in Vercel — the business owner's real inbox.
+   This is the single source of truth for where lead notifications go and where customer
+   replies land. Every API route reads `process.env.OWNER_EMAIL` — never hardcode an email.
+   During demo, set to Anthony's email. At launch, swap to the client's real email. One change, done.
+6. **Every `resend.emails.send()` must have explicit `replyTo`** (Error #50):
+   - Owner notification emails: `replyTo: customerEmail` (so owner Reply reaches the customer)
+   - Auto-reply emails to customer: `replyTo: process.env.OWNER_EMAIL` (so customer Reply reaches owner)
+   - Marketing emails (VIP, newsletter): must also include CAN-SPAM unsubscribe line + physical address
+   The branded `from` address (e.g. orders@domain.com) is NOT a real inbox — replies to it bounce.
 
 ---
 
@@ -1129,8 +1139,10 @@ and notify the client of a qualified lead. This is a lead magnet funnel, not a c
 The user gets instant gratification on screen — no email to the user. Calendly collects
 their email as part of the booking flow on the results screen.
 
-**Critical distinction:** The quiz posts to `/api/quiz`, not `/api/contact`. It is a completely
-separate system with its own data layer and email logic.
+**Critical distinction:** The quiz is a client-side scored funnel — it does NOT post to any API.
+There is no `/api/quiz` route. Scoring happens in the browser via `scoreQuiz()`. The client
+is notified of bookings through Calendly's own booking confirmation (the calendar is inline
+on the results screen). The quiz has its own data layer but no email logic.
 
 ---
 
@@ -1805,14 +1817,82 @@ export default function HomePage() {
 
 | Route | Method | Purpose |
 |-------|--------|---------|
-| `/api/contact` | POST | Contact form + quiz submission → email |
-| `/api/newsletter` | POST | Newsletter signup → email list |
+| `/api/contact` | POST | Contact form → owner notification email |
+| `/api/newsletter` | POST | Newsletter/VIP signup → welcome email (CAN-SPAM required) |
 | `/api/printful/products` | GET | Fetch Printful sync catalog; falls back to seeded JSON |
 | `/api/printful/variants/[id]` | GET | Fetch variant sizes + colors for picker; parses KNOWN_COLORS |
 | `/api/stripe/checkout` | POST | Create Stripe checkout session; stores cart in metadata |
 | `/api/stripe/webhook` | POST | **Fulfillment trigger** — splits POD/manual, creates Printful order, alerts owner |
 | `/api/instagram` | GET | Proxy Instagram Graph API |
 | `/api/revalidate` | POST | ISR webhook from Sanity |
+
+### Contact Form Route — `/api/contact/route.ts` (Error #50 compliance)
+
+```ts
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export async function POST(req: Request) {
+  const { name, email, phone, message } = await req.json();
+
+  // Owner notification — replyTo = lead's email so owner Reply goes to customer
+  await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL!,
+    to: process.env.OWNER_EMAIL!,
+    replyTo: email,                         // REQUIRED (Error #50)
+    subject: `New Inquiry from ${name}`,
+    text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\n\n${message}`,
+  });
+
+  // Auto-reply to customer — replyTo = owner's real email so customer Reply reaches owner
+  await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL!,
+    to: email,
+    replyTo: process.env.OWNER_EMAIL!,      // REQUIRED (Error #50)
+    subject: `We got your message, ${name}!`,
+    text: `Thanks for reaching out! We'll get back to you within 24 hours.\n\n— ${process.env.NEXT_PUBLIC_SITE_URL}`,
+  });
+
+  return Response.json({ ok: true });
+}
+```
+
+### Newsletter/VIP Route — `/api/newsletter/route.ts` (CAN-SPAM required)
+
+```ts
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export async function POST(req: Request) {
+  const { email } = await req.json();
+
+  // Welcome email — this promises future communication, so CAN-SPAM applies
+  await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL!,
+    to: email,
+    replyTo: process.env.OWNER_EMAIL!,      // REQUIRED (Error #50)
+    subject: "Welcome — you're on the list!",
+    text: [
+      "Thanks for signing up! You'll be the first to know about new offerings and updates.",
+      "",
+      "— [BUSINESS_NAME]",
+      "[PHYSICAL_ADDRESS]",                  // CAN-SPAM: physical mailing address required
+      "",
+      "—",
+      'Don\'t want to hear from us? Reply to this email with "UNSUBSCRIBE" and we\'ll remove you from the list.',
+    ].join("\n"),
+  });
+
+  return Response.json({ ok: true });
+}
+```
+
+**CAN-SPAM rule:** Any email that promises future sends (VIP welcome, newsletter, drip)
+is marketing under CAN-SPAM. Must include: (1) opt-out mechanism, (2) physical business
+address. Transactional emails (order confirmation, booking confirmation, contact auto-reply)
+do NOT require these — they are one-time responses to a user action.
 
 ---
 
@@ -1871,6 +1951,8 @@ export const siteData = {
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 RESEND_API_KEY=re_...
+OWNER_EMAIL=anthonyrosa14@icloud.com
+RESEND_FROM_EMAIL=hello@[client-domain].com
 PRINTFUL_API_KEY=...
 NEXT_PUBLIC_CALENDLY_URL=https://calendly.com/clientname/meeting
 NEXT_PUBLIC_SITE_URL=https://www.[client-domain].com
@@ -1883,6 +1965,8 @@ NEXT_PUBLIC_SHOW_PRICING_TOOLS=true
 - [ ] `STRIPE_SECRET_KEY` — use live key (not test key) in production
 - [ ] `STRIPE_WEBHOOK_SECRET` — from Stripe → Webhooks → your endpoint → Signing secret
 - [ ] `RESEND_API_KEY` — from Resend → API Keys (see onboarding checklist — domain must be verified first)
+- [ ] `OWNER_EMAIL` — business owner's real inbox (swap from Anthony's email to client's at launch)
+- [ ] `RESEND_FROM_EMAIL` — branded sending address matching Resend verified domain (e.g. `hello@clientdomain.com`)
 - [ ] `NEXT_PUBLIC_CALENDLY_URL` — client's Calendly event link
 - [ ] `NEXT_PUBLIC_SITE_URL` — canonical domain with protocol and www (e.g. `https://www.[client-domain].com`)
 - [ ] `INSTAGRAM_ACCESS_TOKEN`

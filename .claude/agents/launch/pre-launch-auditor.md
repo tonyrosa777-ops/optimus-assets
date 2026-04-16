@@ -128,6 +128,23 @@ record PASS / FAIL / WARN with a one-line note.
     Or check for /src/app/api/quiz/route.ts
     FAIL if: quiz form submits but quiz answers are not sent to Resend
 
+[ ] Every resend.emails.send() call has explicit replyTo (Error #50)
+    Search: grep all /src/app/api/ routes for resend.emails.send
+    For each call, verify:
+      - Owner notification emails: replyTo = lead/customer email variable (so owner Reply goes to customer)
+      - Auto-reply emails to customer: replyTo = owner's real email (process.env.OWNER_EMAIL or similar)
+    FAIL if: any resend.emails.send() call is missing the replyTo field entirely
+    FAIL if: replyTo is hardcoded to a branded from-address (e.g. quiz@domain.com) — that is the same bug
+    Reference: knowledge/errors/resend-missing-replyto-and-can-spam.md
+
+[ ] Marketing emails include CAN-SPAM compliance (Error #50)
+    Check: any email that promises future communication (VIP welcome, newsletter, drip sequence)
+    Must include in the email body:
+      - Unsubscribe mechanism (e.g. "Reply UNSUBSCRIBE to be removed")
+      - Physical business address
+    WARN if: no marketing emails exist (acceptable — not all projects have them)
+    FAIL if: marketing email exists without unsubscribe + physical address
+
 [ ] Shop checkout route exists (if shop was not deleted)
     Check: does /src/app/shop/ directory exist?
     If YES: read /src/app/api/stripe/checkout/route.ts

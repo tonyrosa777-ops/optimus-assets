@@ -166,12 +166,24 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
 [ ] 15. Resend: create client account → add domain → auto-configure DNS → create API key.
         Add RESEND_API_KEY to Vercel. Test contact form → confirm email arrives within 30 seconds.
 
+[ ] 15b. Resend email compliance audit (Error #50 — non-negotiable):
+         Grep all /src/app/api/ routes for resend.emails.send().
+         Every call must have explicit replyTo:
+           - Owner notifications: replyTo = lead's email (owner Reply → customer)
+           - Auto-replies to customer: replyTo = owner's real email (customer Reply → owner)
+         Any marketing email (VIP welcome, newsletter) must include:
+           - Unsubscribe mechanism + physical business address (CAN-SPAM)
+         Test: submit every form, check that Reply on every received email goes to the right inbox.
+         FAIL if any call is missing replyTo. Fix before proceeding.
+
 [ ] 16. Connect domain to Vercel:
         GoDaddy DNS → delete parking A record → add A record 76.76.21.21 → add CNAME cname.vercel-dns.com
         Wait 5-30 minutes → verify green checkmarks in Vercel.
 
 [ ] 17. Add all Vercel env vars:
-        Always: NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_SHOW_PRICING_TOOLS=false,
+        Always: OWNER_EMAIL (business owner's real inbox — single source for all Resend replyTo + notification recipient),
+                RESEND_FROM_EMAIL (branded sending address — must match Resend verified domain),
+                NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_SHOW_PRICING_TOOLS=false,
                 NEXT_PUBLIC_CALENDLY_URL, SANITY_PROJECT_ID, SANITY_DATASET,
                 FAL_KEY (same key used during build — images already generated, key kept for future updates)
         Shop only: STRIPE_SECRET_KEY (live), STRIPE_WEBHOOK_SECRET, PRINTFUL_API_KEY,

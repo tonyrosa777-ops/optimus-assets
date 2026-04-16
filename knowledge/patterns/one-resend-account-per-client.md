@@ -16,9 +16,17 @@ Each client gets their own free Resend account rather than adding multiple clien
 3. Add the DNS records Resend provides (SPF, DKIM, CNAME) to the client's DNS registrar
 4. Create API key → name it `[ClientName] Website` → copy `re_...` key
 5. Add to Vercel: `RESEND_API_KEY` = the key
-6. In code, store recipient email as env var with hardcoded fallback:
+6. Set `OWNER_EMAIL` in Vercel → the business owner's real inbox (e.g. `owner@gmail.com`).
+   Set `RESEND_FROM_EMAIL` in Vercel → the branded sending address (e.g. `hello@clientdomain.com`).
+   In code, every API route reads these from env — never hardcode:
 ```ts
-to: process.env.CLIENT_EMAIL ?? 'client@email.com'
+await resend.emails.send({
+  from: process.env.RESEND_FROM_EMAIL!,
+  to: process.env.OWNER_EMAIL!,
+  replyTo: leadEmail,  // REQUIRED — see Error #50
+  subject: `New Lead: ${name}`,
+  text: body,
+});
 ```
 
 ## Key Rules

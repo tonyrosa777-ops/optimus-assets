@@ -166,3 +166,58 @@ Sanity's onboarding pushes you toward a **standalone Studio** in its own folder 
 - New error added to Error Encyclopedia: `SIO-401-AWH "Session does not match project host"` = wrong project ID in the token's parent env var, not a token permissions issue
 - New pattern added to Build Patterns: **"Idempotent CMS Migration Script"** — deterministic IDs, dry-run default, image upload caching, date normalization, `_key` generation for Portable Text
 
+---
+
+# Post-Migration Addition — Automated Blog Post Publishing Pipeline (Apr 14, 2026)
+
+**Motivation:** Migration shipped with 10 posts. Within a few days we were writing an 11th (and subsequent posts will keep arriving). Clicking through Studio for each new post — paste title, paste excerpt, paste each paragraph as a separate Portable Text block, upload image, set category, set date, publish — is ~20 minutes per post and error-prone. The client is fine doing it that way for ad-hoc edits, but routine publishes (especially when an agent is polishing the copy) deserve automation.
+
+**Result:** Two-command publish ritual — generate image, then publish post. Total time per post from final JSON: ~15 seconds.
+
+## Architectural Decision — Extend the Migration Script Pattern, Don't Reinvent
+The migration script (`migrate-to-sanity.ts`) already solved the hard problems: legacy-block → Portable Text conversion, deterministic `_id`s for idempotency, image upload with caching. The new single-post script is essentially that script with a `for (post of posts)` loop removed and CLI args added. Same shape, same invariants, same safety properties (idempotent, re-runnable, no orphans).
+
+## Steps Taken, in Order
+1. **Refactored the one-shot fal.ai script** from the workaholism post (Apr 10) into a reusable `scripts/generate-blog-image.mjs` taking `<slug>` and either a `"<prompt>"` string or `--prompt-file <path>` argument. Prompts now archived in `scripts/prompts/<slug>.txt` so they live with the repo.
+2. **Wrote the 11th post JSON** at `scripts/posts/micro-actions-survival-mode.json` in the same legacy `ContentBlock[]` shape the migration script already knows how to convert — reused the same converter logic rather than writing Portable Text by hand.
+3. **Built `scripts/publish-blog-post.mjs`** — reads the JSON, uploads the matching image from `public/images/blog/<slug>.png`, converts blocks to Portable Text, `createOrReplace` on `blogPost-<slug>`, cleans up any same-ID draft.
+4. **Added `SANITY_API_CONTRIBUTOR_TOKEN` to `.env.local`** on the first attempt. Client pasted a Contributor-role token. Script failed 403 on publish — Contributor can only write to `drafts.` prefix (see error #46).
+5. **Switched draft the script to write to `drafts.blogPost-<slug>`** to match Contributor scope. Image upload then failed 403 on the *second* run (first run had uploaded successfully) with `"update" permission required`. Root cause: Sanity dedupes images by SHA-1; re-upload of same content is treated as an update, which Contributor lacks (error #47).
+6. **Added SHA-1 asset reuse fallback** to the script — catch the 403, look up the existing asset by content hash, reuse its `_id`. Made the script idempotent under Contributor tokens.
+7. **Client chose to upgrade the token to Editor** (`SANITY_API_EDITOR_TOKEN`) — wants direct publish, no manual review step. Renamed the env var, flipped `drafts.blogPost-<slug>` → `blogPost-<slug>` in the script.
+8. **Published**: 10 → 11 posts on Sanity. Asset dedup kicked in (second-ever upload of that specific image during debugging), SHA-1 fallback resolved it transparently, document written in one call.
+9. **Committed** as `feat: add 11th blog post — Micro Actions That Pull You Out of Survival Mode` (commit `5da2131`). Tooling committed alongside the post content.
+
+## What Went Well
+- The migration script's design decisions paid compound interest. Because it was already idempotent, already used deterministic IDs, already handled block conversion — the single-post variant was ~100 lines of node, not 500.
+- The prompt-file archive pattern turned out to be more valuable than expected. Three posts in, the prompts have a consistent shape (scene, palette, lighting, emotional tone, no-text caveat) that gives the blog visual cohesion for free.
+- The Contributor → Editor token decision got made correctly *because* we hit the error. Without it, the client would have defaulted to Editor without thinking. Now the trust model is explicit: content is polished before the script runs, so no human checkpoint is needed.
+- SHA-1 asset reuse is a permanent win even after upgrading to Editor — the script stays idempotent under either role.
+
+## What Didn't
+| # | Gap | Fix Applied |
+|---|-----|-------------|
+| 1 | Initially assumed "Contributor" in Sanity meant "can create content." It means "can create drafts, cannot publish." Should have checked role docs before issuing the token | Caught at first script run (403); upgraded to Editor for this client's trust model |
+| 2 | First-run-worked / second-run-failed on image upload was baffling until the dedup behaviour clicked. Spent ~5 min reading the error URL (`/assets/images/...`) and wondering why "update" was required on a file we'd just uploaded | Added SHA-1 fallback so the script is robust to both fresh and re-run uploads |
+| 3 | The earlier workaholism post (Apr 10) shipped with a hardcoded prompt inside the one-shot script. Refactoring into the parameterized form in this session meant we had to hunt down the original prompt from the commit diff to re-archive it | Going forward: prompts always start in `scripts/prompts/`, never in the script body |
+
+## Tools Introduced This Build (Post-Migration Addition)
+| Tool | Purpose | Notes |
+|------|---------|-------|
+| `scripts/generate-blog-image.mjs` (reusable) | fal.ai flux-pro/v1.1-ultra blog image pipeline | Takes `<slug>` + `--prompt-file`; queue endpoint for reliable long generations |
+| `scripts/publish-blog-post.mjs` | Direct-to-Sanity publish without Studio UI | Reuses migration script's Portable Text converter + idempotent write pattern |
+| `scripts/prompts/` + `scripts/posts/` directories | Version-controlled prompt and post archives | Prompts live with the repo so regenerations are reproducible |
+
+## Patterns Worth Remembering
+- **If you just built a one-shot script, and a second use case is plausible within the month, refactor it before shipping.** The workaholism one-shot only needed two parameters to become reusable. Refactoring after the second use case is cheaper than refactoring after the fifth.
+- **Idempotent scripts earn their complexity.** The SHA-1 fallback, the draft cleanup, the deterministic IDs all looked like overkill until the second run. They kept becoming the thing that saved the session.
+- **Pick the Sanity role to match the trust model, not to match "what seems convenient."** Contributor is the right default for unreviewed content (agent-written, client-submitted, UGC). Editor is the right answer when the content has already passed a human gate before the script runs.
+- **Prompt archives beat prompt lottery.** Three posts with consistent prompt scaffolding beat thirty posts with `num_images: 4` and a "pick the best" step. The style discipline goes into the text, not the selection.
+
+## Changes Made to Toolkit
+- `website-build-template.md` Section 8 (CMS) should add a **"Publishing Automation"** subsection documenting the two-script pattern (generate-blog-image + publish-blog-post) as the default for CMS blog clients who publish frequently
+- Build checklist should add: **"If CMS is in scope and the client will publish ≥1 post/month, scaffold the publish automation scripts at build time, not as a retrofit."**
+- 2 new errors logged (Contributor publish 403, asset re-upload 403)
+- 2 new patterns logged (fal.ai reusable image generator, Sanity blog post publish script)
+
+

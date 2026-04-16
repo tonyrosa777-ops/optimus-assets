@@ -1009,6 +1009,9 @@ Update progress.md: Stage 1I complete. Phase 1 complete.
 Steps (see build-checklist.md Phase 2 for detail):
 1. Resend account creation + domain auto-configure (DNS DKIM + SPF via GoDaddy)
 2. Test contact form → email delivered to client inbox
+2b. Resend compliance audit (Error #50): grep all API routes for resend.emails.send(),
+    verify every call has explicit replyTo (owner notifs → lead email, auto-replies → owner email),
+    verify marketing emails have CAN-SPAM unsubscribe + physical address. FAIL if missing.
 3. Connect domain to Vercel (A record 76.76.21.21 + CNAME cname.vercel-dns.com)
 4. Add all Vercel env vars (RESEND_API_KEY, NEXT_PUBLIC_SITE_URL, SANITY_*, Calendly URL,
    and Stripe/Printful keys only if shop is live)

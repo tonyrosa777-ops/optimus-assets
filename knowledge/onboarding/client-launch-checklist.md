@@ -101,6 +101,8 @@ PRINTFUL_API_KEY           ...                 (Printful → Settings → API, i
 NEXT_PUBLIC_CALENDLY_URL   https://calendly.com/...  (client's booking link)
 NEXT_PUBLIC_SITE_URL       https://www.domain.com    (canonical — MUST include https:// — affects OG tags + JSON-LD)
 NEXT_PUBLIC_BEHOLD_FEED_ID https://feeds.behold.so/... (if Instagram feed is active)
+OWNER_EMAIL                owner@gmail.com     (business owner's REAL inbox — used as replyTo on all Resend emails + contact form recipient)
+RESEND_FROM_EMAIL          hello@domain.com    (Resend-verified sending address — NOT a real inbox, just the branded from)
 NEXT_PUBLIC_SHOW_PRICING_TOOLS  false          (removes dev-only pricing tools)
 SANITY_PROJECT_ID          ...                 (if blog/CMS is active)
 SANITY_DATASET             production
