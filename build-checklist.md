@@ -166,14 +166,24 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
           [ ] No H1 orphan lines at any mobile width
           [ ] No horizontal scroll at 375
           [ ] Mobile nav drawer overlay is dark and opaque, not transparent
-          [ ] Every interior page has a brand-appropriate animation (Page Animation Rule)
-          [ ] Homepage passes the Section Alternation Rule scroll-check (background tones)
-          [ ] Homepage passes the Section Content Deduplication Rule (no adjacent sections
-              with similar messaging, purpose, or CTA — e.g. two "Ready to X?" blocks)
+          [ ] Every interior page has a brand-appropriate animation
+              (Homepage Section Architecture Rule — Animation Depth)
+          [ ] Homepage passes the background-tone scroll-check
+              (Homepage Section Architecture Rule — Dark/Light Alternation)
+          [ ] Homepage has no adjacent sections with similar messaging, purpose, or CTA —
+              e.g. two "Ready to X?" blocks
+              (Homepage Section Architecture Rule — Purpose-Level Deduplication)
           [ ] Dev server explicitly stopped via TaskStop
 
         If any exit criterion fails: fix, re-verify all affected breakpoints, re-check console.
         Only after all criteria pass does the orchestrator proceed to Phase 2.
+
+[ ] Stage 1J — Run `/ultrareview` on the full working tree (Claude Code 4.7 gate).
+    - Prerequisite: Stage 1I browser audit PASSED.
+    - BUG findings block launch; must be fixed.
+    - DESIGN findings review-or-waive with Anthony.
+    - Log to pre-launch-audit.md §Ultrareview Findings.
+    - See knowledge/patterns/ultrareview-as-pre-launch-gate.md.
 
 ---
 
@@ -212,5 +222,9 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
 [ ] 19. Send client the live URL. Collect revision requests. Make all revisions in one session.
         After every revision batch, re-run the Phase 1 step 14 browser audit before re-sending.
 
-[ ] 20. Run /retro → vault updates automatically. Hand off credentials (GoDaddy, Resend,
-        Vercel viewer, Sanity editor). Send final invoice.
+[ ] 20. Run `/retro` from inside the project folder — REQUIRED close step.
+        - Populates knowledge/retrospectives/<slug>.md with errors + patterns + workflow improvements
+        - Updates knowledge/build-log.md cross-project tables
+        - Skipping /retro means the next project loses access to what this project learned
+        - The orchestrator emits a reminder after Phase 2 close; this checklist item is the human-side backup.
+        Then hand off credentials (GoDaddy, Resend, Vercel viewer, Sanity editor). Send final invoice.

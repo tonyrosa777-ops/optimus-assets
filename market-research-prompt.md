@@ -1,3 +1,9 @@
+---
+name: market-research
+description: Competitive + audience + pricing + SEO/AEO research for a client niche. Reads initial-business-data.md, outputs market-intelligence.md (9 sections). Target 4-6 real market gaps and 10 real content gaps — never fabricate to hit counts.
+effort: xhigh
+---
+
 # market-research-prompt.md — Optimus Business Solutions
 # Market Intelligence Research Command
 # Save to: .claude/commands/market-research.md → run /market-research in Claude Code

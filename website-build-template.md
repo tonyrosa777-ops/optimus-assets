@@ -2059,12 +2059,19 @@ Full playbook + gotchas:
 - [ ] Re-snapshot → click INNER "Close navigation menu" X (NOT the hamburger ref —
       the hamburger is behind the overlay and causes a 5s Playwright timeout)
 
-**Page Animation Rule check**
+**Homepage Section Architecture Rule — Animation Depth check**
 - [ ] Every interior page (services, testimonials, blog, about, contact, booking, quiz)
       ships with a brand-appropriate ambient animation in its header — no static pages
 
-**Section Alternation Rule check**
+**Homepage Section Architecture Rule — Dark/Light Alternation check**
 - [ ] Homepage alternates dark / light section backgrounds with zero adjacent matches
+
+**Homepage Section Architecture Rule — Purpose-Level Deduplication check**
+- [ ] No adjacent homepage sections share messaging, purpose, or CTA —
+      e.g. two "Ready to X?" blocks back-to-back = FAIL
+
+**Stage 1J — `/ultrareview` pass**
+- [ ] Stage 1J `/ultrareview` pass — see knowledge/patterns/ultrareview-as-pre-launch-gate.md
 
 **If you fix a bug mid-audit**
 - [ ] Re-verify ALL affected breakpoints, not just the one where you caught it

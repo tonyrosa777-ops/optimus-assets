@@ -1,3 +1,9 @@
+---
+name: intake
+description: Structured business data intake — client website URL or raw-notes → initial-business-data.md. Mode A (URL crawl) or Mode B (discovery notes). Flags every unfillable field with ⚠️ NOT FOUND for Phase 2 gap resolution.
+effort: high
+---
+
 # intake-prompt.md — Optimus Business Solutions
 # Business Data Intake Command
 # Save to: .claude/commands/intake.md → run /intake in Claude Code

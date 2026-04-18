@@ -411,7 +411,7 @@ Sections:
       and ensure content div has `pt-24 md:pt-40`. Do not commit until this passes.
     ✓ Dark/light section rhythm — ZERO adjacent sections share the same background (strict alternation, not just "no 3 in a row")
     ✓ Section content rhythm — no two adjacent sections with similar messaging or purpose
-      (see Section Content Deduplication Rule below)
+      (see Homepage Section Architecture Rule — Purpose-Level Deduplication below)
     ✓ No horizontal overflow at 390px (check every section)
     ✓ Quiz options render as emoji + label cards, not plain text list
     ✓ Booking calendar InlineWidget renders (not an empty box)
@@ -898,6 +898,12 @@ Output file: [PROJECT_FOLDER]\pre-launch-audit.md
 - BLOCKED-ON-SECTION-11 line must appear in Summary → this is the signal to run Stage 1I
 - Do NOT proceed to Phase 2 until all FAIL items are resolved AND Stage 1I passes
 
+**After pre-launch-auditor completes:**
+1. Read `[PROJECT_FOLDER]/pre-launch-audit.md` Summary section.
+2. If Summary contains `[BLOCKED-ON: Section 11 Multi-Breakpoint Browser Audit]`: this is normal — proceed to Stage 1I (the browser audit).
+3. If Summary shows any file-level FAIL items: fix each one before advancing to Stage 1I. Do not advance on WARN alone, but flag WARN items for review.
+4. If Summary contains `[HANDOFF-TO-ULTRAREVIEW]`: this is emitted BY THE AGENT as part of its template output. The orchestrator does not act on it directly until Stage 1J — it is a marker that the agent completed its file-level sweep with the expectation that Stage 1J will run after Stage 1I PASSES.
+
 Commit: chore(audit): file-level pre-launch audit complete, all FAIL items resolved
 Update progress.md: Stage 1H complete. Proceed to Stage 1I.
 
@@ -988,8 +994,8 @@ directly.
 - [ ] No H1 orphan lines at any mobile width
 - [ ] No horizontal scroll at 375
 - [ ] Mobile nav drawer overlay is dark and opaque
-- [ ] Every interior page has a brand-appropriate ambient animation (Page Animation Rule)
-- [ ] Homepage passes the Section Alternation Rule scroll-check
+- [ ] Every interior page has a brand-appropriate ambient animation (Homepage Section Architecture Rule — Animation Depth)
+- [ ] Homepage passes the Homepage Section Architecture Rule — Dark/Light Alternation scroll-check
 
 **Shutdown**
 33. `TaskStop(task_id: "<saved from step 3>")` — `mcp__playwright__browser_close`
@@ -998,9 +1004,53 @@ directly.
     kill it.
 
 Commit: `chore(audit): multi-breakpoint browser audit complete, all viewports verified`
-Update progress.md: Stage 1I complete. Phase 1 complete.
+Update progress.md: Stage 1I complete. Proceed to Stage 1J.
 
-**Phase 1 is now done. Everything is built AND visually verified. Proceed to Phase 2.**
+---
+
+### STAGE 1J — /ultrareview (Claude Code 4.7 final review gate)
+
+**Prerequisites (orchestrator verifies BEFORE spawning):**
+- Stage 1I multi-breakpoint browser audit Summary line reads "PASSED" at every viewport (0 console errors, 0 console warnings, no horizontal scroll at 375, no H1 orphans, nav drawer clean).
+- pre-launch-audit.md Summary shows 0 FAIL items at file-level.
+- progress.md confirms Stage 1I complete.
+
+If any prerequisite is not met: HALT. Stage 1J does not run. Return to the failing stage.
+
+**Orchestrator actions:**
+
+1. Invoke `/ultrareview` from the Claude Code CLI inside the project folder. The command reads the full working tree diff since the last known-good commit (typically the previous demo URL's HEAD).
+
+2. Capture the output. `/ultrareview` returns findings classified BUG / DESIGN / PASS.
+
+3. Triage:
+   - **BUG-severity findings** → blocks launch. Each must be resolved before the demo URL is sent. For each BUG, delegate the fix to the agent that owns the affected file (see file-to-agent map below). Re-run `/ultrareview` after fixes to confirm zero BUG findings.
+   - **DESIGN-severity findings** → review with Anthony. Each is either (a) fixed, or (b) explicitly waived with a one-line rationale. If DESIGN count > 15, that signals a quality issue earlier in the build — kick back one phase for cleanup before the review session.
+   - **PASS (no findings)** → Stage 1J cleared.
+
+4. Log ALL findings to `[PROJECT_FOLDER]/pre-launch-audit.md` under a new `## §Ultrareview Findings` section. Format per `knowledge/patterns/ultrareview-as-pre-launch-gate.md`.
+
+**File-to-agent fix-owner map** (for BUG triage — not exhaustive, use judgment):
+- `/data/site.ts`, `/data/quiz.ts`, copy-related changes → content-writer
+- `/components/Hero*.tsx`, `/components/*Canvas.tsx`, animation files → animation-specialist
+- `/app/sitemap.ts`, `/app/robots.ts`, `/app/**/opengraph-image.tsx`, JsonLd.tsx → seo-aeo-specialist
+- `/app/globals.css`, design tokens, layout → the orchestrator (inline fix, no agent)
+- `/app/api/**` routes → the orchestrator (inline fix)
+
+**Graceful degradation:**
+- If `/ultrareview` is not available in this Claude Code version → log "Stage 1J SKIPPED — /ultrareview unavailable in this session; manual PR review required before demo" to pre-launch-audit.md and progress.md. Proceed to Phase 2 with the WARN.
+- If the `/ultrareview` free-tier quota is exhausted mid-session (Pro/Max plans get 3 free per session) → log "Stage 1J PARTIAL — quota exhausted after <N> runs; remaining manual review required" and proceed to Phase 2 with the WARN. Do not block indefinitely on a paywall.
+- Time budget: 20 minutes per `/ultrareview` invocation. If it exceeds, terminate the command and log "Stage 1J TIMEOUT — escalate to manual PR review."
+
+**Exit criteria:**
+- `/ultrareview` returned zero BUG findings (or BUG findings all resolved + a re-run returned zero).
+- DESIGN findings are either fixed or logged with a one-line waiver rationale.
+- pre-launch-audit.md has a populated `## §Ultrareview Findings` section.
+- progress.md Stage 1J marked complete.
+
+**Commit:** `chore(audit): stage 1j /ultrareview complete, <N> BUG <N> DESIGN, <N> waived`
+
+**Phase 1 is now done.** Everything is built, visually verified, AND code-reviewed. Proceed to Phase 2.
 
 ---
 
@@ -1041,6 +1091,16 @@ Update progress.md: Task 2B complete.
 4. Archive discovery notes and raw materials in project folder
 
 Update progress.md: Phase 2 complete — project closed.
+
+**After project close — run /retro (auto-reminder):**
+
+The /retro skill populates `knowledge/retrospectives/<slug>.md` and updates `knowledge/build-log.md` with errors/patterns/workflow improvements surfaced during the project. DO NOT skip — learnings from this project inform every future build.
+
+Invocation: `/retro` from the Claude Code CLI inside the project folder. The skill infers the slug from the folder name.
+
+If project-prime.md itself is closing out Phase 2 autonomously (not paused for human review), emit this reminder to Anthony BEFORE the final progress.md close line:
+
+> ⚠️ NEXT ACTION: Run `/retro` from this project folder to update the cross-project knowledge base.
 
 ---
 

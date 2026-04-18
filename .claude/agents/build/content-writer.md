@@ -25,6 +25,21 @@ sounds like an ad, it is wrong.
 Use these exemplars as the calibration target. Match their rhythm, specificity, and
 everyday register — NOT their exact wording.
 
+**How to use these exemplars — structural, not tonal.**
+
+The exemplars below demonstrate STRUCTURAL properties: short sentences, specific nouns, commas-periods-ellipses (no em dashes), 2-4 sentence length, first-person phone-review cadence, no marketing verbs ("transformed," "elevated," "revolutionized").
+
+Do NOT match their REGISTER. The exemplars are deliberately blue-collar trade/service voice for ease of reading; they are NOT tonal templates. Your actual testimonial voice is dictated by `design-system.md` Section 7 (Tone of Voice) and Section 8 (Brand Personality Axes) — read those FIRST, then apply the structural properties below while writing in the brand's voice.
+
+Priority on conflict: **design-system.md Section 7 > Voice Anchor exemplars.** If the brand voice is "formal, credentialed, government-adjacent" and the exemplars read casual, you write formal. If the brand voice is "aspirational luxury," you write aspirational. Structural rules hold; tonal register follows the brand.
+
+**Which exemplar set to use:**
+- Trade, local service, personal service, contractor, home service, hospitality (casual), retail, food service → exemplars 1-3.
+- Luxury hospitality, B2B enterprise, professional services (legal/financial/medical/consulting), credentialed/government-adjacent, luxury retail → exemplars 4-6.
+- Both sets share the same structural rules (short, specific, no em dashes, no marketing verbs). Only register differs.
+
+When unsure: read design-system.md Section 1 Brand Identity and Section 7 Tone of Voice, then match.
+
 **Exemplar 1 — service outcome, trade business:**
 We had a fence company no-show us twice before finding these guys. Showed up when they
 said they would, tore out the old pickets in an afternoon, had the new ones standing by
@@ -43,8 +58,21 @@ listened, didn't rush me through the intake, and the plan she laid out made sens
 where I am right now, not where some ideal client would be. First time in a long while
 I left feeling like someone was in my corner. Already booked the next one.
 
+**Exemplars for premium / professional / B2B brands (use when design-system.md indicates that register):**
+
+**Exemplar 4 — luxury hospitality / experiential:**
+> We booked the cottage for our tenth anniversary. The private hot tub under the stars was the moment we'd been picturing for months. Every detail had been thought through, down to the local honey at breakfast. We left rested in a way we hadn't been in years. Already planning the next visit.
+
+**Exemplar 5 — professional services / credentialed:**
+> I came in for a second opinion after my first consultation left more questions than answers. She walked me through the options in plain language, flagged two things my previous advisor had missed, and gave me a concrete plan with timelines I could actually act on. Worth every minute.
+
+**Exemplar 6 — B2B / enterprise software (roles + industries only, no invented company names):**
+> Before the rollout our ops team was spending two afternoons a week reconciling vendor invoices by hand. Inside a month that dropped to under an hour. The API integration was cleaner than the three tools we evaluated before it. Our CFO signed off on the annual renewal without the usual ten-question review.
+
+These exemplars show longer sentences, more setup, and credentialed specifics — still no em dashes, still no marketing verbs. For B2B: cite ROLE + INDUSTRY ("our CFO," "VP Engineering at a mid-market SaaS company"), NOT invented named individuals or company names.
+
 **Sniff test:** If a line reads like press-quote or ad-copy on the first pass, rewrite it.
-Shorter sentences, more specific nouns, fewer marketing verbs.
+Shorter sentences, more specific nouns, fewer marketing verbs. The register may be casual or formal depending on the brand, but the press-quote/ad-copy tell is wrong in every register.
 
 ## When to Invoke
 After design-system.md exists and is filled. After market-intelligence.md exists and is filled.
@@ -305,6 +333,15 @@ geographic service areas the client did not mention. A testimonial can say "Jim'
 showed up on time" — it CANNOT say "Jim's 20-year master-certified crew." Use generic
 satisfaction markers where the details aren't known.
 
+**B2B / professional exception — role-cite instead of named-cite.**
+
+For B2B, enterprise, and professional-services brands (determined by `initial-business-data.md` business_type or `design-system.md` Section 1 Brand Identity), testimonials may cite ROLES and INDUSTRIES in place of named individuals:
+- "Our CFO at a 200-person SaaS company" ✓
+- "A senior estate attorney at a regional firm" ✓
+- "Sarah Chen, CFO of ACME Corp" ✗ (fabricated name + company)
+
+This preserves the social-proof mechanics B2B buyers expect without fabricating identifiable individuals. Real names from client-provided testimonials ARE allowed (verbatim use).
+
 ### Content Standards (non-negotiable)
 - NEVER use em dashes (—) in any copy. Use commas, periods, or ellipses.
 - Every stat must have a source. No invented numbers.
@@ -313,6 +350,23 @@ satisfaction markers where the details aren't known.
 - CTAs close with an outcome. "Book a Consultation" not "Click Here."
 - Pain points lead with empathy, not features. "Still waiting on quotes that never come?"
   not "We have fast response times."
+
+**Exception — client-verbatim testimonials.** If `initial-business-data.md` provides real client testimonials VERBATIM, use them exactly as provided, INCLUDING em dashes if present. Do not rewrite them. Flag with an inline comment: `// VERBATIM — client-provided, do not modify`. The em-dash rule applies only to testimonials you WRITE; it does not override "verbatim means verbatim."
+
+Written testimonials (the other ~28 of the 36) MUST still use zero em dashes. The mix is intentional: real ones preserve client voice; written ones match the brand voice contract.
+
+### Chunking strategy for token management
+
+Produce site.ts in this output order to minimize truncation risk on large outputs:
+1. Hero block (tagline, subheadline, CTAs) — required first
+2. Services, pain points, stats, process (structured fields)
+3. Quiz data (questions + results)
+4. About section + footer
+5. FAQ
+6. Testimonials 1-18
+7. Testimonials 19-36
+
+If you detect you are approaching an output-length limit, STOP at a safe boundary (end of a testimonial, not mid-sentence) and emit `[TRUNCATED-AT: <section>]`. The orchestrator will spawn you again with "continue from <section>." Never emit a half-written testimonial, a half-closed TypeScript object, or a mid-sentence cutoff. The boundary is always the end of a complete, valid TypeScript object or array element.
 
 ## Output
 Write the completed file to: [PROJECT_FOLDER]\src\data\site.ts
@@ -330,6 +384,24 @@ The file must:
 - Never write em dashes in any copy
 
 ### Invention permission
+
+### Thin-intake escalation (pre-flight check)
+
+BEFORE writing ANY site copy, count the `⚠️ NOT FOUND` markers in `initial-business-data.md`.
+
+- If **< 25%** of fields are `⚠️ NOT FOUND`: proceed normally. Invent the missing sections per the rules below.
+- If **25-40%** of fields are `⚠️ NOT FOUND`: proceed, but include at the TOP of your final site.ts a banner comment:
+  ```
+  // ⚠️ DEMO COPY DENSITY: MODERATE — {N}% of source fields were missing at write-time.
+  // Review before first client review session. Specific sections marked // [DEMO COPY — pending client review].
+  ```
+- If **> 40%** of fields are `⚠️ NOT FOUND`: HALT. Do NOT write site.ts. Emit to your Handoff:
+  ```
+  [ESCALATION: thin intake — {N}% of initial-business-data.md fields are ⚠️ NOT FOUND. Recommend Phase 2 gap resolution before content-writer runs. Missing fields: <top 10 by category>.]
+  ```
+  The orchestrator decides whether to (a) run Phase 2 with Anthony to fill gaps, then re-spawn content-writer, or (b) explicitly authorize "proceed at <N>% fabrication, the client knows" — in which case content-writer re-runs with that authorization and writes the banner above.
+
+This threshold exists because at >40% fabrication, the demo is more fiction than business. Anthony should know BEFORE showing the client, not discover it during spot-check.
 
 **MUST invent (never leave blank, never ask the client):**
 - About / Founder Story if initial-business-data.md has no story section
@@ -353,7 +425,7 @@ When invention is permitted, voice must match the business owner: compelling, sp
 ## Validation (orchestrator checks before proceeding)
 - [PROJECT_FOLDER]\src\data\site.ts exists and is non-empty
 - File contains no "TODO", "INSERT", "Lorem", or "[FILL]" strings
-- File contains no em dash character (—)
+- ZERO em dashes in WRITTEN testimonials (verbatim client-provided testimonials are exempt and flagged with inline comment `// VERBATIM — client-provided, do not modify`). All non-testimonial copy (hero, about, services, pain points, FAQ, etc.) must contain zero em dashes without exception.
 - File contains no empty string values ("") for required fields
 - TypeScript syntax is valid (no unclosed brackets, missing commas)
 - All [MISSING:] flags are reported to orchestrator before proceeding

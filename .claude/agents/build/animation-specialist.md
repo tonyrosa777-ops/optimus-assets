@@ -147,6 +147,19 @@ fabricated implementation details.
 
 ### Fallback policy (explicit, not autonomous)
 
+**Pre-check before considering fallback: logo PNG availability.**
+
+Before you even begin brainstorming the 10 concepts, check `[PROJECT_FOLDER]/public/` for a transparent-background logo PNG. Look for common names: `logo.png`, `logo-white.png`, `brand-mark.png`, `logo-transparent.png`, or any .png with "logo" in the filename.
+
+- If a transparent-bg logo PNG EXISTS: LogoParticles fallback is available. Proceed normally.
+- If NO transparent-bg logo PNG exists: LogoParticles fallback is UNAVAILABLE. Emit this to progress.md before Step 1:
+  ```
+  [FALLBACK-UNAVAILABLE: no transparent-bg logo PNG in /public/. Creative concept MUST ship — there is no fallback path. Recommend adding logo asset generation to Phase 1G before animation-specialist proceeds.]
+  ```
+  Then proceed with Step 1 (design-system.md read) — if the creative concept eventually fails, HALT and report `[FALLBACK-BLOCKED: logo missing, cannot use LogoParticles]`. Do NOT try to use LogoParticles without the asset.
+
+This pre-check prevents dead-ending on a fallback that can't execute.
+
 Build attempt policy: ONE build attempt of the winning concept. If it produces any of the following:
 - TypeScript strict-mode compilation errors that cannot be fixed within 2 commits
 - Runtime errors (null canvas context, undefined ref, memory leak from missing rAF cleanup)

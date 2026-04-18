@@ -6,6 +6,19 @@ effort: high
 
 # /retro — Post-Project Retrospective
 
+## Usage
+
+Run from inside the project folder:
+
+```
+/retro            # infer slug from current working directory folder name
+/retro <slug>     # explicit slug override (use when folder name doesn't match the desired slug)
+```
+
+The skill infers the project path from the CWD. It reads the project's `progress.md`, `CLAUDE.md`, and `git log` to source errors, patterns, and workflow improvements. Output lands in `knowledge/retrospectives/<slug>.md` and updated rows in `knowledge/build-log.md`.
+
+**When to invoke:** After project close (demo delivered, revisions complete, payment received) — this is a REQUIRED close step, not optional. Skipping /retro means the cross-project knowledge base doesn't learn from this build.
+
 ## Role
 
 Run after a client project closes (demo delivered, revisions complete, payment received). Synthesize the project's lifecycle into a retrospective entry and update the cross-project knowledge base so future builds inherit what was learned.
@@ -30,6 +43,19 @@ Run after a client project closes (demo delivered, revisions complete, payment r
 - Project path on disk — to read progress.md and git log
 
 ## Task
+
+### Slug resolution
+
+If invoked without an explicit slug:
+1. Read the basename of the current working directory.
+2. Lowercase, replace spaces and underscores with hyphens, strip non-alphanumeric-except-hyphen.
+3. Use that as the slug for `knowledge/retrospectives/<slug>.md`.
+
+If invoked with an explicit slug argument, use that literally (do not transform).
+
+If slug resolution produces a filename that already exists at `knowledge/retrospectives/<slug>.md`:
+- If the file was last modified > 14 days ago: append to it (project continuation).
+- If the file was modified recently: warn the user, request explicit `<slug>` argument to disambiguate.
 
 Produce four deliverables. Work them in order.
 

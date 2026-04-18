@@ -549,8 +549,10 @@ Workflow integration (all five enforcement points):
   - project-prime.md Stage 1I — orchestrator execution layer, runs after Stage 1H
     (pre-launch-auditor file-level audit)
   - website-build-template.md Checklist: Before Launch → Visual QA — template reference
-  - .claude/agents/launch/pre-launch-auditor.md Section 11 — file-level agent emits
-    BLOCKED-ON-SECTION-11 in its Summary so the orchestrator knows to run the audit
+  - .claude/agents/launch/pre-launch-auditor.md — file-level agent emits a
+    [BLOCKED-ON: Section 11 Multi-Breakpoint Browser Audit] handoff template in its
+    output report, instructing the orchestrator to run the Playwright audit before
+    advancing to Stage 1J /ultrareview
 
 The pre-launch-auditor agent defers ALL visible-state checks to this audit —
 file-reading agents cannot verify layout, overflow, hydration, or console noise.

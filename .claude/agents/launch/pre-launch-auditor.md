@@ -108,6 +108,20 @@ count, and do NOT assume items exist because the checklist says they should.
     Read: site.ts schema
     FAIL if: any required field is an empty string or empty array
 
+**Additional Section 2 checks — 4.7 retune (DEMO COPY density):**
+
+Grep site.ts and all /data/**/*.ts files for:
+- `DEMO COPY` marker count (invented content from content-writer's invention permission)
+- `[MISSING:` flag count (hard facts the agent refused to invent)
+
+Thresholds:
+- `DEMO COPY` count 0-5: PASS (normal for any build — about section + a few invented specifics)
+- `DEMO COPY` count 6-15: WARN — log "{N} DEMO COPY markers found, review before client review session"
+- `DEMO COPY` count > 15: FAIL — log "Site is heavily invented ({N} DEMO COPY markers). Likely thin intake. Recommend Phase 2 gap resolution before client review."
+- Any `[MISSING:` flag: FAIL unconditionally — these must be filled before demo.
+
+If content-writer emitted a banner comment at the top of site.ts (`// ⚠️ DEMO COPY DENSITY: MODERATE — {N}% ...`), this audit corroborates it.
+
 ### SECTION 3 — Images and Media
 
 [ ] No broken image URLs
@@ -294,6 +308,8 @@ file-reading cannot catch:
 File-reading verifies structure. High-res screenshot review verifies appearance.
 Both are required.
 
+- Screenshot visual review is a SUPPLEMENT to file-level checks, not a replacement. If file-level checks passed but high-res screenshots reveal layout issues, flag as FAIL (Section 11 fails) and mark the HANDOFF-TO-ULTRAREVIEW as DEFERRED — do not proceed to Stage 1J on a visually-broken build.
+
 Record in the audit report:
 
 [ ] Multi-breakpoint browser audit pending — orchestrator execution required
@@ -380,7 +396,7 @@ findings with resolution status: RESOLVED / WAIVED (with rationale) / OPEN]
 - Summary contains both BLOCKED-ON-SECTION-11 and HANDOFF-TO-ULTRAREVIEW lines
 - All FAIL items have a one-line fix instruction
 - File-level audit covers Sections 1 through 10 (Sections 11 and 12 are orchestrator handoffs)
-- Handoff includes both the [BLOCKED-ON: Section 11 Multi-Breakpoint Browser Audit] template and the [HANDOFF-TO-ULTRAREVIEW] template verbatim
+- Handoff includes BLOCKED-ON-SECTION-11 template AND a HANDOFF-TO-ULTRAREVIEW template (either active-form when FAILs = 0, or DEFERRED-form when FAILs > 0)
 
 ## Handoff
 When complete, report:
@@ -403,13 +419,23 @@ Blocker conditions: Any FAIL here blocks Section 11. WARN items should be review
 
 This is how the orchestrator knows to run the multi-breakpoint audit next. Do not omit this block. Do not restate as prose.
 
-### Section 12 handoff — required template
+### Section 12 handoff — conditional template
 
-Every audit run MUST also emit this block in the Handoff, verbatim:
+If file-level FAIL count is 0 AND no BLOCKED-ON items prevent browser audit, emit:
 
 ```
 [HANDOFF-TO-ULTRAREVIEW]
 Prerequisite: Section 11 browser audit must PASS first.
-Orchestrator action: Run `/ultrareview` on working tree, log findings to pre-launch-audit.md §Ultrareview Findings.
-Blocker conditions: Any BUG-severity finding blocks launch. DESIGN-severity review-or-waive.
+Orchestrator action: After Section 11 PASSES, run `/ultrareview` on working tree. Log findings to pre-launch-audit.md §Ultrareview Findings.
+Blocker conditions: Any BUG-severity finding blocks launch. DESIGN-severity review-or-waive (see knowledge/patterns/ultrareview-as-pre-launch-gate.md).
 ```
+
+If file-level FAIL count > 0 OR any BLOCKED-ON item prevents browser audit, emit:
+
+```
+[HANDOFF-TO-ULTRAREVIEW: DEFERRED]
+Reason: <N> file-level FAILs must resolve first. Section 11 browser audit + Stage 1J /ultrareview cannot run until file-level FAILs = 0.
+Orchestrator action: Fix all FAIL items, re-run pre-launch-auditor, THEN Section 11 + Stage 1J.
+```
+
+NEVER emit the unconditional HANDOFF-TO-ULTRAREVIEW block when file-level FAILs are present — this causes the orchestrator to waste a `/ultrareview` free-tier slot on a broken build.
