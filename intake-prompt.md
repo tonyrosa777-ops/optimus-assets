@@ -30,6 +30,19 @@ You will read `raw-notes.md` and map it into `initial-business-data.md`.
 
 ---
 
+## No cross-field generalization
+
+Do not generalize one field's data into an adjacent field unless the extraction rules table below explicitly says to. Specifically:
+- Never infer service radius from the service list (a plumbing company serving Orange County does not imply they also serve LA County).
+- Never infer pricing from language like "competitive" or "affordable" — those are marketing words, not numbers. Flag pricing as `⚠️ NOT FOUND — confirm with client` if no concrete numbers appear.
+- Never infer years-in-business from "established," "experienced," or "longtime" — those are vague. Flag if no year or duration appears.
+- Never infer team size from "our team" or "the crew" — flag unless a headcount is stated.
+- Never infer certifications from "licensed and insured" — flag the specific license numbers as `⚠️ NOT FOUND` unless they appear on the site.
+
+When in doubt, flag `⚠️ NOT FOUND — confirm with client`. Over-flagging costs Anthony 1 minute in a Zoom call. Under-flagging (inventing a plausible-sounding value) puts a false claim on the client's site and exposes them to false-advertising liability.
+
+---
+
 ## STEP 1 — GATHER THE SOURCE MATERIAL
 
 **If a URL was provided (Mode A):**
@@ -93,7 +106,7 @@ If something is partially clear, fill what you know and flag the uncertain porti
 | What makes it different | Any "why us", "our difference", "our approach" copy — quote it directly |
 | Signature methodology | Named frameworks, processes, or programs with a proper name |
 | Service radius | How far do they travel? Look for "within X miles", service area maps, ZIP code lists, "serving [radius]" language. If not stated: `⚠️ NOT FOUND — confirm with client` |
-| Travel fee policy | Free within X miles, $Y per mile after, flat travel fee, etc. Look in pricing/FAQ/services pages. Important for service-area page content and pricing transparency. If not stated: `⚠️ NOT FOUND — confirm with client` |
+| Travel fee policy | One of: free within X miles / $Y per mile after Z miles / flat travel fee / no travel fee disclosed. Look in pricing, FAQ, and services pages. Important for service-area page content and pricing transparency. If not stated: `⚠️ NOT FOUND — confirm with client` |
 
 **Note:** Copy pricing exactly as shown on the site. Do not round or estimate.
 If no pricing is public, write: `⚠️ NOT FOUND — confirm with client`
@@ -136,8 +149,8 @@ If no pricing is public, write: `⚠️ NOT FOUND — confirm with client`
 |-------|-----------------|
 | Domain | The URL itself |
 | Primary conversion goal | What does the main CTA button do? Booking widget / form / phone / shop? |
-| Booking or conversion tool | Look for embedded widgets: Calendly, Acuity, Lodgify, Shopify, etc. — check iframes and script sources |
-| Schema type | Infer from business type: lodging → LodgingBusiness, local service → LocalBusiness, etc. |
+| Booking or conversion tool | Look for embedded widgets. Known tools: Calendly, Acuity, Lodgify, OwnerRez, Shopify, Square, SimplyBook, Mindbody. Check iframes and script sources. |
+| Schema type | Infer from business type. Common mappings: lodging → LodgingBusiness; local trade or service → LocalBusiness; coaching/consulting → ProfessionalService; restaurant → Restaurant; retail → Store; medical → MedicalBusiness. |
 | Existing website | The URL (already known) |
 | Existing analytics | Look for GA4 tags, Meta pixel, or other tracking in page source |
 | Existing forms / lead tools | Look for Google Form iframes, Typeform embeds, Jotform links, survey links, quiz widgets — check iframe src attributes and linked forms in CTAs. List every one with its URL/type. These reveal custom build requirements. |

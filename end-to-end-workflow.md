@@ -120,6 +120,9 @@ Flag these as `🔧 CUSTOM BUILD REQUIRED — [feature name]`.
 
 ## PHASE 2 — RESOLVE INTAKE GAPS
 
+**Phase 2 trigger (deterministic):**
+Phase 2 runs IF AND ONLY IF initial-business-data.md contains at least one `⚠️ NOT FOUND` marker after Phase 1 completes. If Phase 1 completes with zero `⚠️ NOT FOUND` markers, skip directly to Phase 3. Do not run Phase 2 "just to double-check" — the gap resolution interaction is batched; skipping it when unnecessary saves a round-trip with Anthony.
+
 Review the filled `initial-business-data.md`. Collect every `⚠️ NOT FOUND` flag
 in Sections 1–6 (these are the sections `/prime` relies on most).
 
@@ -201,7 +204,9 @@ Open the top 3–5 competitor sites and note:
 - What trust signals are expected in this market
 
 ### 3F — Feature Gap Analysis
-Build a table of at least 5 gaps. For each:
+**Target 4-6 real gaps.** If fewer than 4 real gaps surface after auditing at least 3 competitor sites, output WHAT YOU FOUND plus a short note explaining why the competitive field has no larger gap. Never fabricate gaps to reach 4.
+
+For each gap:
 - What competitors are missing
 - Why it matters to the target buyer
 - Whether closing it requires a `🔧 CUSTOM BUILD REQUIRED` beyond the Optimus base template
@@ -318,6 +323,23 @@ in full. Execute Tasks 1 through 5 exactly as specified in that file:
 
 Do not skip tasks. Do not proceed to Task 4 until Task 3 is complete.
 Update `progress.md` as each task completes.
+
+---
+
+## PHASE 1J — `/ultrareview` (new in 4.7)
+
+Prerequisite: Phase 1I pre-launch-auditor + Section 11 browser audit must have passed (zero console errors at all viewports, all file-level FAIL items resolved, all DEFERRED items confirmed in browser audit).
+
+Run `/ultrareview` on the full working tree. This is a Claude Code 4.7 slash command — a dedicated review session that reads changes and flags bugs and design issues a careful reviewer would catch. Pro/Max plans get 3 free per session.
+
+Findings triage:
+- BUG-severity → block launch, resolve before demo URL goes to client
+- DESIGN-severity → review with Anthony, either fix or explicitly waive (waivers logged in pre-launch-audit.md §Ultrareview Findings with one-line rationale)
+- PASS with no findings → launch cleared
+
+Log all findings to `pre-launch-audit.md` under `§Ultrareview Findings`. This is the final gate before the client demo URL is sent.
+
+See [knowledge/patterns/ultrareview-as-pre-launch-gate.md](knowledge/patterns/ultrareview-as-pre-launch-gate.md) for triage detail.
 
 ---
 

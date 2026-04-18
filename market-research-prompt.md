@@ -155,8 +155,11 @@ directive: what to lead with, what to anchor with, what to show first or last.
 
 ### Section 5 — Feature & Content Gap Analysis
 
-The table must have at least 5 rows. Each gap must be something you actually
-observed across multiple competitors — not a generic "no one has a blog".
+**Target 4-6 real gaps.**
+
+If fewer than 4 real gaps surface after genuine competitor analysis (at least 3 competitor sites audited), output WHAT YOU FOUND plus a short note explaining why the competitive field has no larger gap. Never fabricate gaps to reach 4. A real 3-gap list > a padded 5-gap list. Gaps that turn into copy must hold up under fact-check.
+
+Each gap must be something you actually observed across multiple competitors — not a generic "no one has a blog".
 
 Good gap examples:
 - "No competitor in this market has a virtual tour or video walkthrough — buyers
@@ -194,13 +197,18 @@ and the Phase 1 planning conversation.
 These are often questions: "best [service] in [city]", "how much does [offer] cost",
 "[service] near me for [specific audience]"
 
-**Content gaps:** These must be specific topics, not just "write more blog posts".
+**Content gaps / AEO Opportunities. Target 10 real content-gap questions.**
+
+If only 7 real content gaps exist in this niche, output 7. Do not invent questions to reach 10. A tight 7-question list outperforms a padded 10-question list that includes questions nobody searches for.
+
+These must be specific topics, not just "write more blog posts".
 Example: "No competitor in Madison Indiana has written a guide to 'most romantic
 getaways within 2 hours of Louisville' — this is a high-intent query this business
 can own with a single page."
 
 **Schema markup:** Specify the exact type AND any additional schema properties
-that could generate rich results (FAQ schema, review schema, price range, etc.)
+that could generate rich results. Candidates: FAQ schema, Review schema, AggregateRating,
+Product (with price range), Service, LocalBusiness (with geo + hours), Article, BreadcrumbList.
 
 ---
 

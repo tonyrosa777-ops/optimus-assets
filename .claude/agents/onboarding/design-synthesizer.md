@@ -1,3 +1,7 @@
+---
+effort: max
+---
+
 # Design Synthesizer Agent — Optimus Business Solutions
 # Status: DRAFT
 # Output: design-system.md in the client project folder
@@ -35,7 +39,8 @@ Read these files in order before synthesizing anything.
 
 5. C:\Projects\Optimus Assets\frontend-design.md
    — The cross-project UI/UX rules. The design system must produce values that work
-     within these constraints (mobile-first, contrast ratios, etc.)
+     within these constraints: mobile-first breakpoints, WCAG AA contrast ratios,
+     semantic HTML5 structure, and the design-token CSS custom property naming scheme.
 
 ## Inputs (provided by orchestrator)
 - PROJECT_FOLDER: absolute path to the client's project folder
@@ -53,6 +58,8 @@ One paragraph. Who this business is, who they are not, what feeling the brand sh
 produce in a visitor within 5 seconds.
 Source: market-intelligence.md (audience profile + competitor differentiation) +
 initial-business-data.md (client's stated positioning and goals).
+Does NOT include color values (Section 2), tone-of-voice rules (Section 7), or
+competitor-by-competitor breakdowns (Section 9).
 
 **Section 2 — Color Palette**
 Map values to CSS custom properties from website-build-template.md:
@@ -68,6 +75,9 @@ Derive palette from:
 - Audience psychology from market-intelligence.md (what colors work for this audience)
 - Flag light vs. dark theme decision explicitly
 
+Does NOT include typography choices (Section 3), photographic mood (Section 6), or
+button/card shape rules (Section 5).
+
 **Section 3 — Typography System**
 Three font roles: font-display (headlines), font-body (paragraphs), font-mono (labels, UI).
 For each: font name, Google Fonts or CDN URL, weights, sizes per heading level.
@@ -77,15 +87,22 @@ Derive from:
 - Competitor gap (if all competitors use the same default sans-serif, differentiate)
 - Cite source for each decision
 
+Does NOT include brand voice or tone of voice (Section 7), copy examples (Section 7),
+or color values used with text (Section 2).
+
 **Section 4 — Spacing & Layout System**
 Max-width containers, section vertical padding (desktop + mobile), card padding,
 grid columns, gutter widths. All values as Tailwind classes or CSS custom properties.
 Standard values from website-build-template.md unless there's a specific reason to deviate.
+Does NOT include component internal styling like button shape (Section 5) or
+typographic scale (Section 3).
 
 **Section 5 — Component Style Rules**
 Buttons (primary, secondary, ghost), cards, form inputs, navigation.
 For each: shape (rounded? square? pill?), size, color states.
 Derive from palette (Section 2) and brand personality axes (Section 8).
+Does NOT include spacing/padding values (Section 4), font sizes (Section 3), or
+photography framing rules (Section 6).
 
 **Section 6 — Photography & Media Direction**
 Required shot types, mood, processing style, prohibited content.
@@ -93,6 +110,8 @@ Aspect ratios: hero (16:9 or 3:2), cards (4:3 or 1:1), gallery (1:1 or freeform)
 Video rules: autoplay? muted? fallback image?
 Source: initial-business-data.md (client assets available) + market-intelligence.md
 (what photography style dominates the category — differentiate from it if possible).
+Does NOT include color tokens (Section 2), icon/emoji rules (handled in
+website-build-template.md), or copy for image captions (Section 7).
 
 **Section 7 — Tone of Voice**
 3-5 writing principles. For each:
@@ -102,6 +121,8 @@ Source: initial-business-data.md (client assets available) + market-intelligence
 - AFTER example (correct — what we write instead)
 Source: market-intelligence.md (audience language, buyer psychology Section 2) +
 initial-business-data.md (client's personality and communication style).
+Does NOT include font choices (Section 3), brand personality axes with spectrum
+positions (Section 8), or the prohibited anti-pattern list (Section 10).
 
 **Section 8 — Brand Personality Axes**
 3 axes as spectrums with a position marker. Use format:
@@ -112,6 +133,8 @@ These axes directly drive the animation-specialist agent's selection.
 Be specific and accurate — a wrong axis leads to a mismatched animation.
 Source: market-intelligence.md (competitor analysis + audience expectations) +
 initial-business-data.md (client's stated personality).
+Does NOT include tone-of-voice writing principles (Section 7), color values
+(Section 2), or the prose brand identity paragraph (Section 1).
 
 **Section 9 — Competitor Differentiation Statement**
 How this brand's visual and verbal identity differs from the top 3 competitors
@@ -119,15 +142,22 @@ in market-intelligence.md. One paragraph per competitor.
 Be specific: not "we look better" but "where [Competitor A] uses stock photos and
 corporate blue, we use job-site photography and a warm amber accent that signals
 craft and local pride."
+Does NOT include the single-paragraph brand identity summary (Section 1), the
+build feature decisions (Section 11), or category-wide anti-patterns (Section 10).
 
 **Section 10 — Design Anti-Patterns (The Prohibited List)**
 Numbered list of what is explicitly banned.
 Source: market-intelligence.md weaknesses section + market patterns we must avoid.
 Be specific — not "don't use bad fonts" but "do not use Roboto — it dominates
 competitors and signals generic/unbranded."
+Does NOT include competitor-by-competitor prose (Section 9), positive tone-of-voice
+principles (Section 7), or build feature Yes/No decisions (Section 11).
 
 **Section 11 — Sections Matrix**
-The build decision table. Fill every row:
+The build decision table. Fill every row.
+Does NOT include visual or color decisions (Sections 2–6), voice or personality
+decisions (Sections 7–8), or competitor prose (Section 9). This section is a
+build-feature Yes/No matrix only.
 
 | Section | Include? | Notes |
 |---------|----------|-------|
@@ -149,7 +179,11 @@ Then list every custom feature not in the base template:
 Source: initial-business-data.md Sections 2 and 5 + market-intelligence.md Section 4.
 
 ### Synthesis Rules
-- Research overrides client preference when the two conflict. Document the conflict.
+
+### Conflict resolution
+
+If research (market-intelligence.md) contradicts client-stated preference (initial-business-data.md) on a design decision, follow the research AND document the conflict inline in design-system.md with a one-line entry: `[CONFLICT: <short description of what client wanted vs. what research says>]`. Do not halt. Do not ask. Do not spawn a clarification subagent. The document-and-proceed pattern is the correct default — Anthony reviews conflict markers during client handoff, not during synthesis.
+
 - Every color decision must pass: "does this differentiate from the top 3 competitors?"
   If competitors all use blue, we do not use blue unless there's a strong reason.
 - The brand personality axes (Section 8) must be internally consistent with:
@@ -157,6 +191,8 @@ Source: initial-business-data.md Sections 2 and 5 + market-intelligence.md Secti
   An "intimate, quiet" brand does not get bold electric blue and lightning animations.
 - Flag any decision where the research is thin with ⚠️ LOW CONFIDENCE — rationale
   If a decision can't be backed by either source document, flag it for human review.
+
+**Confidence-threshold escalation:** If ≥3 of the 11 required sections need `⚠️ LOW CONFIDENCE` flags, that signals market-intelligence.md is underbuilt — report this condition to the orchestrator in your Handoff block rather than silently fabricating confidence. The orchestrator may re-run market-researcher to deepen research before accepting design-system.md.
 
 ## Output
 Write the completed file to: [PROJECT_FOLDER]\design-system.md

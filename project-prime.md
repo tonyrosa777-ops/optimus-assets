@@ -169,6 +169,8 @@ Phase 1 is the agent-driven pass that builds everything: content, animation, all
 (core + niche-specific), blog, shop, SEO/AEO. It runs in coordinated stages within
 this phase. Sessions pick up from the last progress.md checkpoint via /prime.
 
+**Per-agent effort levels:** Each agent's recommended effort is set in the agent's YAML frontmatter (`effort:` field). The orchestrator does NOT pass effort at spawn time — Claude Code reads the frontmatter. No manual toggling required. If Claude Code's version does not yet honor frontmatter `effort`, the same value is duplicated as a top-of-file comment for visibility.
+
 ---
 
 ### STAGE 1A — Repo Scan (always — before any build work begins)

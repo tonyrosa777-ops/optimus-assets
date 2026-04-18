@@ -115,46 +115,19 @@ project's actual filenames. Resolve them:
 Never create duplicate files to satisfy a skill's expected filename.
 Always resolve to the correct project file using this table.
 
-## Frontend Design Rule
-Before making ANY UI/UX decision, visual design change, component creation,
-color selection, typography choice, layout decision, or CSS modification,
-you MUST re-read frontend-design.md in full. No exceptions.
-Reference the specific section of frontend-design.md that authorizes the
-decision before implementing it.
+## Reference File Hierarchy Rule
+Three reference files define the build contract. Before any decision in their domain, re-read the relevant file:
 
-## Build Template Rule
-website-build-template.md is the build foundation — not the ceiling.
-It defines the tech stack, directory structure, animation patterns, base
-component architecture, and API route patterns that every Optimus project
-starts from. Scaffold from the template first.
+- **design-system.md** — brand constitution (colors, typography, tone, personality axes). No deviation from its values without explicit written approval + a matching update to the file.
+- **frontend-design.md** — UI/UX rules (layout, component architecture, visual decisions). Cite the section that authorizes your decision before implementing.
+- **website-build-template.md** — the tech/build foundation (stack, directory structure, animation patterns, API routes). Scaffold from it first; then layer client-specific features on top, flagged in progress.md.
 
-Then layer client-specific features on top, informed by initial-business-data.md
-and market-intelligence.md. If a client need requires a component or pattern
-not in the template, build it using the same stack, conventions, and patterns
-the template establishes. Flag every custom addition in progress.md.
-
-Do not ignore the template's patterns. Do not be constrained by its scope.
+Precedence when they conflict: design-system.md > frontend-design.md > website-build-template.md. The brand constitution wins over UI rules; UI rules win over build-template defaults. If a component needs a value outside design-system.md, flag it — do not improvise.
 
 ## CSS Scaffold Completeness Rule
-Phase 1 globals.css must declare all of the following before any component is built:
-- Complete --space-* scale: --space-xs (0.25rem) through --space-3xl (4rem)
-- All display type sizes as clamp(): --text-display, --text-h1 through --text-h4
-  (exact values in website-build-template.md Design Tokens section)
-- scroll-padding-top on html: 96px mobile / 112px at sm / 128px at lg
-  (must match actual header height at each breakpoint — anchor links will
-  scroll behind the fixed header without this)
+Phase 1 globals.css must be complete before any component is built. Required: full `--space-*` scale, all display-type sizes as clamp(), scroll-padding-top values — exact values in [website-build-template.md](website-build-template.md) §Design Tokens.
 
-After scaffold, grep src/ for any var(-- reference and verify every referenced
-CSS variable is declared in globals.css. An undefined custom property silently
-resolves to the empty string — layout collapses to 0px with zero build warnings
-and zero lint errors. This check is mandatory before Phase 1 proceeds.
-
-## Design System Rule
-design-system.md is the brand constitution. It was synthesized directly
-from market-intelligence.md and initial-business-data.md. You may not deviate
-from the approved color palette, typography system, tone of voice, or brand
-personality without explicit written approval and an update to design-system.md.
-If a component requires a value not in the contract, flag it — do not improvise.
+After scaffold, grep `src/` for any `var(--` reference and verify every referenced CSS variable is declared. An undefined custom property silently resolves to the empty string — layout collapses to 0px with zero build warnings and zero lint errors. This check is mandatory before Phase 1 proceeds.
 
 ## Market Intelligence Rule
 market-intelligence.md contains competitive research, audience psychology,
@@ -164,54 +137,21 @@ Ask: "Does this serve the target audience? Is this validated by research?
 Does this close a gap competitors have left open?"
 
 ## Progress Tracking Rule
-After completing ANY subtask — not at the end of the session, AFTER EACH ONE —
-immediately update progress.md with:
-- What was completed
-- What was discovered or decided
-- What the next step is
-- Any blockers or open questions
+After completing ANY subtask — not at session end, AFTER EACH ONE — update progress.md with: what was completed, what was discovered/decided, what the next step is, any blockers. Do not batch updates. Context can exhaust mid-build; a deferred update means that work is undocumented.
 
-Do not batch updates. Do not defer to end of session. Context can exhaust mid-build
-and a deferred update means that work is undocumented. Update after every subtask,
-every time, without exception.
+## Knowledge Base Rule
+Cross-project knowledge lives at `C:\Projects\Optimus Assets\knowledge\build-log.md` — every error solved and pattern discovered, indexed. Read it before starting any phase; if a similar problem was solved before, the solution is there.
 
-## Build Knowledge Rule
-Before starting any phase, read the cross-project knowledge base:
-`C:\Projects\Optimus Assets\knowledge\build-log.md`
+**When to update:**
+- Any error resolved → add a row to the Error Encyclopedia table in build-log.md immediately AND create a detailed entry in `knowledge/errors/`. Do not continue until the entry is written.
+- Any phase completes with a non-obvious finding → add a row to the Build Patterns table.
+- Project close → add a row to the Project Retrospectives table (see `/retro`).
 
-This file contains every error solved and pattern discovered across all builds.
-If a similar problem has been solved before, the solution is there.
+**What belongs where:**
+- CLAUDE.md + website-build-template.md = universal rules that apply to EVERY build. If a rule does not apply universally, it does not belong here.
+- `knowledge/` = optional integrations (Sanity CMS, GHL, Instagram/Behold.so, bilingual support, credential-specific fields) and client-specific patterns. Agents consult knowledge/ only when initial-business-data.md indicates relevance.
 
-When any error is resolved:
-1. Add a row to the Error Encyclopedia table in `build-log.md` immediately
-2. Create a detailed entry file in `C:\Projects\Optimus Assets\knowledge\errors\`
-3. Do not continue work until the entry is written
-
-When any phase completes with a non-obvious finding or pattern:
-1. Add a row to the Build Patterns table in `build-log.md`
-
-At project close:
-1. Add a row to the Project Retrospectives table in `build-log.md`
-
-## Knowledge Base Scope Rule
-CLAUDE.md rules and website-build-template.md patterns must apply to every single
-build — no exceptions, no "if applicable." If a rule does not apply universally,
-it does not belong in CLAUDE.md or the template.
-
-Optional integrations and upsell features stay in knowledge/ only:
-- Sanity CMS — premium tier only (default: manual blog creation for demo)
-- CRM / Go High Level — upsell, not standard
-- Instagram / Behold.so feed — optional, client must have active Instagram
-- Bilingual support — client-specific
-- Credential-specific fields (commission dates, license numbers) — industry-specific
-
-Agents consult knowledge/ when the project's intake data (initial-business-data.md)
-indicates relevance — never by default, never enforced universally.
-
-Before adding any new rule to CLAUDE.md or pattern to website-build-template.md, ask:
-"Does this apply to EVERY build, regardless of client, industry, or tier?"
-If no → it belongs in knowledge/ as a reference pattern.
-If yes → it is a workflow rule and belongs here.
+Before adding any rule to CLAUDE.md or website-build-template.md, ask: "Does this apply to EVERY build regardless of client, industry, or tier?" If no → knowledge/ as a reference pattern. If yes → it is a workflow rule and belongs here.
 
 ## Image Generation Rule (fal.ai)
 fal.ai image generation is NEVER optional and NEVER deferred. Every blog article ships
@@ -251,27 +191,21 @@ If any image fails visual review, revise the prompt and regenerate. Do not commi
 **Enforcement:** If the sweep completes without blog card images + header images for
 every article, that is a build failure. The pre-launch auditor checks for these files.
 
-## Content Standards
-- Testimonials must read like a real human typed them on a phone. Never use the em dash (—).
-  Humans use commas, periods, and ellipses. Em dashes are a copywriter/AI tell.
-- All copy in `/data/site.ts` — zero hard-coded strings in components.
+## Copy Writing Rule
+**Voice: human phone review, not press quote.**
+- Testimonials must read like a real human typed them on a phone. Never use the em dash (—). Humans use commas, periods, and ellipses. Em dashes are a copywriter/AI tell.
+- Short sentences. Specific nouns. No corporate hedging.
+
+**File discipline:**
+- All copy lives in `/data/site.ts` — zero hard-coded strings in components.
 - Blog article CTAs close with an action, never a soft suggestion.
-- Hungarian translations must be in third-person formal register — this is culturally
-  mandatory for any client in a formal/governmental role (see Sylvia Rich retrospective).
 
-## Act as Business Owner Rule
-If initial-business-data.md lacks information needed for any section — the about story,
-the founder background, a service detail, the company history — do NOT leave it blank,
-do NOT write [MISSING:], and do NOT ask the business owner. Write it yourself in the
-voice of the business owner: compelling, specific, plausible, and grounded in what you
-do know about their industry and market.
+**Act as business owner when data is thin.**
+If initial-business-data.md lacks information needed for any section (about story, founder background, service detail, company history), YOU MUST write it yourself in the voice of the business owner: compelling, specific, plausible, grounded in what you do know about their industry and market. Mark every invented section with `// [DEMO COPY — pending client review]`.
 
-Mark every invented section with a comment: // [DEMO COPY — pending client review]
+Do NOT leave sections blank. Do NOT write `[MISSING:]`. Do NOT ask the business owner. The demo must look complete and impressive — a half-empty site loses the sale. Corrections and personalizations happen after payment, not before the pitch.
 
-The demo must look complete and impressive. A half-empty site loses the sale.
-Corrections and personalizations happen after payment, not before the pitch.
-This is a cardinal rule: we never hassle the business owner for details we can
-reasonably write ourselves.
+This is cardinal: we never hassle the business owner for details we can reasonably write ourselves.
 
 ## Code Standards
 - Next.js (App Router) + Tailwind CSS 4 + PostCSS — see website-build-template.md Stack section
@@ -312,106 +246,35 @@ Vercel deploy will fail if the committer email does not match the GitHub account
 This has caused blocked deploys on two prior builds (Errors #13, #23).
 
 ## Hero Architecture Rule
-Every hero section ships with exactly 3 layers. No exceptions. No photos. No static backgrounds.
+Every hero ships with exactly 3 layers. No exceptions. **No photos in the hero, ever** — a photo placeholder in the hero is a build failure. The client photo belongs in the About section.
 
-**There is NO photo in the hero. Ever.** The client photo / brand image belongs in the About section,
-not the hero. A photo placeholder in the hero is a build failure — flag it and replace it with the
-3-layer animation stack before the phase is marked complete.
+**Layer 1 — HeroParticles.tsx (canvas particle system).** Selected by the animation-specialist from design-system.md Section 8 (Brand Personality Axes). Renders at z-0.
 
-**Layer 1 — Canvas Particle System (HeroParticles.tsx)**
-Choose particle type from the animation-specialist Selection Matrix based on brand axes.
-Renders behind all content (z-0). Always present.
-
-**Layer 2 — [BrandName]Canvas.tsx (Brand Canvas — brand-specific)**
-A canvas-based animation that visually represents this specific business. NOT an SVG. NOT a generic
-shape. A custom `<canvas>` component named after the brand (e.g. `HealthShieldCanvas.tsx`,
-`ForgeCanvas.tsx`). Lives in the right panel of the two-column hero split.
-
-**Default approach: creative niche-specific canvas particle animation.**
-The brand canvas should be a genuinely eye-catching, luxurious custom JavaScript canvas animation
-that is conceptually tied to the client's niche. Think deeply about what visual metaphor fits
-this business before writing a single line of code.
+**Layer 2 — [BrandName]Canvas.tsx (brand canvas — custom `<canvas>`).** A creative niche-specific canvas animation. NOT an SVG. NOT a generic shape. Named after the brand (e.g. `HealthShieldCanvas.tsx`, `ForgeCanvas.tsx`). Lives in the right panel of the two-column hero split. Follows the 5-phase lifecycle (STREAM → RISE → COOL → ARC → IDLE) documented in [knowledge/patterns/hero-3-layer-stack-and-5-phase-canvas.md](knowledge/patterns/hero-3-layer-stack-and-5-phase-canvas.md). Container: `position: relative`, explicit height `clamp(340px, 50vw, 540px)`. Canvas fills container with `position: absolute; inset: 0`.
 
 **Selection process (non-negotiable — prevents iteration waste):**
-1. Read design-system.md Section 8 (Brand Personality Axes) + the business type
-2. Brainstorm 10 genuinely creative canvas animation concepts. Each must be:
-   - Visually distinct from the others
-   - Conceptually tied to this specific business niche (not generic particles)
-   - Achievable in a single `<canvas>` component with requestAnimationFrame
-   - Eye-catching and luxurious — this is the first thing the client sees
-3. Spawn a harsh critic agent to evaluate all 10 concepts. The critic scores each on:
-   - Niche relevance (does it scream "this business"?)
-   - Visual impact (will it impress in the first 2 seconds?)
-   - Technical feasibility (can it be built without 5 iterations?)
-   - Uniqueness (has this been done on a prior Optimus build?)
-   The critic selects the single best concept with written rationale.
-4. Build ONLY the winning concept. No pivots mid-implementation.
+1. Read design-system.md Section 8 + the business type.
+2. Brainstorm 10 conceptually distinct visual metaphors tied to this specific business niche. (10 particle-system color variations is ONE concept, not 10. Different metaphors only.)
+3. Spawn a harsh critic agent to score all 10 on: niche relevance, visual impact, technical feasibility, uniqueness. Critic picks ONE winner with written rationale.
+4. Build ONLY the winner. No pivots mid-implementation. If the winner produces TypeScript errors, runtime errors, or mobile-overflow issues requiring >2 fix commits, HALT and report `[FALLBACK-REQUIRED: <reason>]` — do not autonomously switch.
+5. Fallback: the proven LogoParticles chaos→convergence→explosion pattern (Pattern #36 from JCM Graphics). Requires a client logo PNG with transparent background. Safe option, not the default.
 
-Reference implementations (read these for structure, not to copy):
-- tonyrosa777-ops/Sylvia-Rich-Hungary-Consul-NE — gold dust particles, coat of arms
-- tonyrosa777-ops/where-2-junk — junk/debris particle system
-- tonyrosa777-ops/Placed-Right-Fence — forge ember extrusion
+Reference implementations for structure (real repos — do not invent file contents):
+- tonyrosa777-ops/Sylvia-Rich-Hungary-Consul-NE (gold dust + coat of arms)
+- tonyrosa777-ops/where-2-junk (junk/debris particles)
+- tonyrosa777-ops/Placed-Right-Fence (forge ember extrusion)
 
-**Fallback: logo-based chaos→convergence→explosion.**
-If the creative canvas doesn't land after one honest build attempt, fall back to the proven
-LogoParticles pattern (Pattern #36 from JCM Graphics): particles stream from edges → converge
-into logo shape → explosion reveal → idle breathe. This requires a client logo PNG with
-transparent background. It is the safe option, not the default.
+**Layer 3 — Framer Motion stagger text.** H1 first, subheadline at 0.15s, CTAs at 0.3s. z-10.
 
-Every brand canvas follows the same 5-phase lifecycle:
-1. **STREAM** — N particles spawn at canvas edges and flow along quadratic bezier curves toward a
-   center target. Each frame: `t += speed`. When all particles reach `t >= 0.94` → fire phase 2.
-2. **RISE** — Particles cleared. Brand shape extrudes using `springOut(t)`:
-   `1 - 2^(-9t) * cos(t * 10π * 0.68)` — gives physical spring overshoot. Duration: ~500ms.
-3. **COOL** — Shape color animates through heat palette: white-hot → brand accent → brand primary.
-   `heatRGB(t)` interpolates between stops. The shape literally "becomes" the brand as it cools.
-4. **ARC** — Secondary element draws progressively (rail across fence pickets, arc around shield).
-   Drawn via `ctx.arc(x, y, r, start, end * progress)`.
-5. **IDLE** — `breathe = sin(elapsed * 0.00088)`. Oscillates coolingT + arc alpha — ambient pulse.
+**H1 = siteConfig.tagline always, with shimmer.** The tagline IS the H1 — emotional hook copy goes in the subheadline, never the H1. The H1 always receives `.hero-shimmer` (amber/gold for warm brands) or `.hero-shimmer-sage` (sage/white for cool/green/neutral brands). "Where healthcare finally makes sense." is the H1 with shimmer — verify it renders before phase sign-off.
 
-What changes per brand: the shape drawn in RISE (drawPicket, drawCross, drawFlame, etc.),
-the heat palette endpoint (cools to brand primary), and the secondary element in ARC.
-The 5-phase sequence and springOut function are identical on every build.
+**Hero text must always be readable.** Hero headings + body always use `color: var(--text-primary)` (#f5f5f5 on dark builds). If background is dark and text is dark, it's a build failure — can you read every word without highlighting?
 
-Canvas container: `position: relative`, explicit height `clamp(340px, 50vw, 540px)`.
-Canvas fills container with `position: absolute; inset: 0`.
-Always cast: `canvas.getContext("2d") as CanvasRenderingContext2D` — never leave nullable,
-nested draw functions will fail TypeScript strict mode.
+**Primary CTA is always booking.** Drives directly to the booking calendar ("Book Your Free Estimate," "Schedule Service," "Book Now"). NEVER "Call Now" — phone CTA belongs in the nav bar, not the hero. Never "Learn More" or "See Our Work."
 
-**Layer 3 — Framer Motion Stagger Text**
-H1 first, subheadline at 0.15s delay, CTAs at 0.3s delay.
-Renders above canvas (z-10). Always present.
+**Secondary CTA is always the quiz.** Links to `/quiz` with label from `hero.ctaSecondary`. Never a webinar, info session, events page, or external link.
 
-**H1 = siteConfig.tagline always.** The tagline IS the H1 — it gets the shimmer class because
-it is the brand identity statement. Emotional hook copy ("Stop paying twice your mortgage") goes
-in the subheadline below the H1. Never put ad-hook copy in the H1.
-Two shimmer classes — pick based on dominant brand token:
-- `.hero-shimmer` — amber/gold sweep (for brands with gold/warm primary)
-- `.hero-shimmer-sage` — sage/white sweep (for brands with cool/green/neutral primary)
-
-**Tagline shimmer is mandatory.** The H1 (siteConfig.tagline) ALWAYS receives a shimmer class.
-"Where healthcare finally makes sense." is the H1 with shimmer. Verify it renders in the browser
-before phase sign-off. Wrong: any copy other than the brand tagline in the H1.
-
-**Hero text must always be readable.** Hero headings and body copy always use `color: var(--text-primary)`
-(which is #f5f5f5 on dark builds). If the background is dark and the text is dark, this is a build
-failure. Do a visual check: can you read every word without highlighting? If not, fix the color token.
-
-**Primary CTA is always booking.** The hero's primary button drives directly to the booking
-calendar — "Book Your Free Estimate," "Schedule Service," "Book Now," etc. It is NEVER
-"Call Now" — the phone number CTA belongs in the navigation bar, not the hero. It is never
-"Learn More" or "See Our Work." The primary CTA's job is to get the visitor onto the calendar.
-
-**Second CTA is always the quiz.** The hero's secondary button always links to `/quiz` with label
-from `hero.ctaSecondary`. It is never a webinar, info session, events page, or external link.
-The secondary CTA slot belongs to the quiz on every build, without exception.
-
-**Both CTAs funnel to booking.** The primary CTA goes directly to the calendar. The quiz CTA
-qualifies the lead first, then surfaces the calendar on the result screen. Two paths, same
-destination. This is the entire conversion architecture of the homepage hero.
-
-This 3-layer stack is non-negotiable. The animation-specialist agent selects the specific
-variants for layers 1 and 2. The text stagger is the same on every build.
+Both CTAs funnel to booking. Primary → calendar directly. Quiz → qualifies → surfaces calendar on result screen. Two paths, same destination.
 
 ## Always-Built Features Rule
 Every project ships with ALL of the following, no exceptions, no client-by-client decisions:
@@ -576,72 +439,45 @@ Decision gate (after scaffold):
 These are built in every Phase 1 agent sweep. They are never optional, never deferred,
 never listed as "if applicable." If a phase sign-off doesn't include all of them: it is not done.
 
-## Page Animation Rule
-Every page ships with a brand-appropriate animation. The hero has the full 3-layer stack.
-Every other page gets ambient effects only — never the full canvas+SVG assembly.
+## Homepage Section Architecture Rule
+Three requirements govern homepage section architecture: animation depth by page type, purpose-level deduplication, and dark/light alternation.
 
-**The full 3-layer stack (HeroParticles + BrandCanvas + stagger text) is homepage hero only.**
-Interior pages use lightweight ambient effects that match the brand's mood without the weight
-of a full canvas animation. The hierarchy is:
+### Animation depth
+The full 3-layer stack (HeroParticles + BrandCanvas + stagger text) is **homepage hero only**. Every other page gets ambient effects only — never the full canvas+SVG assembly.
 
-- Homepage hero: full 3-layer stack (particles + brand canvas + stagger)
-- Interior page headers: ambient only — rising ash particles, subtle twinkles, shimmer text, or breathing orbs
-
-**Non-negotiable per-page minimums:**
-- `/services` and individual service pages: rising ash particles or subtle twinkle canvas behind
-  the page header (small canvas, low particle count). Never a static plain gradient.
-- `/testimonials`: shimmer text effect on the featured quote header. Subtle twinkle or ash particles
-  behind it. Booking CTA teaser at the bottom gets a breathing orb or gradient animation.
-- `/blog` index: shimmer overlay or subtle animated gradient on the featured post hero header.
-- `/about`: SlideIn animations for stats and photo. FadeUp on section headers.
-- `/contact` and `/booking`: breathing orb behind the CTA header. Never flat.
+Per-page minimums (never static flat):
+- `/services` + individual service pages: rising ash particles or subtle twinkle canvas behind the page header.
+- `/testimonials`: shimmer text on featured quote header + subtle twinkle/ash particles. Booking CTA teaser = breathing orb or gradient animation.
+- `/blog` index: shimmer overlay or animated gradient on featured post hero header.
+- `/about`: SlideIn on stats + photo. FadeUp on section headers.
+- `/contact` and `/booking`: breathing orb behind CTA header.
 - `/quiz`: slide left/right transition between each step.
 
-**What "ambient effects" means in practice:**
-- Rising ash: small canvas, ~20–30 particles that drift upward and fade. Not the 145-particle full system.
-- Subtle twinkles: occasional 4-point glimmer flashes. Low density.
-- Shimmer text: `.hero-shimmer` or `.hero-shimmer-sage` on the page H1. Always.
-- Breathing orb: 1–2 radial gradient blobs, CSS-only, 12s cycle.
+Ambient effects defined:
+- Rising ash: ~20-30 particles drifting up and fading (not the 145-particle hero system).
+- Subtle twinkles: occasional 4-point glimmer flashes, low density.
+- Shimmer text: `.hero-shimmer` or `.hero-shimmer-sage` on the page H1 — always.
+- Breathing orb: 1-2 radial gradient blobs, CSS-only, 12s cycle.
 
-**Practical rule:** Before marking any page complete, scroll through it at full speed.
-If it feels static or flat compared to the homepage, add ambient effects. The user should
-feel the luxury quality on every page, not just the hero.
+Before marking any page complete: scroll through at full speed. If it feels flat compared to the homepage, add ambient effects. A site with one animated page and seven static pages is not a luxury product — it loses the sale the moment the client clicks past the hero.
 
-A website with one animated page and seven static pages is not a luxury product. It is a demo
-that loses the sale the moment the client clicks away from the hero.
+### Purpose-level deduplication
+Adjacent sections must each serve a distinct PURPOSE and deliver a distinct MESSAGE. Two sections that both say "ready to [action]?" or both push the same CTA or both frame the same emotional beat are duplicates — even with different background colors. This is a content architecture failure, not a styling issue.
 
-## Section Content Deduplication Rule
-Adjacent homepage sections must each serve a distinct PURPOSE and deliver a distinct
-MESSAGE. Two sections that both say "ready to [action]?" or both push the same CTA
-or both frame the same emotional beat are duplicates — even if they have different
-background colors. This is a content architecture failure, not a styling issue.
+Before building: for each pair of adjacent sections ask "If a visitor scrolled past these back-to-back, would they feel they just read the same thing twice?" If yes → merge one into the other, replace with a different section type (social proof, stats, process steps, FAQ preview), or reposition with 2+ unrelated sections between.
 
-**Before building homepage sections**, review the section list and ask for each pair
-of adjacent sections: "If a visitor scrolled past these two back-to-back, would they
-feel like they just read the same thing twice?" If yes, one of them must be:
-- Merged into the other
-- Replaced with a different section type (social proof, stats, process steps, FAQ preview)
-- Repositioned with 2+ unrelated sections between them
+Always-duplicate patterns that must never be adjacent:
+- Two CTA sections ("Ready to X?" / "Ready to Y?" / "Let's get started" / "Book now").
+- Two testimonial-style sections.
+- Two sections both leading with a question headline and ending with the same button.
+- A "contact us" section directly above or below a "book now" section.
 
-Specific patterns that are ALWAYS duplicates and must never be adjacent:
-- Two CTA sections ("Ready to X?" / "Ready to Y?" / "Let's get started" / "Book now")
-- Two testimonial-style sections
-- Two sections that both lead with a question headline and end with the same button
-- A "contact us" section directly above or below a "book now" section
+One CTA block at the bottom of the homepage is sufficient. Mid-page conversion nudge → use the quiz CTA (different format, different intent), not another "Ready to...?" block.
 
-One CTA block at the bottom of the homepage is sufficient. If the page needs a mid-page
-conversion nudge, use the quiz CTA (different format, different intent) — not another
-"Ready to...?" block.
+### Dark/light alternation
+Homepage alternates background tones. Zero adjacent sections may share the same background tone — every transition shifts tone.
 
-## Section Alternation Rule
-The full homepage must alternate background tones so that no two adjacent sections
-share the same background. Every transition shifts tone. This is non-negotiable.
-
-**Before building any homepage section**, write the full section order as a comment block
-at the top of `app/page.tsx` with THREE columns: section name, dark/light, and purpose.
-Purpose is the conversion intent: "empathy," "social proof," "education," "conversion,"
-"commerce," "content preview," etc. No two adjacent sections may share the same purpose.
-This catches duplicate CTA sections (both marked "conversion") that color alternation misses.
+Before building: write the full section order as a comment block at the top of `app/page.tsx` with THREE columns — section name, dark/light, purpose (empathy, social proof, education, conversion, commerce, content preview, etc.). No two adjacent sections may share the same purpose — this catches duplicate CTA sections that color alternation misses.
 
 Example rhythm map:
 ```
@@ -656,27 +492,13 @@ Example rhythm map:
 // Booking        — dark  — conversion (final CTA — only ONE at bottom)
 ```
 
-Plan the rhythm first, then build. Fixing alternation after the fact costs 3–5 refactor commits.
-
 Two background tones:
-- **Dark:** `background: var(--primary)` with a **radial gradient overlay** — never flat solid
-  black or flat solid color. Use `radial-gradient(ellipse at 50% 0%, rgba(accent, 0.08), transparent 70%)`
-  or similar to add ambient warmth/depth at the top of each dark section. Cards use
-  `rgba(255,255,255,0.04)` bg, `rgba(255,255,255,0.08)` border. Text uses `var(--text-primary)`.
+- **Dark:** `background: var(--primary)` with a **radial gradient overlay** — never flat solid. Use `radial-gradient(ellipse at 50% 0%, rgba(accent, 0.08), transparent 70%)` or similar. Cards: `rgba(255,255,255,0.04)` bg, `rgba(255,255,255,0.08)` border. Text: `var(--text-primary)`. Dark sections must never look flat; a solid-color dark section reads as unfinished.
 - **Light:** `background: var(--bg-base)` or `var(--bg-elevated)` — standard card styling.
 
-**Dark sections must never look flat.** A pure solid-color dark section reads as unfinished.
-Every dark section gets a subtle radial gradient at the top — brand accent or warm white at
-very low opacity (0.05–0.10), fading to transparent. This is a one-line CSS addition per
-section. There is no excuse for flat dark blocks.
+Plan the rhythm first. Fixing alternation after the fact costs 3-5 refactor commits. If a section is added or reordered later, update the rhythm map and verify no adjacency clash.
 
-Rules:
-- Zero adjacent sections may share the same background tone. Not "avoid 3 in a row" — zero.
-- Gallery/photo sections should almost always be light — dark backgrounds compete with images.
-- The rhythm map must be committed in the same commit as the first homepage section.
-- If a section is added or reordered later, update the rhythm map and verify no adjacency clash.
-
-Reference pattern: `knowledge/patterns/homepage-dark-light-section-rhythm.md`
+Reference pattern: `knowledge/patterns/homepage-dark-light-section-rhythm.md`. Gallery/photo sections should almost always be light — dark backgrounds compete with images.
 
 ## Conversion Flow Rule
 Never embed third-party redirects that take users off the [DOMAIN] domain.
@@ -692,9 +514,7 @@ description, Open Graph tags, [SCHEMA_TYPE] schema markup, crawlable text
 (one H1 per page).
 
 ## Page Wiring Rule
-Any new route or page created must be added to navigation and sitemap.ts in the
-same commit. Never create a page without connecting it. New page = nav + sitemap
-in the same commit, no exceptions.
+Any new route or page must be added to navigation and sitemap.ts in the same commit. Never create a page without connecting it.
 
 ## Placeholder CTA Rule
 "Coming soon" or static CTA boxes are not acceptable phase sign-offs. Every primary

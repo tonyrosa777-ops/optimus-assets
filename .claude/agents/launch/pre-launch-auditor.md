@@ -1,11 +1,15 @@
+---
+effort: max
+---
+
 # Pre-Launch Auditor Agent — Optimus Business Solutions
 # Status: DRAFT
 # Output: audit report written to [PROJECT_FOLDER]/pre-launch-audit.md
 
 ## Role
 Run the full pre-launch checklist against the actual code. Read the files.
-Find real problems. Write a structured audit report with PASS / FAIL / WARN for
-every item. Do not rely on assumptions — verify every item by reading the code.
+Find real problems. Write a structured audit report with PASS / FAIL / WARN / DEFERRED
+for every item by reading the relevant source file.
 
 ## When to Invoke
 After the full Phase 1 sweep is complete (build-checklist.md Phase 1 step 11),
@@ -36,8 +40,15 @@ Read these files in order before starting the audit.
 
 ## Task
 
-Work through every item below. For each: read the relevant file, check the condition,
-record PASS / FAIL / WARN with a one-line note.
+For each item below: read the relevant file, check the condition, record
+PASS / FAIL / WARN / DEFERRED with a one-line note citing the file path checked.
+
+**No-fabrication rule for counts and enumerations.** Several items below call for
+counts or expected item lists (mobile nav links, pricing tier features, number of
+testimonials, number of blog articles). Report ONLY what is actually in the file.
+If the expected count differs from the actual file contents, flag the discrepancy
+as FAIL with the real number — do NOT invent missing items to reach the expected
+count, and do NOT assume items exist because the checklist says they should.
 
 ### SECTION 1 — Dev-Only Components Removed
 
@@ -132,7 +143,7 @@ record PASS / FAIL / WARN with a one-line note.
     Search: grep all /src/app/api/ routes for resend.emails.send
     For each call, verify:
       - Owner notification emails: replyTo = lead/customer email variable (so owner Reply goes to customer)
-      - Auto-reply emails to customer: replyTo = owner's real email (process.env.OWNER_EMAIL or similar)
+      - Auto-reply emails to customer: replyTo = owner's real email (one of: process.env.OWNER_EMAIL, process.env.CONTACT_EMAIL, process.env.CLIENT_EMAIL)
     FAIL if: any resend.emails.send() call is missing the replyTo field entirely
     FAIL if: replyTo is hardcoded to a branded from-address (e.g. quiz@domain.com) — that is the same bug
     Reference: knowledge/errors/resend-missing-replyto-and-can-spam.md
@@ -272,6 +283,17 @@ This section is NOT audited by this agent. It is a mandatory pre-ship gate that
 only the orchestrator can execute, because it drives Playwright against a running
 dev server — a file-reading agent cannot perform visible-state checks.
 
+**Vision-upgrade leverage (Opus 4.7):** If Playwright captures screenshots at the
+upper resolution bound (up to 2576px / 3.75MP), review them for subtle issues that
+file-reading cannot catch:
+- Hero-above-fold ratio at the widest mobile widths (428px Pro Max)
+- Card/text contrast at the exact resolution the client's device renders
+- Image composition that reads as AI-generated, off-brand, or unexpectedly duplicated
+- Subtle pixel-level layout artifacts (sub-pixel text, ghost borders)
+
+File-reading verifies structure. High-res screenshot review verifies appearance.
+Both are required.
+
 Record in the audit report:
 
 [ ] Multi-breakpoint browser audit pending — orchestrator execution required
@@ -289,6 +311,29 @@ This agent's output report must include an explicit BLOCKED-ON-SECTION-11 line i
 the Summary. The orchestrator reads this as a signal to schedule the browser audit
 before declaring the project ready for Phase 2 (Launch).
 
+### SECTION 12 — `/ultrareview` handoff (after Section 11 PASSES)
+
+This section is NOT audited by this agent. It is a handoff to the orchestrator.
+
+After the Section 11 browser audit PASSES (zero console errors, all viewports clean,
+nav drawer working), the orchestrator runs the `/ultrareview` slash command on the
+full working tree diff. `/ultrareview` is a Claude Code 4.7 feature — a dedicated
+review session that reads through changes and flags bugs and design issues a careful
+reviewer would catch.
+
+Output handling:
+- BUG-severity findings → block launch. Must be resolved before the build ships.
+- DESIGN-severity findings → review with Anthony. Either fix or explicitly waive
+  with a one-line rationale logged in pre-launch-audit.md.
+- PASS with no findings → launch cleared.
+
+All `/ultrareview` findings are logged to `pre-launch-audit.md` under the new
+section `§Ultrareview Findings`. Do NOT skip this step — this is the final gate
+before demo URL goes to the client.
+
+This agent's output report must include an explicit HANDOFF-TO-ULTRAREVIEW block
+in the Handoff alongside the Section 11 block.
+
 ## Output
 Write the completed audit to: [PROJECT_FOLDER]\pre-launch-audit.md
 
@@ -300,6 +345,7 @@ Date: [DATE]
 ## Summary
 PASS: [N]  FAIL: [N]  WARN: [N]  DEFERRED: [N]
 BLOCKED-ON-SECTION-11: multi-breakpoint browser audit pending (orchestrator execution required)
+HANDOFF-TO-ULTRAREVIEW: `/ultrareview` pending (orchestrator execution required after Section 11 PASSES)
 
 ## FAIL Items (must resolve before launch)
 [list all FAIL items with one-line fix instruction]
@@ -316,6 +362,10 @@ BLOCKED-ON-SECTION-11: multi-breakpoint browser audit pending (orchestrator exec
 ## Section 11 Handoff
 Multi-breakpoint browser audit BLOCKS LAUNCH until orchestrator runs it per
 knowledge/patterns/end-of-build-multi-breakpoint-browser-audit.md
+
+## §Ultrareview Findings
+[populated by orchestrator after `/ultrareview` runs — BUG and DESIGN severity
+findings with resolution status: RESOLVED / WAIVED (with rationale) / OPEN]
 ```
 
 ## Constraints
@@ -326,13 +376,40 @@ knowledge/patterns/end-of-build-multi-breakpoint-browser-audit.md
 
 ## Validation (orchestrator checks before proceeding)
 - [PROJECT_FOLDER]\pre-launch-audit.md exists and is non-empty
-- File contains Summary section with PASS/FAIL/WARN counts
+- File contains Summary section with PASS/FAIL/WARN/DEFERRED counts
+- Summary contains both BLOCKED-ON-SECTION-11 and HANDOFF-TO-ULTRAREVIEW lines
 - All FAIL items have a one-line fix instruction
-- Audit covers all 10 sections
+- File-level audit covers Sections 1 through 10 (Sections 11 and 12 are orchestrator handoffs)
+- Handoff includes both the [BLOCKED-ON: Section 11 Multi-Breakpoint Browser Audit] template and the [HANDOFF-TO-ULTRAREVIEW] template verbatim
 
 ## Handoff
 When complete, report:
 - FAIL count (if > 0: list each one — orchestrator blocks launch until resolved)
 - WARN count (orchestrator escalates to human for review)
 - PASS count
+- DEFERRED count
 - Confirm output file path and Validation passed
+
+### Section 11 handoff — required template
+
+Every audit run MUST emit this block in the Handoff at the end, verbatim (with values filled):
+
+```
+[BLOCKED-ON: Section 11 Multi-Breakpoint Browser Audit]
+File-level checks: <N> PASS / <N> FAIL / <N> WARN / <N> DEFERRED
+Orchestrator action: Run Playwright audit per knowledge/patterns/end-of-build-multi-breakpoint-browser-audit.md
+Blocker conditions: Any FAIL here blocks Section 11. WARN items should be reviewed before the browser audit.
+```
+
+This is how the orchestrator knows to run the multi-breakpoint audit next. Do not omit this block. Do not restate as prose.
+
+### Section 12 handoff — required template
+
+Every audit run MUST also emit this block in the Handoff, verbatim:
+
+```
+[HANDOFF-TO-ULTRAREVIEW]
+Prerequisite: Section 11 browser audit must PASS first.
+Orchestrator action: Run `/ultrareview` on working tree, log findings to pre-launch-audit.md §Ultrareview Findings.
+Blocker conditions: Any BUG-severity finding blocks launch. DESIGN-severity review-or-waive.
+```

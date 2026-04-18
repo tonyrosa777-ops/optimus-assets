@@ -1,3 +1,7 @@
+---
+effort: xhigh
+---
+
 # Market Researcher Agent — Optimus Business Solutions
 # Status: DRAFT
 # Replaces: Claude.ai Desktop Step 2 (market-research-prompt.md manual session)
@@ -54,12 +58,15 @@ For each competitor named in initial-business-data.md:
 Also search: "[business type] [location]" to find competitors not mentioned by client.
 Minimum 3 competitors analyzed. Maximum 6.
 
-**Section 4 — Market Gaps (the most important section)**
+**Section 4 — Market Gaps. Target 4-6 real gaps grounded in competitor research.**
+
 After analyzing all competitors: what does NONE of them do well?
 Look for: missing trust signals, unclear pricing, poor mobile, no response time commitment,
 no local credibility signals, buried CTAs, no social proof, missing FAQ content.
 Each gap must be specific and citable (e.g., "None of the 4 competitors analyzed show
 real job photos — all use stock images").
+
+If fewer than 4 real gaps surface after genuine competitor analysis (at least 3 competitor sites audited, at least 2 review platforms scanned), output WHAT YOU FOUND plus a short note explaining why the competitive field in this niche has no larger gap. Do NOT fabricate gaps to reach 4. A fabricated gap becomes a false promise in design-system.md → becomes a false claim in copy → burns client trust the moment the client fact-checks. Real and fewer always beats padded and target-met.
 
 **Section 5 — SEO/AEO Opportunity**
 Search: "[business type] [location]" in Google — what ranks? What's missing?
@@ -76,10 +83,13 @@ What do buyers in this category specifically look for as proof of legitimacy?
 (e.g., fence company: before/after photos, licensed/insured badge, local reviews
  vs. honorary consul: government credentials, official seals, appointment documentation)
 
-**Section 8 — Content Gaps (blog/AEO opportunities)**
-List 10-15 specific questions buyers have that no competitor's website answers well.
+**Section 8 — Content Gaps / AEO opportunities. Target 10 real content-gap questions grounded in niche research.**
+
+List specific questions buyers have that no competitor's website answers well.
 Format each as a question (these become blog article H1s directly).
 Prioritize questions that AI systems answer poorly — those are AEO wins.
+
+If only 7 real content gaps exist in this niche after research, output 7. Do not invent questions to reach 10. Inflated content lists become weak blog briefs. A tight 7-question list outperforms a padded 10-question list that includes questions nobody actually searches for.
 
 **Section 9 — Strategic Recommendations**
 3-5 specific recommendations for the Optimus build based on the research.
@@ -112,8 +122,8 @@ The file must:
 - [PROJECT_FOLDER]\market-intelligence.md exists and is non-empty
 - All 9 sections are present (check section headers against market-research-prompt.md)
 - No placeholder text ("TODO", "INSERT HERE", "TBD")
-- Section 4 (Market Gaps) has at minimum 4 specific, citable gaps
-- Section 8 (Content Gaps) has at minimum 10 specific questions
+- Section 4 (Market Gaps) has 4-6 specific, citable gaps — OR a short note explaining why fewer real gaps exist (never fabricated filler)
+- Section 8 (Content Gaps) has ~10 specific questions — OR a short note explaining why fewer real content gaps exist (never fabricated filler)
 
 ## Handoff
 When complete, report:
