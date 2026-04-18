@@ -49,6 +49,27 @@ MUST be traceable to market-intelligence.md or initial-business-data.md.
 If you cannot cite the research that backs a decision, do not make the
 decision — surface it for review.
 
+## Optimus Positioning Rule
+Every Optimus site ships as a **premium, modern, 2026-era build with UI/UX engineered for conversion**. This positioning is non-negotiable regardless of client industry, tier, spend, or market segment. Trade businesses get the same luxury-grade foundation as luxury hospitality; $1,500 Starter tier gets the same visual floor as $5,500 Premium. We do not ship cheaper-looking sites — we ship fewer features.
+
+**What this means in practice (UI/UX layer, set during design-synthesizer + scaffold):**
+- Typography: modern variable fonts with serious type scale (clamp-based, declared in Phase 1 globals.css). No Arial, no Roboto, no default system stack.
+- Animation: real motion — 3-layer hero stack (HeroParticles + BrandCanvas + stagger text), ambient effects on every interior page, Framer Motion scroll-triggered reveals. Never placeholder transitions.
+- Visual density: generous whitespace, radial-gradient-overlayed dark sections (never flat), subtle-gradient-overlayed light sections.
+- Interactions: micro-animation on hover, focus-visible states, skeleton loaders on async content.
+- Color: brand-primary + brand-accent + restrained neutrals. No stock-corporate blue, no Bootstrap navy, no purple-gradient-on-white.
+- Emoji: YES — as semantic UI icons on service cards, pain points, process steps, stats, quiz options. Modern premium brands (Linear, Stripe, Vercel, Raycast, Superhuman) use emoji freely. The tension is not "emoji vs luxury" — the tension is "emoji vs stock-corporate," and we are never stock-corporate.
+
+**What varies by client (not scoped by this rule):**
+- Copy voice and tone of voice (see content-writer.md Voice Anchor + design-system.md Section 7)
+- Feature mix (see Always-Built Features Rule + design-system.md Section 11)
+- Specific brand tokens — color values, fonts, personality axes (design-synthesizer output)
+- Photography direction (design-system.md Section 6)
+
+**frontend-design.md scope under this rule:** frontend-design.md offers a menu of aesthetic directions (brutally minimal, maximalist chaos, retro-futuristic, organic/natural, luxury/refined, playful/toy-like, editorial/magazine, brutalist/raw, art-deco/geometric, soft/pastel, industrial/utilitarian). For Optimus builds, the selection is constrained to the luxury-modern-2026-conversion family — typically "luxury/refined" or "editorial/magazine" or a hybrid. Never "brutalist/raw," "retro-futuristic," or "playful/toy-like" as a dominant direction, regardless of brand fit. The brand's voice can be casual; the visual presentation is always premium-modern.
+
+See [knowledge/patterns/optimus-luxury-modern-positioning.md](knowledge/patterns/optimus-luxury-modern-positioning.md) for the rationale and the full pattern-doc version.
+
 ## Mandatory Pre-Read Protocol
 At the start of EVERY session, read in order:
 1. CLAUDE.md (this file)

@@ -51,6 +51,28 @@ Produce design-system.md by synthesizing the two source documents.
 Every decision must cite its source — never invent a brand direction not grounded
 in the research or client data.
 
+### Optimus Positioning Constraint — applies to every design-system.md
+
+Regardless of client industry, tier, or market segment, the UI/UX direction you produce MUST fall within the **luxury-modern-2026-conversion** family. This is a hard floor set by CLAUDE.md §Optimus Positioning Rule, not a preference.
+
+Allowed aesthetic directions (pick one, or hybrid two):
+- Luxury / refined
+- Editorial / magazine
+- Modern minimal (restrained, not brutally spare)
+- Organic / natural (premium craft, not rustic-folk)
+- Industrial / utilitarian (only when industry demands it — see constraint below)
+
+NEVER choose as dominant direction:
+- Brutalist / raw — reads unfinished
+- Retro-futuristic — off-positioning for local-service and B2B
+- Playful / toy-like — undermines conversion gravitas
+- Art-deco geometric maximalism — niche, dated
+- Soft pastel — reads cheap in the 2026 aesthetic climate
+
+Industry does NOT override this. A fence company gets the same luxury-modern visual floor as a luxury glamping property. What varies is copy voice, imagery direction, and color palette — not the design-grade.
+
+If market-intelligence.md indicates competitors all went "playful" or "cheap/budget," that's a DIFFERENTIATION opportunity (we ship premium in a category that hasn't), not a signal to match. Document this in Section 9 (Competitor Differentiation).
+
 ### The 11 Required Sections
 
 **Section 1 — Brand Identity Statement**

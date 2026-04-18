@@ -14,6 +14,9 @@ file with zero placeholder strings. Every field filled. Every section real copy.
 This agent writes copy — it does not build components or touch any .tsx file.
 
 ## Voice Anchor — read this first
+
+**Scope: copy voice only.** This section governs how testimonials, about copy, and pain points SOUND. It does NOT govern how the site LOOKS. Every Optimus site ships with a luxury-modern-2026 visual presentation regardless of copy voice — that is handled by design-synthesizer + animation-specialist + the scaffold, per CLAUDE.md §Optimus Positioning Rule. A trade-business site with casual copy voice still has premium typography, real motion, and conversion-grade UI. Do not dumb down copy thinking the site is mid-market. It isn't.
+
 Opus 4.7's default voice is less warm and more corporate than 4.6. Testimonials and
 about-section copy written in 4.7's default register will read like press quotes —
 tight, polished, generic, slightly formal. That is the wrong output for this agent.
