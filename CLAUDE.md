@@ -513,9 +513,39 @@ Example rhythm map:
 // Booking        — dark  — conversion (final CTA — only ONE at bottom)
 ```
 
-Two background tones:
-- **Dark:** `background: var(--primary)` with a **radial gradient overlay** — never flat solid. Use `radial-gradient(ellipse at 50% 0%, rgba(accent, 0.08), transparent 70%)` or similar. Cards: `rgba(255,255,255,0.04)` bg, `rgba(255,255,255,0.08)` border. Text: `var(--text-primary)`. Dark sections must never look flat; a solid-color dark section reads as unfinished.
-- **Light:** `background: var(--bg-base)` or `var(--bg-elevated)` — standard card styling.
+**No flat solid backgrounds. Ever.** Every section background is a gradient with subtle motion by default — this applies to BOTH dark and light sections, across ALL pages, not just the homepage hero. Stillness is the exception (see below), never flat solid is the default. A flat section on a luxury-positioned site reads as unfinished.
+
+Two background tones (both gradient + motion, never flat):
+
+- **Dark:** `background: var(--primary)` as the base. Overlay a multi-stop radial or conic gradient (brand accent or warm neutral, 0.05-0.12 alpha) with subtle drift via CSS `@keyframes` on `background-position` or a transformed gradient layer. Cards: `rgba(255,255,255,0.04)` bg, `rgba(255,255,255,0.08)` border. Text: `var(--text-primary)`.
+
+- **Light:** `background: var(--bg-base)` or `var(--bg-elevated)` as the base. Overlay a multi-stop radial gradient (brand accent or muted neutral, 0.04-0.08 alpha) with the same motion treatment. Same motion budget as dark.
+
+**Motion vocabulary — pick ONE per section, do not stack:**
+- **Breathing orb** — 1-2 radial blobs, CSS-only, 12s cycle (scale + opacity).
+- **Mesh drift** — mesh gradient with animated `background-position`, 20-30s cycle.
+- **Aurora sweep** — diagonal conic gradient sweeping across, 15-25s cycle.
+- **Grain shimmer** — static gradient + animated fine-grain noise overlay, 8s loop.
+
+**Static-gradient exceptions (still a gradient, no motion):**
+- Long-form text sections: blog article bodies, legal/privacy/terms, FAQ answer blocks.
+- Pricing comparison tables — focus belongs on the rows, not the background.
+- Form-dense sections: signup, contact, booking details.
+Never flat even here. Only motion turns off, not the gradient.
+
+**Performance budget — non-negotiable:**
+- Maximum 3 active motion layers visible in any viewport simultaneously. The hero counts as 1 (its particle canvas + ambient orb). Count every `@keyframes` background layer toward the limit.
+- CSS-only implementation for section backgrounds. Never JavaScript-driven. Canvas is reserved for hero + intentional interior-page ambient effects per the Animation depth subsection above.
+- GPU-cheap properties only: `transform`, `opacity`, `background-position`. Avoid `filter`, `backdrop-filter`, `blur` on animated layers.
+- Test at 390px mobile — if FPS drops below 50 on a mid-range device, reduce motion layer count before shipping.
+
+**Accessibility — non-negotiable:**
+- All motion MUST respect `@media (prefers-reduced-motion: reduce)` by degrading to the STATIC form of the same gradient. Never degrade to a flat color.
+- Motion must not exceed 0.3Hz at peak (one visible cycle per 3+ seconds minimum). Faster reads as "loading spinner," not "ambient luxury."
+
+**Dark/light alternation still applies.** Gradient + motion does not replace the purpose-level dedup and dark/light tone alternation rules — both still enforced. No two adjacent sections share the same tone; no two adjacent sections share the same purpose.
+
+See [knowledge/patterns/luxury-gradient-backgrounds.md](knowledge/patterns/luxury-gradient-backgrounds.md) for the full implementation recipes (breathing orb / mesh drift / aurora sweep / grain shimmer), CSS snippets, and common mistakes to avoid.
 
 Plan the rhythm first. Fixing alternation after the fact costs 3-5 refactor commits. If a section is added or reordered later, update the rhythm map and verify no adjacency clash.
 
@@ -588,6 +618,9 @@ Mandatory exit criteria before marking the audit complete:
   - No horizontal scroll at 375
   - Hero fits above the fold (eyebrow + H1 + tagline + primary CTA) at every mobile width
   - Mobile nav drawer opens, overlay is dark and opaque, closes cleanly via its inner X
+  - **No flat solid-color section backgrounds at any viewport.** Scroll the full page at 1440 and 390. Every section must show a gradient (multi-stop radial, conic, or mesh). If a section reads as a solid fill at any breakpoint, it's a FAIL per the Homepage Section Architecture Rule → Background depth & motion subsection — regardless of whether it's a "text-heavy exception" section (those still require a gradient, only motion is waived).
+  - **Motion layer count within budget.** In any single viewport, count the active `@keyframes` background layers visible at once. Maximum 3 simultaneously. Hero counts as 1. Over-budget sections produce visible GPU thrash on mobile; reduce before shipping.
+  - **`prefers-reduced-motion` graceful degradation check.** Toggle the OS-level reduce-motion setting (macOS: System Settings → Accessibility → Display → Reduce motion; iOS: Settings → Accessibility → Motion). Reload. Every section must still render as a GRADIENT (not flat) with motion stopped. If any section collapses to flat color under reduce-motion, that's a FAIL.
   - Any fix applied mid-audit triggers a full re-verify of all four viewports
   - Dev server explicitly stopped with TaskStop — `browser_close` does NOT stop it
 
