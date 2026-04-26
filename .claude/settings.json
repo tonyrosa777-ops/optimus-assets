@@ -4,7 +4,8 @@
       "Read(//c/Projects/andrea-abella-marie/**)",
       "Read(//c/Projects/Xpertise-Painting/**)",
       "Read(//c/Projects/**)",
-      "Bash(python3)"
+      "Bash(python3)",
+      "Bash(git diff *)"
     ]
   }
 }

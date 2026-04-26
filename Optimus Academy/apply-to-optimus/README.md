@@ -7,7 +7,7 @@ tags: [#layer/optimus-os, #status/active]
 
 # Apply to Optimus
 
-This folder captures the moments when something learned in Optimus Academy can directly improve an Optimus offering. One file per insight. Each file explicitly names: the concept (link to the concept note in `[[../concepts/]]`), the offering it improves (link to the offering hub), and how to apply it. This is where personal daily learning becomes business value.
+This folder captures the moments when something learned in Optimus Academy can directly improve an Optimus offering. One file per insight. Each file explicitly names: the concept (link to the concept note in `[[../concepts/]]`), the source(s) where the concept was learned (links to source files in `[[../sources/]]`), the offering it improves (link to the offering hub), and how to apply it. This is where personal daily learning becomes business value.
 
 ## File naming convention
 
@@ -27,16 +27,34 @@ One concept can apply to multiple offerings. When that happens, write multiple f
 ---
 title: <Concept> applied to <Offering>
 concept: [[../concepts/<concept-slug>]]
+source-files: [<YYYY-MM-DD-source-slug-1>, <YYYY-MM-DD-source-slug-2>]
 offering: [[../../Offerings/<offering-path>/README]]
 created: YYYY-MM-DD
 last-updated: YYYY-MM-DD HH:MM
+status: not-started
 tags: [#learning/applied, #applies-to/<offering>]
 ---
 ```
 
-## Body structure
+The `source-files:` list grows over time. When a later source teaches more about the same concept and that new finding strengthens (or modifies) the application, the bridge note's `## Updates` section captures the delta and the new source slug joins this frontmatter list.
 
-Every bridge note follows the same four-section body:
+## Visible blockquote header
+
+Right under the H1, every bridge note carries a visible attribution blockquote so the reader sees the full trail (concept → sources → offering → status) without peeking at YAML:
+
+```
+> **Concept:** [[../concepts/<concept-slug>]]
+> **Source(s):**
+> - [[../sources/YYYY-MM-DD-<source-slug-1>]] — <publisher>
+> - [[../sources/YYYY-MM-DD-<source-slug-2>]] — <publisher>
+> **Offering:** [[../../Offerings/<offering-folder>/README]]
+> **Status:** `not-started`
+> **Last updated:** YYYY-MM-DD HH:MM
+```
+
+## Body structure — rigid identical contract
+
+Every bridge note follows the same five-section body. **All section headers are always present, in the same order, even when the section has no content.** Empty sections show literally `(none)` as the body. This is non-negotiable — predictability beats efficiency.
 
 ### `## What I learned`
 
@@ -52,7 +70,7 @@ Actionable steps. File paths to edit. Agent files to update. Workflow tweaks. En
 
 ### `## Status`
 
-One of: `not-started` / `in-progress` / `applied` / `verified`.
+One of: `not-started` / `in-progress` / `applied` / `verified`. Mirrored in frontmatter.
 
 - `not-started` — bridge note exists, no implementation yet
 - `in-progress` — implementation underway
@@ -61,7 +79,7 @@ One of: `not-started` / `in-progress` / `applied` / `verified`.
 
 ### `## Updates`
 
-Append `## Update — YYYY-MM-DD HH:MM — <label>` sections as the application matures. Decisions made, blockers hit, results measured.
+Empty on creation but the header is still present — it is the contract that signals "this is where future findings will land." When a new source adds to this insight, append a `### YYYY-MM-DD HH:MM — <label> — from [[../sources/<source-slug>]]` block here. Decisions made, blockers hit, results measured, new source findings — all stack chronologically. The original `## What I learned` / `## Why it applies` / `## How to apply it` content stays byte-identical from one update to the next; deltas live in `## Updates`.
 
 ## Promotion path
 
