@@ -3,7 +3,8 @@
     "allow": [
       "Read(//c/Projects/andrea-abella-marie/**)",
       "Read(//c/Projects/Xpertise-Painting/**)",
-      "Read(//c/Projects/**)"
+      "Read(//c/Projects/**)",
+      "Bash(python3)"
     ]
   }
 }

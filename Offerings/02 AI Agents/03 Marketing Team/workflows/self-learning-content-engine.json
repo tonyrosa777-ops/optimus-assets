@@ -1,0 +1,3602 @@
+{
+  "name": "Self Learning Content Engine HWW all platforms",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 18 * * 0"
+            }
+          ]
+        }
+      },
+      "id": "11005d47-733f-4404-8f51-f00e85c3739e",
+      "name": "Schedule: Sunday 6pm EST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1056,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery"
+      },
+      "id": "b1ae1fd9-1a7b-449a-bdae-465a212a4869",
+      "name": "Get 30-Day Performance (Pillar-Segmented)",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -848,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.all().map(i => i.json);\n\nconst byPillar = {\n  Health: {posts: [], total: 0, identity_signals: {saves: 0, repeat_viewers: 0, follower_conv: 0}, top_topics: {}, platforms: {}},\n  Wealth: {posts: [], total: 0, identity_signals: {saves: 0, repeat_viewers: 0, follower_conv: 0}, top_topics: {}, platforms: {}},\n  Wisdom: {posts: [], total: 0, identity_signals: {saves: 0, repeat_viewers: 0, follower_conv: 0}, top_topics: {}, platforms: {}},\n  Integration: {posts: [], total: 0, identity_signals: {saves: 0, repeat_viewers: 0, follower_conv: 0}, top_topics: {}, platforms: {}}\n};\n\ndata.forEach(p => {\n  const pillar = p.pillar;\n  if (!byPillar[pillar]) return;\n  \n  byPillar[pillar].posts.push(p);\n  byPillar[pillar].total += p.engagement_score || 0;\n  \n  // Identity signals\n  byPillar[pillar].identity_signals.saves += p.saves || 0;\n  byPillar[pillar].identity_signals.repeat_viewers += p.repeat_viewers || 0;\n  byPillar[pillar].identity_signals.follower_conv += p.new_followers || 0;\n  \n  // Topic tracking\n  const topic = p.topic || 'unknown';\n  if (!byPillar[pillar].top_topics[topic]) {\n    byPillar[pillar].top_topics[topic] = {count: 0, total_score: 0, identity_score: 0};\n  }\n  byPillar[pillar].top_topics[topic].count++;\n  byPillar[pillar].top_topics[topic].total_score += p.engagement_score || 0;\n  byPillar[pillar].top_topics[topic].identity_score += (p.saves || 0) + (p.new_followers || 0);\n  \n  // Platform performance per pillar\n  const platform = p.platform;\n  if (!byPillar[pillar].platforms[platform]) {\n    byPillar[pillar].platforms[platform] = {total: 0, count: 0, identity: 0};\n  }\n  byPillar[pillar].platforms[platform].total += p.engagement_score || 0;\n  byPillar[pillar].platforms[platform].count++;\n  byPillar[pillar].platforms[platform].identity += (p.saves || 0) + (p.new_followers || 0);\n});\n\n// Calculate averages and detect philosophical saturation\nObject.keys(byPillar).forEach(pillar => {\n  const d = byPillar[pillar];\n  d.avg_score = d.posts.length > 0 ? Math.round(d.total / d.posts.length) : 0;\n  \n  // Top 20% topics\n  d.top_20_topics = Object.entries(d.top_topics)\n    .map(([topic, stats]) => ({\n      topic,\n      count: stats.count,\n      avg_score: Math.round(stats.total_score / stats.count),\n      identity_score: stats.identity_score\n    }))\n    .sort((a, b) => b.identity_score - a.identity_score)\n    .slice(0, Math.ceil(Object.keys(d.top_topics).length * 0.2));\n  \n  // Platform identity conversion\n  d.best_platforms = Object.entries(d.platforms)\n    .map(([platform, stats]) => ({\n      platform,\n      avg_score: Math.round(stats.total / stats.count),\n      identity_ratio: stats.identity / stats.count\n    }))\n    .sort((a, b) => b.identity_ratio - a.identity_ratio)\n    .slice(0, 5);\n  \n  // Philosophical saturation flag (topics appearing >4 times without variation)\n  d.saturated_topics = Object.entries(d.top_topics)\n    .filter(([topic, stats]) => stats.count > 4 && stats.identity_score / stats.count < 2)\n    .map(([topic]) => topic);\n});\n\nconst contentGaps = {\n  Health: ['nervous_system_regulation', 'metabolic_flexibility', 'circadian_optimization', 'somatic_intelligence'],\n  Wealth: ['attention_economics', 'leverage_thinking', 'market_timing', 'compound_decisions'],\n  Wisdom: ['temporal_perspective', 'meaning_creation', 'death_contemplation', 'symbolic_thinking']\n};\n\nreturn {\n  analysis_date: new Date().toISOString().split('T')[0],\n  by_pillar: byPillar,\n  content_gaps: contentGaps,\n  total_analyzed: data.length\n};"
+      },
+      "id": "b3b10944-3cf5-4127-9a4b-2e194efd5fa5",
+      "name": "Analyze by Pillar (Identity-Focused)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -624,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "maxTokens": 3000,
+          "temperature": 0.7
+        }
+      },
+      "id": "1db46d2d-542a-47c1-a06b-23119e7ab189",
+      "name": "OpenAI GPT-4o",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -64
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "92f4af94-b64d-4e16-a09e-b8db28beab9e",
+      "name": "Strategy Prompt",
+      "type": "@n8n/n8n-nodes-langchain.promptTemplate",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "0e3e1640-4f63-4b33-a18d-7654bdfdffa4",
+      "name": "Strategy AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        -400,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiOutput = $input.first().json.output;\nconst jsonMatch = aiOutput.match(/```json\\s*([\\s\\S]*?)```/) || aiOutput.match(/\\{[\\s\\S]*\"week_of\"[\\s\\S]*\\}/);\nif (!jsonMatch) return {error: 'No strategy JSON'};\n\nconst strategy = JSON.parse(jsonMatch[0].replace(/```json|```/g, '').trim());\n\nreturn {\n  strategy_id: 'STRAT-' + Date.now(),\n  created_at: new Date().toISOString(),\n  week_of: strategy.week_of,\n  strategy_summary: strategy.strategy_summary,\n  content_pillars: strategy.content_pillars,\n  weekly_goal: strategy.weekly_goal,\n  philosophy_refinement: strategy.philosophy_refinement,\n  status: 'approved'\n};"
+      },
+      "id": "6f1ae825-5252-4a14-a200-5c930825c092",
+      "name": "Parse Strategy",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -176,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert"
+      },
+      "id": "0b6c0521-447c-48e9-aa8f-22de8c3afef9",
+      "name": "Save Strategy",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        48,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const strategy = $input.first().json;\nreturn strategy.content_pillars.map(p => ({\n  strategy_id: strategy.strategy_id,\n  scheduled_date: p.date,\n  day_of_week: p.day,\n  pillar: p.pillar,\n  topic: p.topic,\n  topic_readable: p.topic_readable,\n  core_message: p.core_message,\n  sharp_hook: p.sharp_hook,\n  tradeoff_line: p.tradeoff_line,\n  video_style: p.video_style,\n  priority_platforms: JSON.stringify(p.priority_platforms),\n  expected_performance: p.expected_performance,\n  philosophy_flag: p.philosophy_flag,\n  language_seed: p.language_seed,\n  status: 'scheduled',\n  created_at: new Date().toISOString()\n}));"
+      },
+      "id": "8bcec7da-3292-47ba-b5d5-a4d97fe68ddb",
+      "name": "Build Calendar Entries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert"
+      },
+      "id": "02869a17-6427-4a66-beb1-07c2ae5337bb",
+      "name": "Save to Calendar",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        480,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "content": "WORKFLOW 1: CONTENT STRATEGY & PHILOSOPHY PLANNING AGENT"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1472,
+        128
+      ],
+      "id": "b67b2253-6d1d-4d8a-8238-581451605974",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "WORKFLOW 2: MASTER CONTENT GENERATOR (SOURCE OF TRUTH)\n\nKey Features:\n\n✅ Enforces pillar purity (one pillar only, except Integration)\n✅ Requires clear stance, consequence, takeaway\n✅ Explicit tradeoff line mandatory\n✅ Pillar-specific tone enforcement (Health=evidence-based, Wealth=operator-first, Wisdom=sparse/contemplative)\n✅ Language seeds for vocabulary training\n✅ Identity-oriented headlines (not clickbait)\n✅ Faceless video specs with B-roll keywords\n✅ Automatic trigger to Workflow 3",
+        "height": 288,
+        "width": 448,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1696,
+        640
+      ],
+      "id": "9c310327-9ed9-4d60-8a8f-e2bad6d88618",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "2e8a4dff-d4c7-43b2-acbb-b7a8bacf9efa",
+      "name": "Schedule: Daily 8am EST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1024,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery"
+      },
+      "id": "1cf65743-99a0-4b8f-82af-f07fcbefdc78",
+      "name": "Get Today's Content Plan",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.id ? true : false }}",
+              "value2": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d2d86cb7-e162-4d84-84cb-82e3fcceef3a",
+      "name": "Content Plan Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -592,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "6e0af556-7172-4405-8ade-7c66ac750127",
+      "name": "No Content Today (Exit)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        -368,
+        864
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const plan = $input.first().json;\n\nconst priorityPlatforms = typeof plan.priority_platforms === 'string' ? JSON.parse(plan.priority_platforms) : plan.priority_platforms;\n\nreturn {\n  calendar_id: plan.id,\n  strategy_id: plan.strategy_id,\n  scheduled_date: plan.scheduled_date,\n  day_of_week: plan.day_of_week,\n  pillar: plan.pillar,\n  topic: plan.topic,\n  topic_readable: plan.topic_readable,\n  core_message: plan.core_message,\n  sharp_hook: plan.sharp_hook,\n  tradeoff_line: plan.tradeoff_line,\n  video_style: plan.video_style,\n  priority_platforms: priorityPlatforms,\n  expected_performance: plan.expected_performance,\n  philosophy_flag: plan.philosophy_flag,\n  language_seed: plan.language_seed || ''\n};"
+      },
+      "id": "048f3a24-2e8b-459d-80e1-6784a62302d9",
+      "name": "Parse Content Plan",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -368,
+        592
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "031533cd-e0b3-40c6-9306-eece28bd7383",
+      "name": "Master Content Prompt",
+      "type": "@n8n/n8n-nodes-langchain.promptTemplate",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        864
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "68145e21-5c2a-4b57-a568-0010dc54991a",
+      "name": "Master Content AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        -144,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiOutput = $input.first().json.output;\n\ntry {\n  const jsonMatch = aiOutput.match(/```json\\s*([\\s\\S]*?)```/) || aiOutput.match(/\\{[\\s\\S]*\"master_content\"[\\s\\S]*\\}/);\n  if (!jsonMatch) return {error: 'No master content JSON found', raw: aiOutput.substring(0, 500)};\n  \n  let jsonStr = jsonMatch[0].replace(/```json|```/g, '').trim();\n  const parsed = JSON.parse(jsonStr);\n  const masterContent = parsed.master_content;\n  \n  // Validate required fields\n  const required = ['headline', 'hook', 'core_script', 'key_points', 'explicit_tradeoff', 'faceless_video_specs'];\n  const missing = required.filter(f => !masterContent[f]);\n  if (missing.length > 0) return {error: 'Missing required fields', missing_fields: missing};\n  \n  const calendarData = $('Parse Content Plan').item.json;\n  \n  return {\n    content_id: 'CONTENT-' + Date.now(),\n    calendar_id: calendarData.calendar_id,\n    strategy_id: calendarData.strategy_id,\n    created_at: new Date().toISOString(),\n    scheduled_date: calendarData.scheduled_date,\n    pillar: calendarData.pillar,\n    topic: calendarData.topic,\n    topic_readable: calendarData.topic_readable,\n    headline: masterContent.headline,\n    hook: masterContent.hook,\n    core_script: masterContent.core_script,\n    key_points: masterContent.key_points,\n    explicit_tradeoff: masterContent.explicit_tradeoff,\n    faceless_video_specs: masterContent.faceless_video_specs,\n    cta: masterContent.cta,\n    long_form_outline: masterContent.long_form_outline,\n    hashtag_suggestions: masterContent.hashtag_suggestions,\n    seo_keywords: masterContent.seo_keywords,\n    language_seed: masterContent.language_seed,\n    content_pillar: masterContent.content_pillar,\n    master_content_json: masterContent,\n    status: 'generated'\n  };\n} catch (error) {\n  return {error: 'Parse failed: ' + error.message, raw: aiOutput.substring(0, 500)};\n}"
+      },
+      "id": "d458376d-f783-4065-a36e-8705f562d8d9",
+      "name": "Parse & Validate Master Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert"
+      },
+      "id": "b737a1f9-928b-45f8-9a69-81cb0727f1d4",
+      "name": "Save Master Content",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        304,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "matchType": "matchAll",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "equals",
+              "keyValue": "={{ $('Parse Content Plan').item.json.calendar_id }}"
+            }
+          ]
+        }
+      },
+      "id": "11cb95fe-a5a4-4cc3-b914-553b92d076af",
+      "name": "Update Calendar Status",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        528,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Parse & Validate Master Content').item.json.error }}",
+              "operation": "isEmpty"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6075aab0-0913-40c5-9a86-b51664f6eedf",
+      "name": "Master Content Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        736,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.N8N_WEBHOOK_BASE_URL }}/webhook/platform-adaptation",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content_id",
+              "value": "={{ $('Parse & Validate Master Content').item.json.content_id }}"
+            },
+            {
+              "name": "trigger_source",
+              "value": "workflow_2_master_generator"
+            },
+            {
+              "name": "scheduled_date",
+              "value": "={{ $('Parse & Validate Master Content').item.json.scheduled_date }}"
+            },
+            {
+              "name": "pillar",
+              "value": "={{ $('Parse & Validate Master Content').item.json.pillar }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "924d521d-5ed5-4e03-81d9-f1d1be7fa0cf",
+      "name": "Trigger Workflow 3: Platform Adaptation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "2ef9e08d-aa3b-43a7-9282-fc74927e1f84",
+      "name": "Generation Failed (Log)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        960,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "maxTokens": 4000,
+          "temperature": 0.85
+        }
+      },
+      "id": "4b5830ba-9cf0-4b85-8f8e-a54eb34acf1a",
+      "name": "OpenAI GPT-4o1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "content": "WORKFLOW 3: PLATFORM ADAPTATION ENGINE (15 VARIANTS)\n\nKey Features:\n\n✅ 15 platform-native adaptations (no copy-pasting)\n✅ Each adaptation answers \"Why does this belong HERE?\"\n✅ Platform-specific language, pacing, CTAs\n✅ Pillar prioritization logic embedded\n✅ Optimal posting times assigned per platform\n✅ Automatic triggers to Workflows 4-7",
+        "height": 256,
+        "width": 416,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1680,
+        1232
+      ],
+      "id": "95488911-9a52-4081-ae07-0b9aa8e210fa",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "platform-adaptation",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b764c57e-b753-416d-af76-d0a2542ac9a5",
+      "name": "Webhook: Platform Adaptation Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        -1040,
+        1248
+      ],
+      "webhookId": "2f98e71d-9068-4678-9ad2-cae960d6f6c9"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "e4bae7e1-8c09-4807-9caf-96700185d055",
+      "name": "Extract Webhook Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        -816,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "content_id",
+              "keyValue": "={{ $json.content_id }}"
+            }
+          ]
+        }
+      },
+      "id": "849e7d72-0555-4fb0-b40b-73ca3fe7da57",
+      "name": "Get Master Content",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const mc = $input.first().json;\nconst masterContentJson = typeof mc.master_content_json === 'string' ? JSON.parse(mc.master_content_json) : mc.master_content_json;\n\nreturn {\n  content_id: mc.content_id,\n  pillar: mc.pillar,\n  scheduled_date: mc.scheduled_date,\n  topic_readable: mc.topic_readable,\n  headline: masterContentJson.headline,\n  hook: masterContentJson.hook,\n  core_script: masterContentJson.core_script,\n  key_points: masterContentJson.key_points,\n  explicit_tradeoff: masterContentJson.explicit_tradeoff,\n  faceless_video_specs: masterContentJson.faceless_video_specs,\n  cta: masterContentJson.cta,\n  long_form_outline: masterContentJson.long_form_outline,\n  hashtag_suggestions: masterContentJson.hashtag_suggestions,\n  seo_keywords: masterContentJson.seo_keywords,\n  language_seed: masterContentJson.language_seed\n};"
+      },
+      "id": "d759c9ef-e296-4924-822c-f82f7abb0858",
+      "name": "Parse Master Content JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -384,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const scheduledDate = $input.first().json.scheduled_date;\n\nconst optimalTimes = {\n  tiktok: ['06:00', '12:00', '19:00'],\n  instagram_reel: ['06:00', '12:00', '19:00'],\n  youtube_short: ['06:00', '12:00', '19:00'],\n  snapchat_spotlight: ['06:00', '12:00', '19:00'],\n  instagram_carousel: ['11:00', '14:00', '20:00'],\n  instagram_story: ['08:00', '12:00', '21:00'],\n  snapchat_story: ['08:00', '13:00', '21:00'],\n  youtube_long: ['14:00', '18:00'],\n  twitter_x: ['08:00', '12:00', '17:00'],\n  linkedin: ['08:00', '12:00', '17:00'],\n  facebook: ['13:00', '19:00'],\n  reddit: ['07:00', '12:00', '20:00'],\n  blog: ['10:00'],\n  newsletter: ['06:00'],\n  pinterest: ['14:00', '20:00']\n};\n\nconst postingTimes = {};\nObject.keys(optimalTimes).forEach(platform => {\n  const time = optimalTimes[platform][0];\n  postingTimes[platform] = {\n    date: scheduledDate,\n    time: time,\n    datetime_iso: `${scheduledDate}T${time}:00-05:00`,\n    timezone: 'America/New_York'\n  };\n});\n\nreturn {\n  content_id: $input.first().json.content_id,\n  pillar: $input.first().json.pillar,\n  posting_times: postingTimes\n};"
+      },
+      "id": "d96042a6-bc03-40b8-9811-eab4d73c343d",
+      "name": "Calculate Optimal Posting Times",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        1248
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "05c4188e-59d2-4800-9014-be500e262fd4",
+      "name": "Platform Adaptation Prompt",
+      "type": "@n8n/n8n-nodes-langchain.promptTemplate",
+      "typeVersion": 1,
+      "position": [
+        64,
+        1440
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "e82fec33-0605-4c3d-8f55-251c293b2438",
+      "name": "Adaptation AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        64,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiOutput = $input.first().json.output;\n\ntry {\n  const jsonMatch = aiOutput.match(/```json\\s*([\\s\\S]*?)```/) || aiOutput.match(/\\{[\\s\\S]*\"adaptations\"[\\s\\S]*\\}/);\n  if (!jsonMatch) return {error: 'No adaptations JSON', raw: aiOutput.substring(0, 500)};\n  \n  let jsonStr = jsonMatch[0].replace(/```json|```/g, '').trim();\n  const parsed = JSON.parse(jsonStr);\n  const adaptations = parsed.adaptations;\n  \n  const required = ['tiktok', 'instagram_reel', 'youtube_short', 'snapchat_spotlight', 'instagram_carousel', 'instagram_story', 'snapchat_story', 'youtube_long', 'twitter_x', 'linkedin', 'facebook', 'reddit', 'blog', 'newsletter', 'pinterest'];\n  const missing = required.filter(p => !adaptations[p]);\n  \n  if (missing.length > 0) return {error: 'Missing platforms', missing_platforms: missing};\n  \n  const masterData = $('Parse Master Content JSON').item.json;\n  \n  return {\n    adaptation_id: 'ADAPT-' + Date.now(),\n    content_id: masterData.content_id,\n    pillar: masterData.pillar,\n    scheduled_date: masterData.scheduled_date,\n    created_at: new Date().toISOString(),\n    adaptations: adaptations,\n    platforms_count: Object.keys(adaptations).length,\n    status: 'ready_for_distribution'\n  };\n} catch (error) {\n  return {error: 'Parse failed: ' + error.message, raw: aiOutput.substring(0, 500)};\n}"
+      },
+      "id": "0c0cc8a3-84fc-4f38-8dbe-b225a651049d",
+      "name": "Parse & Validate 15 Adaptations",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert"
+      },
+      "id": "e01eae44-c4fc-4de6-8f07-aee16a9498d5",
+      "name": "Save Adaptations",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        512,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const adaptationId = $input.first().json.adaptation_id;\nconst contentId = $input.first().json.content_id;\nconst webhookBase = $env.N8N_WEBHOOK_BASE_URL || 'https://your-n8n-instance.com';\n\nreturn [\n  {\n    workflow_name: 'Workflow 4: Short-Form Video',\n    webhook_url: `${webhookBase}/webhook/short-form-video`,\n    platform_group: 'short_video',\n    platforms: ['tiktok', 'instagram_reel', 'youtube_short', 'snapchat_spotlight'],\n    adaptation_id: adaptationId,\n    content_id: contentId\n  },\n  {\n    workflow_name: 'Workflow 5: Visual Story & Carousel',\n    webhook_url: `${webhookBase}/webhook/visual-story`,\n    platform_group: 'visual_story',\n    platforms: ['instagram_carousel', 'instagram_story', 'snapchat_story'],\n    adaptation_id: adaptationId,\n    content_id: contentId\n  },\n  {\n    workflow_name: 'Workflow 6: Text Platform',\n    webhook_url: `${webhookBase}/webhook/text-platform`,\n    platform_group: 'text',\n    platforms: ['twitter_x', 'linkedin', 'facebook', 'reddit'],\n    adaptation_id: adaptationId,\n    content_id: contentId\n  },\n  {\n    workflow_name: 'Workflow 7: Long-Form',\n    webhook_url: `${webhookBase}/webhook/longform`,\n    platform_group: 'longform',\n    platforms: ['youtube_long', 'blog', 'newsletter', 'pinterest'],\n    adaptation_id: adaptationId,\n    content_id: contentId\n  }\n];"
+      },
+      "id": "d7aa81b9-0edf-48c4-a498-b6f43bfdc6d4",
+      "name": "Build Distribution Triggers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.webhook_url }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "adaptation_id",
+              "value": "={{ $json.adaptation_id }}"
+            },
+            {
+              "name": "content_id",
+              "value": "={{ $json.content_id }}"
+            },
+            {
+              "name": "platform_group",
+              "value": "={{ $json.platform_group }}"
+            },
+            {
+              "name": "platforms",
+              "value": "={{ JSON.stringify($json.platforms) }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "d59bc723-017e-4a68-b11f-a868157cdeba",
+      "name": "Trigger Distribution Workflows (4-7)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        944,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  success: true,\n  adaptation_id: $('Parse & Validate 15 Adaptations').item.json.adaptation_id,\n  platforms_adapted: 15,\n  distribution_workflows_triggered: 4,\n  message: 'Platform adaptation complete'\n} }}",
+        "options": {}
+      },
+      "id": "15f342a7-66fd-42d0-86e4-7be072e73f95",
+      "name": "Response: Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1168,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "maxTokens": 5000,
+          "temperature": 0.75
+        }
+      },
+      "id": "9a709540-5f47-4ffa-9032-04f3fc14da26",
+      "name": "OpenAI GPT-4o2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        64,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "content": "WORKFLOW 4: SHORT-FORM VIDEO DISTRIBUTION\n\nWhat This Does:\n\nWebhook-triggered by Workflow 3\nProcesses 4 platforms: TikTok, Instagram Reels, YouTube Shorts, Snapchat Spotlight\nPulls 3 random B-roll clips from pillar-tagged video library\nGenerates pillar-specific AI voiceover (ElevenLabs with different voices per pillar)\nComposites 9:16 vertical video using FFmpeg:\n\nConcatenates 3 B-roll clips\nAdds AI voiceover\nOverlays text at specific timestamps\n\n\nUploads to each platform's API\nPublishes (TikTok/Instagram require separate publish step)\nLogs all 4 published videos to published_content table\n\nKey Features:\n\n✅ Pillar-specific voices (Health=authoritative, Wealth=confident, Wisdom=contemplative)\n✅ Faceless format (stock footage + voiceover + text overlays)\n✅ 9:16 vertical aspect ratio (mobile-optimized)\n✅ Platform-native upload/publish flows\n✅ Automatic scheduling at optimal times",
+        "height": 576,
+        "width": 480,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1712,
+        1680
+      ],
+      "id": "60b3352a-9d59-4ae3-98a4-881c4e83b7df",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "short-form-video",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "252da5c3-c9a4-4856-b021-de8cf624e7e3",
+      "name": "Webhook: Short-Form Video Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        -1040,
+        1952
+      ],
+      "webhookId": "9ac2f2bd-352c-4fe4-9feb-9033c8e3ae3e"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "adaptation_id",
+              "keyValue": "={{ $json.adaptation_id }}"
+            }
+          ]
+        }
+      },
+      "id": "4e9a2d85-e738-45eb-8d31-6a7d5f6b17f6",
+      "name": "Get Platform Adaptations",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        1952
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const adaptations = JSON.parse($input.first().json.adaptations_json);\nconst pillar = $input.first().json.pillar;\nconst platforms = JSON.parse($('Extract Webhook Data1').item.json.platforms);\n\nreturn platforms.map(platform => ({\n  platform: platform,\n  pillar: pillar,\n  adaptation_id: $input.first().json.adaptation_id,\n  content_id: $input.first().json.content_id,\n  script: adaptations[platform].script,\n  on_screen_text: adaptations[platform].on_screen_text,\n  caption: adaptations[platform].caption,\n  hashtags: adaptations[platform].hashtags,\n  b_roll_keywords: adaptations[platform].b_roll_keywords,\n  duration_target: adaptations[platform].duration_target || '60s',\n  posting_time: adaptations[platform].posting_time\n}));"
+      },
+      "id": "fe0e1687-5c20-4051-8db0-1218672b19c9",
+      "name": "Parse Short-Form Adaptations",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -384,
+        1952
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery"
+      },
+      "id": "62d52f03-bb35-44c3-8aa4-4be118465741",
+      "name": "Get B-Roll from Library (Pillar-Tagged)",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        1952
+      ],
+      "notes": "Pulls 3 random footage clips tagged to this pillar"
+    },
+    {
+      "parameters": {
+        "jsCode": "const pillar = $('Parse Short-Form Adaptations').item.json.pillar;\n\n// Pillar-specific ElevenLabs voice IDs\nconst voiceConfig = {\n  Health: {\n    voice_id: 'pNInz6obpgDQGcFmaJgB', // Adam (authoritative)\n    stability: 0.7,\n    clarity: 0.8,\n    style: 0.3\n  },\n  Wealth: {\n    voice_id: '21m00Tcm4TlvDq8ikWAM', // Rachel (confident)\n    stability: 0.8,\n    clarity: 0.9,\n    style: 0.5\n  },\n  Wisdom: {\n    voice_id: 'AZnzlk1XvdvUeBnXmlld', // Domi (contemplative)\n    stability: 0.6,\n    clarity: 0.7,\n    style: 0.2\n  },\n  Integration: {\n    voice_id: 'pNInz6obpgDQGcFmaJgB', // Default to Health voice\n    stability: 0.7,\n    clarity: 0.8,\n    style: 0.3\n  }\n};\n\nreturn voiceConfig[pillar] || voiceConfig.Health;"
+      },
+      "id": "507d7ab2-a85e-4cf2-83ac-811df9e4dd0b",
+      "name": "Select Voice by Pillar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        1744
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.elevenlabs.io/v1/text-to-speech/{{ $json.voice_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "YOUR_ELEVENLABS_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $('Parse Short-Form Adaptations').item.json.script }}"
+            },
+            {
+              "name": "model_id",
+              "value": "eleven_monolingual_v1"
+            },
+            {
+              "name": "voice_settings",
+              "value": "={{ {stability: $json.stability, similarity_boost: $json.clarity, style: $json.style} }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "63bc8d3a-0739-43b4-be20-e7ed59ba54ca",
+      "name": "Generate AI Voiceover (ElevenLabs)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        64,
+        1744
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "63461689-4c62-4d54-87c4-605e8d1ad8f0",
+      "name": "Composite Video (FFmpeg - Faceless)",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        288,
+        1952
+      ],
+      "notes": "Creates: B-roll (9:16) → Add voiceover → Add text overlays"
+    },
+    {
+      "parameters": {
+        "filePath": "=/tmp/final_{{ $('Parse Short-Form Adaptations').item.json.platform }}_{{ $('Parse Short-Form Adaptations').item.json.adaptation_id }}.mp4"
+      },
+      "id": "da4bcce5-4963-4379-9a8e-e3c4aeeaec48",
+      "name": "Read Final Video",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        512,
+        1952
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const platform = $('Parse Short-Form Adaptations').item.json.platform;\nconst adaptationData = $('Parse Short-Form Adaptations').item.json;\n\n// Platform-specific upload endpoints and params\nconst platformConfig = {\n  tiktok: {\n    upload_url: 'https://open-api.tiktok.com/share/video/upload/',\n    publish_url: 'https://open-api.tiktok.com/share/video/publish/',\n    auth_header: 'Bearer YOUR_TIKTOK_ACCESS_TOKEN'\n  },\n  instagram_reel: {\n    upload_url: 'https://graph.facebook.com/v18.0/me/media',\n    publish_url: 'https://graph.facebook.com/v18.0/me/media_publish',\n    auth_header: 'Bearer YOUR_INSTAGRAM_ACCESS_TOKEN'\n  },\n  youtube_short: {\n    upload_url: 'https://www.googleapis.com/upload/youtube/v3/videos',\n    auth_header: 'Bearer YOUR_YOUTUBE_ACCESS_TOKEN'\n  },\n  snapchat_spotlight: {\n    upload_url: 'https://adsapi.snapchat.com/v1/adaccounts/YOUR_AD_ACCOUNT_ID/media',\n    auth_header: 'Bearer YOUR_SNAPCHAT_ACCESS_TOKEN'\n  }\n};\n\nconst config = platformConfig[platform];\nconst fullCaption = `${adaptationData.caption}\\n\\n${adaptationData.hashtags.join(' ')}`;\n\nreturn {\n  platform: platform,\n  upload_url: config.upload_url,\n  publish_url: config.publish_url || null,\n  auth_header: config.auth_header,\n  caption: fullCaption,\n  adaptation_id: adaptationData.adaptation_id,\n  content_id: adaptationData.content_id,\n  posting_time: adaptationData.posting_time\n};"
+      },
+      "id": "4a8ac2fa-b841-445f-b58a-bd13a47a40de",
+      "name": "Get Platform Upload Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        1952
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.upload_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $json.auth_header }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "video",
+              "value": "={{ $('Read Final Video').item.binary.video }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a42e6a77-ecc3-4053-b9f0-53237592a0ad",
+      "name": "Upload Video to Platform",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        944,
+        1952
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const uploadResponse = $input.first().json;\nconst platformData = $('Get Platform Upload Config').item.json;\nconst platform = platformData.platform;\n\n// Extract platform-specific video IDs\nlet videoId;\nlet shareUrl;\n\nif (platform === 'tiktok') {\n  videoId = uploadResponse.data?.video_id;\n  shareUrl = uploadResponse.data?.share_url;\n} else if (platform === 'instagram_reel') {\n  videoId = uploadResponse.id;\n  shareUrl = `https://www.instagram.com/reel/${videoId}/`;\n} else if (platform === 'youtube_short') {\n  videoId = uploadResponse.id;\n  shareUrl = `https://youtube.com/shorts/${videoId}`;\n} else if (platform === 'snapchat_spotlight') {\n  videoId = uploadResponse.media?.id;\n  shareUrl = uploadResponse.media?.download_link;\n}\n\nreturn {\n  platform: platform,\n  video_id: videoId,\n  share_url: shareUrl,\n  caption: platformData.caption,\n  publish_url: platformData.publish_url,\n  auth_header: platformData.auth_header,\n  adaptation_id: platformData.adaptation_id,\n  content_id: platformData.content_id,\n  posting_time: platformData.posting_time\n};"
+      },
+      "id": "476e2aa9-1150-42f0-8263-ef60e45fddc2",
+      "name": "Extract Video ID & URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        1952
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.publish_url }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "67486f65-9c3c-4e3e-b81f-bb4e13ab7edf",
+      "name": "Needs Publish Step?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        1952
+      ],
+      "notes": "TikTok/Instagram require separate publish API call"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.publish_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $json.auth_header }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "video_id",
+              "value": "={{ $json.video_id }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $json.caption }}"
+            },
+            {
+              "name": "creation_id",
+              "value": "={{ $json.video_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "84b992b9-2295-460d-92fa-3bc49c9751c4",
+      "name": "Publish Video (TikTok/IG)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        1856
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "a9b1b32a-ed3b-4f98-8414-29ad7262e62a",
+      "name": "Already Published (YouTube/Snap)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        1600,
+        2048
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert"
+      },
+      "id": "5b611593-bd05-48a2-b6b5-8b5eb4c50775",
+      "name": "Log Published Content",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1824,
+        1952
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b3d4975b-83f5-4c3f-b67c-6c8c2b7a9513",
+      "name": "Extract Webhook Data1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        -816,
+        1952
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  success: true,\n  platform: $('Extract Video ID & URL').item.json.platform,\n  video_id: $('Extract Video ID & URL').item.json.video_id,\n  share_url: $('Extract Video ID & URL').item.json.share_url,\n  status: 'published'\n} }}",
+        "options": {}
+      },
+      "id": "515fdfca-ff4e-4df3-a819-ca50d8af98d4",
+      "name": "Response: Success1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2048,
+        1952
+      ]
+    },
+    {
+      "parameters": {
+        "content": "WORKFLOW 5: VISUAL STORY & CAROUSEL DISTRIBUTION\n\n✅ What This Does:\n\nWebhook-triggered by Workflow 3\nProcesses 3 visual platforms: Instagram Carousel, Instagram Stories, Snapchat Stories\nRoutes to platform-specific generation logic:\n\nInstagram Carousel:\n\nGenerates 5-10 identity statement slides (not tips)\nPillar-specific design system (Health=blue/cyan, Wealth=black/gold, Wisdom=purple/cream)\nEach slide emphasizes who you ARE, not what to DO\nUploads all slides as carousel container\nPublishes to Instagram\n\nInstagram Stories:\n\nGenerates 3-5 ephemeral frames\nIncludes interaction prompts (polls/questions) that reinforce pillar thinking\nExamples: \"Do you track your HRV?\" (Health), \"CAC > LTV?\" (Wealth), \"Death = end or transition?\" (Wisdom)\n24-hour lifespan\n\nSnapchat Stories:\n\nMore raw/informal than Instagram\nIntentionally less polished design\nCasual language for Gen Z demographic\n3-5 frames\n\n\nLogs all 3 visual assets to published_content table\n\nKey Features:\n\n✅ Identity-focused (not tip-focused)\n✅ Pillar-specific color schemes automatically applied\n✅ Interaction prompts reinforce pillar thinking\n✅ Snapchat intentionally more casual than Instagram\n✅ Swipe-worthy carousel structure (Slide 1 = identity hook, Last slide = CTA)",
+        "height": 784,
+        "width": 640,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        2608
+      ],
+      "id": "63c97bde-314e-43b7-b439-cd1aabbd6c44",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "visual-story",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "6e988587-cda2-43e7-b42b-68b2bade2ef2",
+      "name": "Webhook: Visual Story Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        -816,
+        2896
+      ],
+      "webhookId": "6025ba95-c574-4425-ad95-b9c6869399a3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const adaptations = JSON.parse($input.first().json.adaptations_json);\nconst pillar = $input.first().json.pillar;\nconst platforms = JSON.parse($('Extract Webhook Data2').item.json.platforms);\n\nreturn platforms.map(platform => ({\n  platform: platform,\n  pillar: pillar,\n  adaptation_id: $input.first().json.adaptation_id,\n  content_id: $input.first().json.content_id,\n  adaptation_data: adaptations[platform]\n}));"
+      },
+      "id": "f649c98b-bd1e-4dc1-be12-3c0b90f2fe4f",
+      "name": "Parse Visual Adaptations",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        2896
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const pillar = $json.pillar;\n\n// Pillar-specific color schemes for visual identity\nconst pillarDesign = {\n  Health: {\n    primary_color: '#0EA5E9', // Cyan/blue\n    secondary_color: '#06B6D4',\n    background: '#0F172A', // Dark navy\n    text_color: '#FFFFFF',\n    accent: '#38BDF8',\n    font: 'Inter, sans-serif',\n    style: 'Clean, scientific, high-contrast'\n  },\n  Wealth: {\n    primary_color: '#F59E0B', // Gold\n    secondary_color: '#D97706',\n    background: '#0A0A0A', // Pure black\n    text_color: '#FFFFFF',\n    accent: '#FCD34D',\n    font: 'Montserrat, sans-serif',\n    style: 'Bold, professional, premium'\n  },\n  Wisdom: {\n    primary_color: '#9333EA', // Purple\n    secondary_color: '#7C3AED',\n    background: '#FDF4ED', // Cream\n    text_color: '#1F2937',\n    accent: '#C084FC',\n    font: 'Crimson Text, serif',\n    style: 'Elegant, mysterious, contemplative'\n  },\n  Integration: {\n    primary_color: '#8B5CF6', // Violet (blend)\n    secondary_color: '#6366F1',\n    background: '#18181B',\n    text_color: '#FFFFFF',\n    accent: '#A78BFA',\n    font: 'Inter, sans-serif',\n    style: 'Unified, cohesive'\n  }\n};\n\nreturn pillarDesign[pillar] || pillarDesign.Health;"
+      },
+      "id": "ecf06beb-ec33-4c6d-8448-a919d5f45587",
+      "name": "Get Pillar Design System",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        2896
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ad9c315a-9043-4ded-be0a-5a31452f8b38",
+      "name": "Route by Platform",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        304,
+        2896
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const carouselData = $('Parse Visual Adaptations').item.json.adaptation_data;\nconst design = $('Get Pillar Design System').item.json;\nconst pillar = $('Parse Visual Adaptations').item.json.pillar;\n\n// Generate image URLs using a design API (e.g., Canva, Bannerbear, or custom)\nconst slides = carouselData.slides.map((slide, index) => {\n  // Build query string for design API\n  const params = new URLSearchParams({\n    template: 'carousel_identity_statement',\n    slide_number: slide.slide_number,\n    main_text: slide.main_text,\n    supporting_text: slide.supporting_text,\n    bg_color: design.background,\n    text_color: design.text_color,\n    accent_color: design.primary_color,\n    font: design.font,\n    pillar: pillar\n  });\n  \n  return {\n    slide_number: slide.slide_number,\n    image_url: `https://your-design-api.com/generate?${params.toString()}`,\n    main_text: slide.main_text,\n    supporting_text: slide.supporting_text\n  };\n});\n\nreturn {\n  platform: 'instagram_carousel',\n  pillar: pillar,\n  slides: slides,\n  caption: carouselData.caption,\n  hashtags: carouselData.hashtags,\n  posting_time: carouselData.posting_time,\n  adaptation_id: $('Parse Visual Adaptations').item.json.adaptation_id,\n  content_id: $('Parse Visual Adaptations').item.json.content_id\n};"
+      },
+      "id": "14f23c2d-0930-425d-b16c-cc64e3595130",
+      "name": "Generate Carousel Slides (Identity-Focused)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        2688
+      ],
+      "notes": "Creates 5-10 identity statement slides with pillar-specific design"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v18.0/me/media",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_INSTAGRAM_ACCESS_TOKEN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "CAROUSEL"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $json.caption }}\\n\\n{{ $json.hashtags.join(' ') }}"
+            },
+            {
+              "name": "children",
+              "value": "={{ $json.slides.map(s => s.image_url).join(',') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "77d90a5d-ac14-4ca5-bb25-fc43ade0aa73",
+      "name": "Upload Instagram Carousel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        736,
+        2688
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v18.0/me/media_publish",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_INSTAGRAM_ACCESS_TOKEN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "creation_id",
+              "value": "={{ $('Upload Instagram Carousel').item.json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d52a6406-c5f1-4f38-92fe-101ceeca89a9",
+      "name": "Publish Instagram Carousel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        2688
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const storyData = $('Parse Visual Adaptations').item.json.adaptation_data;\nconst design = $('Get Pillar Design System').item.json;\nconst pillar = $('Parse Visual Adaptations').item.json.pillar;\n\n// Generate story frames with interaction prompts\nconst frames = storyData.frames.map((frame, index) => {\n  const params = new URLSearchParams({\n    template: 'story_interaction',\n    frame_number: frame.frame_number,\n    text: frame.text,\n    visual: frame.visual,\n    bg_color: design.background,\n    text_color: design.text_color,\n    accent_color: design.primary_color,\n    pillar: pillar\n  });\n  \n  return {\n    frame_number: frame.frame_number,\n    image_url: `https://your-design-api.com/generate?${params.toString()}`,\n    text: frame.text,\n    duration: frame.duration,\n    sticker_type: index === 0 ? 'poll' : (index === storyData.frames.length - 1 ? 'question' : null)\n  };\n});\n\n// Add interaction prompts that reinforce pillar thinking\nconst interactionPrompts = {\n  Health: {poll: 'Do you track your HRV?', question: 'What health metric changed your life?'},\n  Wealth: {poll: 'CAC > LTV?', question: 'What leverage unlocked growth for you?'},\n  Wisdom: {poll: 'Death = end or transition?', question: 'What pattern are you noticing lately?'},\n  Integration: {poll: 'Optimize one pillar or all three?', question: 'Which pillar needs attention now?'}\n};\n\nreturn {\n  platform: 'instagram_story',\n  pillar: pillar,\n  frames: frames,\n  interaction_prompts: interactionPrompts[pillar],\n  posting_time: storyData.posting_time,\n  adaptation_id: $('Parse Visual Adaptations').item.json.adaptation_id,\n  content_id: $('Parse Visual Adaptations').item.json.content_id\n};"
+      },
+      "id": "34793ad8-8ddf-42e2-a050-3f3a4cea6912",
+      "name": "Generate IG Story Frames (Interaction-Focused)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        2896
+      ],
+      "notes": "Creates 3-5 frames with polls/questions that reinforce pillar thinking"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v18.0/me/media",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_INSTAGRAM_ACCESS_TOKEN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "STORIES"
+            },
+            {
+              "name": "image_url",
+              "value": "={{ $json.frames[0].image_url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "93fb90ea-f90a-4ac6-8383-f963bce65a17",
+      "name": "Upload Instagram Story",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        736,
+        2896
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const storyData = $('Parse Visual Adaptations').item.json.adaptation_data;\nconst pillar = $('Parse Visual Adaptations').item.json.pillar;\n\n// Snapchat Stories are intentionally more raw/informal\nconst frames = storyData.frames.map((frame, index) => {\n  // Use simpler design, less polished than Instagram\n  const params = new URLSearchParams({\n    template: 'snapchat_raw',\n    frame_number: frame.frame_number,\n    text: frame.text,\n    style: 'casual', // More informal than IG\n    pillar: pillar\n  });\n  \n  return {\n    frame_number: frame.frame_number,\n    image_url: `https://your-design-api.com/generate?${params.toString()}`,\n    text: frame.text,\n    duration: frame.duration\n  };\n});\n\nreturn {\n  platform: 'snapchat_story',\n  pillar: pillar,\n  frames: frames,\n  posting_time: storyData.posting_time,\n  adaptation_id: $('Parse Visual Adaptations').item.json.adaptation_id,\n  content_id: $('Parse Visual Adaptations').item.json.content_id\n};"
+      },
+      "id": "ca9e77d7-4e51-4da5-b7a9-9c5d7a550cd0",
+      "name": "Generate Snapchat Story (Raw/Informal)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        3088
+      ],
+      "notes": "More casual/authentic than Instagram Stories"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://adsapi.snapchat.com/v1/adaccounts/YOUR_AD_ACCOUNT_ID/media",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_SNAPCHAT_ACCESS_TOKEN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "IMAGE"
+            },
+            {
+              "name": "media_url",
+              "value": "={{ $json.frames[0].image_url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c512577f-60c3-45be-b35d-db17cd2a25f0",
+      "name": "Upload Snapchat Story",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        736,
+        3088
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert"
+      },
+      "id": "149928ca-ce82-4ee3-85cd-3a64c598096c",
+      "name": "Log Published Visual Asset",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        2896
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "0296a949-d966-4fb0-8ba1-4b1ab4247719",
+      "name": "Extract Webhook Data2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        -592,
+        2896
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "adaptation_id",
+              "keyValue": "={{ $json.adaptation_id }}"
+            }
+          ]
+        }
+      },
+      "id": "1392b49d-d158-4461-a135-481a92fa2e5d",
+      "name": "Get Platform Adaptations1",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        2896
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  success: true,\n  platform: $json.platform,\n  status: 'published'\n} }}",
+        "options": {}
+      },
+      "id": "9a3b6f5b-9017-4b08-8510-4591af3a7e76",
+      "name": "Response: Success2",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1392,
+        2896
+      ]
+    },
+    {
+      "parameters": {
+        "content": "WORKFLOW 6: TEXT PLATFORM DISTRIBUTION\n\nWhat This Does:\n\nWebhook-triggered by Workflow 3\nProcesses 4 text platforms: Twitter/X, LinkedIn, Facebook, Reddit\nRoutes to platform-specific validation and posting logic:\n\nTwitter/X:\n\nValidates Wealth posts reference execution OR consequence\nValidates Wisdom posts ask a real question (cannot preach)\nPosts first tweet, then builds thread as replies if needed\nEach tweet must work standalone\n\nLinkedIn:\n\nSame validation rules as Twitter (Wealth = execution/consequence, Wisdom = real question)\nProfessional long-form format (1200-1800 chars)\nFirst line optimized as hook (visible before \"see more\")\nPosts using LinkedIn UGC Posts API\n\nFacebook:\n\nConversational, personal tone (300-500 words)\nStory-like format\nNo special validation (more relaxed)\n\nReddit:\n\nSTRICT VALIDATION:\n\nMust be value-first (title/body includes \"here's what\", \"I learned\", \"breakdown\", \"analysis\", \"data shows\", \"tested\")\nNo promotional language (\"check out\", \"link in bio\", \"follow me\", \"subscribe\", \"buy\")\nExpectation-managed (humble, not authoritative)\n\n\nPosts to first suggested subreddit\nPure value, zero self-promotion\n\n\nLogs all 4 text posts to published_content table\n\nKey Features:\n\n✅ No recycled phrasing between platforms (enforced by Workflow 3 AI)\n✅ Wealth posts MUST reference execution or consequence\n✅ Wisdom posts MUST ask real questions (cannot preach)\n✅ Reddit is value-first with strict anti-promotion validation\n✅ Platform-native APIs (Twitter v2, LinkedIn UGC, Facebook Graph, Reddit OAuth)",
+        "height": 992,
+        "width": 640,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        3568
+      ],
+      "id": "6d520363-a9af-40a6-98d7-8e4c59f8e8da",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "text-platform",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "ef067818-ca1d-4681-aa0d-d96a19964d87",
+      "name": "Webhook: Text Platform Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        -944,
+        3920
+      ],
+      "webhookId": "94893d33-c209-4f96-b17c-d9b6a2214557"
+    },
+    {
+      "parameters": {
+        "jsCode": "const adaptations = JSON.parse($input.first().json.adaptations_json);\nconst pillar = $input.first().json.pillar;\nconst platforms = JSON.parse($('Extract Webhook Data3').item.json.platforms);\n\nreturn platforms.map(platform => ({\n  platform: platform,\n  pillar: pillar,\n  adaptation_id: $input.first().json.adaptation_id,\n  content_id: $input.first().json.content_id,\n  adaptation_data: adaptations[platform]\n}));"
+      },
+      "id": "9f7e2536-d4be-4cc7-82af-99dd20f3983a",
+      "name": "Parse Text Adaptations",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -288,
+        3920
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const twitterData = $input.first().json.adaptation_data;\nconst pillar = $input.first().json.pillar;\n\n// Validate: Wealth posts must reference execution or consequence\nif (pillar === 'Wealth') {\n  const hasExecution = twitterData.thread.some(t => \n    t.text.match(/execut|ship|deploy|launch|build|scale/i) || \n    t.text.match(/consequence|result|outcome|ROI|impact/i)\n  );\n  if (!hasExecution) {\n    return {\n      error: 'Wealth post missing execution or consequence reference',\n      pillar: pillar,\n      platform: 'twitter_x'\n    };\n  }\n}\n\n// Validate: Wisdom posts must ask a real question\nif (pillar === 'Wisdom') {\n  const hasQuestion = twitterData.thread.some(t => t.text.includes('?'));\n  if (!hasQuestion) {\n    return {\n      error: 'Wisdom post missing real question (cannot preach)',\n      pillar: pillar,\n      platform: 'twitter_x'\n    };\n  }\n}\n\nreturn {\n  platform: 'twitter_x',\n  pillar: pillar,\n  thread: twitterData.thread,\n  standalone_tweet: twitterData.standalone_tweet,\n  posting_time: twitterData.posting_time,\n  adaptation_id: $input.first().json.adaptation_id,\n  content_id: $input.first().json.content_id\n};"
+      },
+      "id": "7f6bab39-2db3-44c8-9f22-2ac568abdf9f",
+      "name": "Validate & Format Twitter/X",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        3712
+      ],
+      "notes": "Enforces: Wealth = execution/consequence, Wisdom = real question"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twitter.com/2/tweets",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twitterOAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.thread[0].text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d11f86ac-f2b2-4faa-ac04-5d9ce8bfa460",
+      "name": "Post Twitter Thread (Tweet 1)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        384,
+        3712
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const thread = $('Validate & Format Twitter/X').item.json.thread;\nconst firstTweetId = $input.first().json.data.id;\n\nif (thread.length === 1) {\n  return {thread_complete: true, tweet_count: 1};\n}\n\n// Build remaining tweets as replies\nreturn thread.slice(1).map((tweet, index) => ({\n  text: tweet.text,\n  reply_to: index === 0 ? firstTweetId : null, // Will chain in next node\n  tweet_number: index + 2\n}));"
+      },
+      "id": "c814ed1c-47de-44e4-ae33-5bb4e33008d9",
+      "name": "Build Thread Replies",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        3712
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twitter.com/2/tweets",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twitterOAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "reply",
+              "value": "={{ {in_reply_to_tweet_id: $json.reply_to || $('Post Twitter Thread (Tweet 1)').item.json.data.id} }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "931f9e2d-8021-4aae-b69d-8aedff51aad3",
+      "name": "Post Remaining Thread Tweets",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        832,
+        3712
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const linkedinData = $input.first().json.adaptation_data;\nconst pillar = $input.first().json.pillar;\n\n// Validate: Wealth posts must reference execution or consequence\nif (pillar === 'Wealth') {\n  const hasExecution = linkedinData.post.match(/execut|ship|deploy|launch|build|scale/i) || \n                       linkedinData.post.match(/consequence|result|outcome|ROI|impact/i);\n  if (!hasExecution) {\n    return {\n      error: 'Wealth post missing execution or consequence reference',\n      pillar: pillar,\n      platform: 'linkedin'\n    };\n  }\n}\n\n// Validate: Wisdom posts must ask a real question\nif (pillar === 'Wisdom') {\n  const hasQuestion = linkedinData.post.includes('?');\n  if (!hasQuestion) {\n    return {\n      error: 'Wisdom post missing real question (cannot preach)',\n      pillar: pillar,\n      platform: 'linkedin'\n    };\n  }\n}\n\nreturn {\n  platform: 'linkedin',\n  pillar: pillar,\n  post: linkedinData.post,\n  hook_line: linkedinData.hook_line,\n  posting_time: linkedinData.posting_time,\n  adaptation_id: $input.first().json.adaptation_id,\n  content_id: $input.first().json.content_id\n};"
+      },
+      "id": "ff49ec53-42b2-44e1-898c-15716ffc1e8f",
+      "name": "Validate & Format LinkedIn",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        3872
+      ],
+      "notes": "Enforces same rules as Twitter"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.linkedin.com/v2/ugcPosts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "linkedInOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Restli-Protocol-Version",
+              "value": "2.0.0"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "author",
+              "value": "={{ 'urn:li:person:YOUR_PERSON_ID' }}"
+            },
+            {
+              "name": "lifecycleState",
+              "value": "PUBLISHED"
+            },
+            {
+              "name": "specificContent",
+              "value": "={{ {\"com.linkedin.ugc.ShareContent\": {\"shareCommentary\": {\"text\": $json.post}, \"shareMediaCategory\": \"NONE\"}} }}"
+            },
+            {
+              "name": "visibility",
+              "value": "={{ {\"com.linkedin.ugc.MemberNetworkVisibility\": \"PUBLIC\"} }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6c100d80-0843-405a-9fa5-a23fcd0d4b08",
+      "name": "Post to LinkedIn",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        384,
+        3872
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const facebookData = $input.first().json.adaptation_data;\nconst pillar = $input.first().json.pillar;\n\nreturn {\n  platform: 'facebook',\n  pillar: pillar,\n  post: facebookData.post,\n  posting_time: facebookData.posting_time,\n  adaptation_id: $input.first().json.adaptation_id,\n  content_id: $input.first().json.content_id\n};"
+      },
+      "id": "6d00fbdc-68f2-4ceb-925c-22f0896d7bcd",
+      "name": "Format Facebook Post",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        4016
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v18.0/me/feed",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_FACEBOOK_ACCESS_TOKEN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.post }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "83b92914-2fb3-4acb-a9c7-e2fa2b43ff3b",
+      "name": "Post to Facebook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        384,
+        4016
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const redditData = $input.first().json.adaptation_data;\nconst pillar = $input.first().json.pillar;\n\n// Validate: Reddit MUST be value-first, expectation-managed\nconst valueFirstPhrases = ['here\\'s what', 'i learned', 'breakdown', 'analysis', 'data shows', 'tested'];\nconst hasValueFirst = valueFirstPhrases.some(phrase => \n  redditData.title.toLowerCase().includes(phrase) || \n  redditData.body.toLowerCase().includes(phrase)\n);\n\nif (!hasValueFirst) {\n  return {\n    error: 'Reddit post not value-first (must lead with what you learned/tested/analyzed)',\n    pillar: pillar,\n    platform: 'reddit'\n  };\n}\n\n// Validate: No promotional language\nconst promotionalPhrases = ['check out', 'link in bio', 'follow me', 'subscribe', 'buy', 'purchase'];\nconst hasPromotion = promotionalPhrases.some(phrase => \n  redditData.title.toLowerCase().includes(phrase) || \n  redditData.body.toLowerCase().includes(phrase)\n);\n\nif (hasPromotion) {\n  return {\n    error: 'Reddit post contains promotional language (must be pure value)',\n    pillar: pillar,\n    platform: 'reddit'\n  };\n}\n\nreturn {\n  platform: 'reddit',\n  pillar: pillar,\n  title: redditData.title,\n  body: redditData.body,\n  suggested_subreddits: redditData.suggested_subreddits,\n  posting_time: redditData.posting_time,\n  adaptation_id: $input.first().json.adaptation_id,\n  content_id: $input.first().json.content_id\n};"
+      },
+      "id": "253bda41-3d51-4e12-b95e-a347a79d70fd",
+      "name": "Validate & Format Reddit (Value-First)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        4176
+      ],
+      "notes": "Enforces: Value-first, no promotion, expectation-managed"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://oauth.reddit.com/{{ $json.suggested_subreddits[0] }}/submit",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "redditOAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.body }}"
+            },
+            {
+              "name": "sr",
+              "value": "={{ $json.suggested_subreddits[0].replace('r/', '') }}"
+            },
+            {
+              "name": "kind",
+              "value": "self"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7b64e28b-0e92-4dd8-9b5d-3bd82ab9cd2e",
+      "name": "Post to Reddit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        384,
+        4176
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert"
+      },
+      "id": "b0e91268-ddb9-49a8-a9a9-8de3e68a656c",
+      "name": "Log Published Text Post",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        608,
+        3968
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "6a76fc2b-d21d-4e56-a7b8-c9faabd3a5f9",
+      "name": "Extract Webhook Data3",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        -720,
+        3920
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "adaptation_id",
+              "keyValue": "={{ $json.adaptation_id }}"
+            }
+          ]
+        }
+      },
+      "id": "86f79779-1336-4411-ab18-8aac0509c15c",
+      "name": "Get Platform Adaptations2",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -496,
+        3920
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "16420be8-1e3d-45b6-81a6-20049df55ce0",
+      "name": "Route by Platform1",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -48,
+        3920
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  success: true,\n  platform: $json.platform,\n  status: 'published'\n} }}",
+        "options": {}
+      },
+      "id": "97100932-ccd1-4d43-8436-99a89fd6db3b",
+      "name": "Response: Success3",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        3968
+      ]
+    },
+    {
+      "parameters": {
+        "content": "WORKFLOW 7: LONG-FORM CONTENT DISTRIBUTION\n\nWhat This Does:\n\nWebhook-triggered by Workflow 3\nProcesses 4 long-form platforms: YouTube Long, Blog (WordPress), Newsletter, Pinterest\nRoutes to platform-specific generation and publishing:\n\nYouTube Long-Form:\n\nValidates depth (minimum 5 sections in script outline)\nValidates product seeds (must mention \"operating system\", \"personal OS\", \"AI assistant\", \"philosophy\", \"system that runs\")\nOutputs script outline with timestamps\nNote: Video production is MANUAL (requires HeyGen AI avatar or manual recording)\nLogs as \"manual_production_required\"\n\nBlog (WordPress):\n\nValidates depth (minimum 4 H2 sections)\nBuilds full HTML article from outline\nAutomatically embeds product seed in conclusion:\n\n\"This is why we're building HealthWealthWisdom.ai - a Personal Operating System that runs your day like a philosophy-driven machine. Health as foundation, Wealth as leverage, Wisdom as compass. Systems over willpower.\"\n\n\nPublishes to WordPress via REST API\nSEO-optimized (title, meta description, slug)\n\nEmail Newsletter:\n\nBuilds HTML email with pillar-specific styling\nEmbeds product seed in styled callout box:\n\n\"Why this matters: This is the kind of clarity a Personal Operating System gives you. Not tips. Not motivation. Systems that run your life like philosophy-driven infrastructure.\"\n\n\nFetches active subscribers from database\nSends to all subscribers via Gmail API (batch)\nIncludes PS line for personal touch\n\nPinterest:\n\nGenerates vertical pin (1000×1500) with text overlay\nLinks to published blog post (traffic driver)\nSEO-rich description (100-500 chars with keywords)\nPosts to Pinterest board via API v5\n\n\nLogs all 4 long-form assets to published_content table\n\nKey Features:\n\n✅ Long-form is earned (depth validation enforced)\n✅ Product seeds explicitly planted (Personal OS AI, philosophy-driven products)\n✅ Not chasing volume (minimum depth thresholds)\n✅ Blog → Pinterest cross-platform traffic loop\n✅ Newsletter reaches engaged audience with identity-building messaging",
+        "height": 1152,
+        "width": 704,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1920,
+        4816
+      ],
+      "id": "6b2f44e4-55a6-43cd-8b86-4a19c26a544f",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "longform",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "504b695f-2a10-47d1-81cc-a81b1e08cbbd",
+      "name": "Webhook: Long-Form Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        -912,
+        5088
+      ],
+      "webhookId": "5dfde3b3-5e68-4088-9e91-5fc8b3d4c270"
+    },
+    {
+      "parameters": {
+        "jsCode": "const adaptations = JSON.parse($input.first().json.adaptations_json);\nconst pillar = $input.first().json.pillar;\nconst platforms = JSON.parse($('Extract Webhook Data4').item.json.platforms);\n\nreturn platforms.map(platform => ({\n  platform: platform,\n  pillar: pillar,\n  adaptation_id: $input.first().json.adaptation_id,\n  content_id: $input.first().json.content_id,\n  adaptation_data: adaptations[platform]\n}));"
+      },
+      "id": "e71f310c-d100-49cc-968d-fb5816cff836",
+      "name": "Parse Long-Form Adaptations",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        5088
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const youtubeData = $input.first().json.adaptation_data;\nconst pillar = $input.first().json.pillar;\n\n// Validate: Must deepen pillar understanding (not chase volume)\nconst script_outline = youtubeData.script_outline;\nconst hasDepth = script_outline.length >= 5; // At least 5 sections for depth\n\nif (!hasDepth) {\n  return {\n    error: 'YouTube long-form lacks depth (minimum 5 sections required)',\n    pillar: pillar,\n    platform: 'youtube_long'\n  };\n}\n\n// Validate: Must plant seeds for Personal OS AI or philosophy-driven products\nconst fullScript = JSON.stringify(script_outline).toLowerCase();\nconst hasProductSeed = \n  fullScript.includes('operating system') || \n  fullScript.includes('personal os') ||\n  fullScript.includes('ai assistant') ||\n  fullScript.includes('philosophy') ||\n  fullScript.includes('system that runs');\n\nif (!hasProductSeed) {\n  return {\n    warning: 'YouTube long-form missing product seed (Personal OS AI / philosophy product)',\n    pillar: pillar,\n    platform: 'youtube_long',\n    note: 'Proceeding but should ideally plant product seeds'\n  };\n}\n\nreturn {\n  platform: 'youtube_long',\n  pillar: pillar,\n  title: youtubeData.title,\n  description: youtubeData.description,\n  script_outline: youtubeData.script_outline,\n  tags: youtubeData.tags,\n  thumbnail_text: youtubeData.thumbnail_text,\n  posting_time: youtubeData.posting_time,\n  adaptation_id: $input.first().json.adaptation_id,\n  content_id: $input.first().json.content_id,\n  video_note: 'Long-form video requires manual production or AI avatar (HeyGen)'\n};"
+      },
+      "id": "dcf2ccd6-b12c-4e72-a0bd-40424297b9db",
+      "name": "Validate YouTube Long-Form (Depth Required)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        4880
+      ],
+      "notes": "Ensures depth + product seeds (Personal OS AI)"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "7ab00f31-39e7-463c-88e5-0f3ac492fc1d",
+      "name": "YouTube: Manual Production Note",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        416,
+        4880
+      ],
+      "notes": "Long-form video not automated (requires HeyGen AI avatar or manual)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const blogData = $input.first().json.adaptation_data;\nconst pillar = $input.first().json.pillar;\n\n// Validate: Must deepen pillar understanding\nconst hasDepth = blogData.body_outline.length >= 4; // Minimum 4 H2 sections\n\nif (!hasDepth) {\n  return {\n    error: 'Blog post lacks depth (minimum 4 H2 sections required)',\n    pillar: pillar,\n    platform: 'blog'\n  };\n}\n\n// Build full HTML article from outline\nconst intro = `<p>${blogData.intro}</p>`;\nconst body = blogData.body_outline.map(section => \n  `<h2>${section.h2_heading}</h2>\\n<p>${section.content}</p>`\n).join('\\n\\n');\nconst conclusion = `<p>${blogData.conclusion}</p>`;\n\n// Plant product seeds in conclusion\nconst productSeedParagraph = pillar === 'Integration' \n  ? `<p><em>This is why we're building HealthWealthWisdom.ai - a Personal Operating System that runs your day like a philosophy-driven machine. Health as foundation, Wealth as leverage, Wisdom as compass. Systems over willpower.</em></p>`\n  : '';\n\nconst fullArticle = `${intro}\\n\\n${body}\\n\\n${productSeedParagraph}\\n\\n${conclusion}`;\n\nreturn {\n  platform: 'blog',\n  pillar: pillar,\n  title: blogData.title,\n  slug: blogData.slug,\n  meta_description: blogData.meta_description,\n  content_html: fullArticle,\n  posting_time: blogData.posting_time,\n  adaptation_id: $input.first().json.adaptation_id,\n  content_id: $input.first().json.content_id\n};"
+      },
+      "id": "07ec8488-a844-48b3-be45-94fba4962edf",
+      "name": "Build Blog Article (Product Seeds Embedded)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        5040
+      ],
+      "notes": "Builds full HTML, plants Personal OS AI seeds in conclusion"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://your-wordpress-site.com/wp-json/wp/v2/posts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.content_html }}"
+            },
+            {
+              "name": "slug",
+              "value": "={{ $json.slug }}"
+            },
+            {
+              "name": "excerpt",
+              "value": "={{ $json.meta_description }}"
+            },
+            {
+              "name": "status",
+              "value": "publish"
+            },
+            {
+              "name": "categories",
+              "value": "={{ $json.pillar === 'Health' ? [1] : ($json.pillar === 'Wealth' ? [2] : [3]) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ba9faec8-9ef3-43fc-883d-3970dc8721f2",
+      "name": "Publish to WordPress",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        416,
+        5040
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const newsletterData = $input.first().json.adaptation_data;\nconst pillar = $input.first().json.pillar;\n\n// Build HTML email with product seeds\nconst emailHTML = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"utf-8\">\n  <style>\n    body { font-family: 'Georgia', serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }\n    h1 { color: ${pillar === 'Health' ? '#0EA5E9' : (pillar === 'Wealth' ? '#F59E0B' : '#9333EA')}; }\n    .product-seed { background: #F9FAFB; border-left: 4px solid ${pillar === 'Health' ? '#0EA5E9' : (pillar === 'Wealth' ? '#F59E0B' : '#9333EA')}; padding: 15px; margin: 20px 0; font-style: italic; }\n  </style>\n</head>\n<body>\n  <p>${newsletterData.body.replace(/\\n/g, '</p><p>')}</p>\n  \n  <div class=\"product-seed\">\n    <strong>Why this matters:</strong> This is the kind of clarity a Personal Operating System gives you. Not tips. Not motivation. Systems that run your life like philosophy-driven infrastructure. Health + Wealth + Wisdom as one coherent machine.\n  </div>\n  \n  <p><strong>P.S.</strong> ${newsletterData.ps_line}</p>\n  \n  <hr>\n  <p style=\"font-size: 12px; color: #666;\">HealthWealthWisdom.ai • Building the Personal OS for high-performers</p>\n</body>\n</html>\n`;\n\nreturn {\n  platform: 'newsletter',\n  pillar: pillar,\n  subject_line: newsletterData.subject_line,\n  preview_text: newsletterData.preview_text,\n  email_html: emailHTML,\n  posting_time: newsletterData.posting_time,\n  adaptation_id: $input.first().json.adaptation_id,\n  content_id: $input.first().json.content_id\n};"
+      },
+      "id": "ed4cf0f2-d667-4dc2-80bf-de9c649e9268",
+      "name": "Build Newsletter Email (Product Seeds)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        5184
+      ],
+      "notes": "Embeds Personal OS AI seed in styled callout box"
+    },
+    {
+      "parameters": {
+        "operation": "getMany"
+      },
+      "id": "1c69e0d4-562a-4af6-b967-bd7a3cf78cb3",
+      "name": "Get Active Subscribers",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        416,
+        5184
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "raw",
+              "value": "={{ Buffer.from(`To: ${$json.email}\\nSubject: ${$('Build Newsletter Email (Product Seeds)').item.json.subject_line}\\nContent-Type: text/html; charset=utf-8\\n\\n${$('Build Newsletter Email (Product Seeds)').item.json.email_html}`).toString('base64').replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bdbeeaf0-7c96-444f-b6a3-74b83c27cbfd",
+      "name": "Send Newsletter via Gmail API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        5184
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const pinterestData = $input.first().json.adaptation_data;\nconst pillar = $input.first().json.pillar;\nconst design = $('Get Pillar Design System').item.json || {\n  Health: {primary_color: '#0EA5E9'},\n  Wealth: {primary_color: '#F59E0B'},\n  Wisdom: {primary_color: '#9333EA'}\n}[pillar];\n\n// Generate vertical pin image (1000x1500) with text overlay\nconst params = new URLSearchParams({\n  template: 'pinterest_vertical',\n  text_overlay: pinterestData.image_text_overlay,\n  bg_color: design.primary_color,\n  pillar: pillar,\n  width: 1000,\n  height: 1500\n});\n\nconst pinImageUrl = `https://your-design-api.com/generate?${params.toString()}`;\n\nreturn {\n  platform: 'pinterest',\n  pillar: pillar,\n  pin_title: pinterestData.pin_title,\n  pin_description: pinterestData.pin_description,\n  board_suggestions: pinterestData.board_suggestions,\n  image_url: pinImageUrl,\n  link_url: `https://your-blog.com/articles/${$('Build Blog Article (Product Seeds)').item.json.slug}`,\n  posting_time: pinterestData.posting_time,\n  adaptation_id: $input.first().json.adaptation_id,\n  content_id: $input.first().json.content_id\n};"
+      },
+      "id": "0be3f83c-1546-42cd-b85c-ba309d92b827",
+      "name": "Generate Pinterest Pin (Links to Blog)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        5344
+      ],
+      "notes": "Creates vertical pin that drives traffic to blog post"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pinterest.com/v5/pins",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "pinterestOAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $json.pin_title }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ $json.pin_description }}"
+            },
+            {
+              "name": "link",
+              "value": "={{ $json.link_url }}"
+            },
+            {
+              "name": "media_source",
+              "value": "={{ {source_type: 'image_url', url: $json.image_url} }}"
+            },
+            {
+              "name": "board_id",
+              "value": "YOUR_PINTEREST_BOARD_ID"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "25e6323a-13b6-454b-b094-dd55464e1f24",
+      "name": "Post to Pinterest",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        416,
+        5344
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert"
+      },
+      "id": "b3399d7d-f1e4-48ef-9553-1d8c9ddb95b1",
+      "name": "Log Published Long-Form Asset",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        864,
+        5136
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "1641f37c-41b5-4f16-b2e4-64082da85fe5",
+      "name": "Extract Webhook Data4",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        -688,
+        5088
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "adaptation_id",
+              "keyValue": "={{ $json.adaptation_id }}"
+            }
+          ]
+        }
+      },
+      "id": "9ad6efa4-ec83-49d3-9a30-6d4ef236dd06",
+      "name": "Get Platform Adaptations3",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        5088
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "680aea05-c38e-41c8-b3bd-c57a06b2f581",
+      "name": "Route by Platform2",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -32,
+        5088
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  success: true,\n  platform: $json.platform,\n  status: 'published'\n} }}",
+        "options": {}
+      },
+      "id": "e51b7071-322e-4fcc-986d-c1c7ac026acb",
+      "name": "Response: Success4",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1072,
+        5136
+      ]
+    },
+    {
+      "parameters": {
+        "content": "WORKFLOW 8: PERFORMANCE ANALYTICS & LEARNING ENGINE\nWhat This Does:\nTwo-phase intelligence system:\n\nDaily (11:00 PM EST): Sync metrics from all 15 platforms\nWeekly (Sunday 11:30 PM EST): Generate intelligence report → Feed back to Workflow 1\n\n\nPhase 1: Daily Metrics Sync (11 PM)\n1. Fetch Last 24h Published Content\nQueries published_content table for all posts from last 24 hours\n2. Group by Platform\nOrganizes posts into 15 platform buckets for batch API calls\n3. Platform-Specific Metrics Collection:\nTikTok Analytics:\n\nViews, likes, comments, shares\nIdentity signals: Saves (not exposed via API, estimated), repeat viewers\n\nInstagram Analytics:\n\nImpressions, reach, engagement\nIdentity signals: Saves, profile visits (follower conversion proxy)\n\nYouTube Analytics:\n\nViews, likes, comments, shares\nIdentity signals: subscribersGained, averageViewDuration (repeat viewers)\n\nTwitter/X Analytics:\n\nImpressions, likes, replies, retweets\nIdentity signals: Bookmarks (not exposed), retweets as endorsement\n\nLinkedIn Analytics:\n\nImpressions, likes, comments, shares\nIdentity signals: Comments (professional engagement), follower growth\n\n(Similar for Facebook, Reddit, Snapchat, Pinterest, Blog, Newsletter)\n4. Calculate Identity-Weighted Engagement Scores\nWeighting Formula:\njavascriptidentityScore = (\n  (saves × 5) +           // Save = strong intent\n  (comments × 3) +        // Comment = engagement depth\n  (new_followers × 10) +  // Follow = identity alignment\n  (shares × 2) +          // Share = endorsement\n  (likes × 1)             // Like = weak signal\n)\n\nengagementScore = Math.min(100, Math.round(identityScore / 10))\nEngagement rate: (identityScore / views) × 100\n5. Save to Database\nAll metrics saved to content_performance table with:\n\nPlatform-specific raw metrics\nIdentity-weighted scores\nJSON object of identity signals\n\n\nPhase 2: Weekly Intelligence Report (Sunday 11:30 PM)\n1. Fetch 7-Day Performance Data\nQueries last 7 days from content_performance joined with:\n\ncontent_calendar (pillar, topic, philosophy_flag)\nmaster_content (language_seed)\n\n2. Aggregate by Pillar\nPer Pillar Analysis:\n\nAverage engagement score\nIdentity signal average (saves + followers)\nBest platforms (ranked by identity conversion rate, not engagement)\nTop topics (ranked by identity score)\nPhilosophy flag performance (reinforce vs. challenge vs. redefine)\n\nPattern Detection:\n\nStrongest pillar: Highest identity signals average\nWeakest pillar: Lowest identity signals average\nGeneric drift detection: High engagement but low identity signals (<30% ratio) = generic content\n\n3. GPT-4o Intelligence Generation\nAI analyzes and generates:\n3 Tactical Adjustments:\njson{\n  \"pillar\": \"Health\",\n  \"adjustment\": \"Double down on nervous_system topic on TikTok (5x identity signals vs. generic sleep content)\",\n  \"reason\": \"nervous_system posts drove 3x more saves and 2x follower conversion than metabolic_health\"\n}\n2 Experiments:\njson{\n  \"pillar\": \"Wealth\",\n  \"hypothesis\": \"'Challenge' philosophy flag drives more shares on LinkedIn than 'reinforce'\",\n  \"test_design\": \"Run 3 Wealth posts with 'challenge' flag, 3 with 'reinforce', measure share rate\",\n  \"success_metric\": \"Challenge posts get >2x shares with maintained follower conversion\"\n}\n1 Philosophy Refinement:\njson{\n  \"pillar\": \"Wisdom\",\n  \"current_problem\": \"Drifting into quote-like content (high likes, low comments)\",\n  \"refinement\": \"Every Wisdom post must ask a question with no clean answer. No preaching.\",\n  \"test\": \"Does this increase comment depth (measured by avg words per comment)?\"\n}\n4. Save Intelligence Report\nSaved to weekly_performance_analysis table\n5. Automatic Feedback Loop\nTriggers webhook to Workflow 1 with intelligence report\nWorkflow 1's next strategy generation (Sunday 6 PM) will incorporate:\n\nTactical adjustments (platform/topic shifts)\nExperiments (new angles to test)\nPhilosophy refinement (sharper pillar boundaries)\n\n\nKey Features:\n✅ Identity signals prioritized (saves, followers, comments) over vanity (views, likes)\n✅ Generic drift detection (high engagement + low identity = becoming generic)\n✅ Platform performance by pillar (Health best on TikTok, Wealth on LinkedIn, etc.)\n✅ Philosophy flag tracking (which flags drive identity behaviors)\n✅ Self-improving feedback loop (Week N insights → Week N+1 strategy automatically)\n✅ Data-driven experiments (testable hypotheses with clear success metrics)\n✅ Pillar sharpening (prevents philosophical saturation through refinements)",
+        "height": 2352,
+        "width": 672
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1888,
+        6208
+      ],
+      "id": "61d81574-071b-48ef-8671-721952151210",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 23 * * *"
+            }
+          ]
+        }
+      },
+      "id": "b506d487-6c47-43aa-b6fc-28719a34e8e0",
+      "name": "Schedule: Daily 11pm EST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -752,
+        6576
+      ],
+      "notes": "Daily analytics sync from all 15 platforms"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 23 * * 0"
+            }
+          ]
+        }
+      },
+      "id": "b5d22149-b322-4756-a527-d9753a9f8583",
+      "name": "Schedule: Sunday 11:30pm EST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -752,
+        6976
+      ],
+      "notes": "Weekly intelligence report + feedback to Workflow 1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery"
+      },
+      "id": "6d4b97e3-9bad-4f80-b79c-c56f222c6577",
+      "name": "Get Last 24h Published Content",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        6576
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const publishedContent = $input.all().map(i => i.json);\n\n// Group by platform for API calls\nconst byPlatform = {\n  tiktok: [],\n  instagram_reel: [],\n  instagram_carousel: [],\n  instagram_story: [],\n  youtube_short: [],\n  youtube_long: [],\n  snapchat_spotlight: [],\n  snapchat_story: [],\n  twitter_x: [],\n  linkedin: [],\n  facebook: [],\n  reddit: [],\n  blog: [],\n  newsletter: [],\n  pinterest: []\n};\n\npublishedContent.forEach(post => {\n  if (byPlatform[post.platform]) {\n    byPlatform[post.platform].push(post);\n  }\n});\n\nreturn Object.entries(byPlatform)\n  .filter(([platform, posts]) => posts.length > 0)\n  .map(([platform, posts]) => ({\n    platform: platform,\n    posts: posts,\n    post_ids: posts.map(p => p.post_id)\n  }));"
+      },
+      "id": "f38b32dd-c237-4e3d-aebd-0e67af660b6a",
+      "name": "Group by Platform",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        6576
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://open-api.tiktok.com/v2/research/video/query/?fields=id,like_count,comment_count,share_count,view_count,video_description&video_ids={{ $json.post_ids.join(',') }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_TIKTOK_RESEARCH_API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5ff0caa3-b222-4d24-b0a9-f3c3b8ffb8cb",
+      "name": "Fetch TikTok Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -96,
+        6368
+      ],
+      "notes": "Identity signals: saves (not exposed), comments, shares, repeat viewers"
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v18.0/{{ $json.post_ids[0] }}/insights?metric=impressions,reach,engagement,saves,profile_visits&access_token=YOUR_INSTAGRAM_ACCESS_TOKEN",
+        "options": {}
+      },
+      "id": "63dc5dbf-085e-4c05-86fa-dcb84f6739bf",
+      "name": "Fetch Instagram Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -96,
+        6480
+      ],
+      "notes": "Identity signals: saves, profile visits, follower conversion"
+    },
+    {
+      "parameters": {
+        "url": "=https://youtubeanalytics.googleapis.com/v2/reports?ids=channel==MINE&startDate={{ $today.minus({days: 1}).toISODate() }}&endDate={{ $today.toISODate() }}&metrics=views,likes,comments,shares,subscribersGained,averageViewDuration&filters=video=={{ $json.post_ids.join(',') }}&access_token=YOUR_YOUTUBE_ACCESS_TOKEN",
+        "options": {}
+      },
+      "id": "60cf5a9a-f604-4a6a-b4c2-878667ab0cfa",
+      "name": "Fetch YouTube Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -96,
+        6576
+      ],
+      "notes": "Identity signals: subscribersGained, averageViewDuration (repeat viewers)"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.twitter.com/2/tweets?ids={{ $json.post_ids.join(',') }}&tweet.fields=public_metrics&expansions=author_id&user.fields=public_metrics",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twitterOAuth2Api",
+        "options": {}
+      },
+      "id": "e039d6e7-4814-423d-9de2-169506d80eac",
+      "name": "Fetch Twitter/X Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -96,
+        6672
+      ],
+      "notes": "Identity signals: retweets, replies, bookmarks (not exposed via API)"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.linkedin.com/v2/organizationalEntityShareStatistics?q=organizationalEntity&organizationalEntity={{ 'urn:li:organization:YOUR_ORG_ID' }}&ugcPosts={{ $json.post_ids.join(',') }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "linkedInOAuth2Api",
+        "options": {}
+      },
+      "id": "29db1b1c-d903-4326-a87e-495ac285869f",
+      "name": "Fetch LinkedIn Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -96,
+        6768
+      ],
+      "notes": "Identity signals: comments, shares, follower growth"
+    },
+    {
+      "parameters": {
+        "jsCode": "const platform = $('Group by Platform').item.json.platform;\nconst apiResponse = $input.first().json;\nconst posts = $('Group by Platform').item.json.posts;\n\nlet metricsArray = [];\n\n// Platform-specific metric extraction\nif (platform === 'tiktok') {\n  metricsArray = apiResponse.data.videos.map(video => ({\n    post_id: video.id,\n    views: video.view_count,\n    likes: video.like_count,\n    comments: video.comment_count,\n    shares: video.share_count,\n    saves: 0, // TikTok doesn't expose saves via API\n    new_followers: 0 // Estimate from engagement\n  }));\n} else if (platform.includes('instagram')) {\n  metricsArray = apiResponse.data.map(insight => ({\n    post_id: insight.id,\n    views: insight.impressions,\n    likes: insight.engagement,\n    comments: 0, // Requires separate call\n    shares: 0,\n    saves: insight.saves || 0,\n    new_followers: insight.profile_visits || 0\n  }));\n} else if (platform.includes('youtube')) {\n  metricsArray = apiResponse.rows.map(row => ({\n    post_id: row[0],\n    views: row[1],\n    likes: row[2],\n    comments: row[3],\n    shares: row[4],\n    saves: 0,\n    new_followers: row[5],\n    avg_view_duration: row[6] // Repeat viewer signal\n  }));\n} else if (platform === 'twitter_x') {\n  metricsArray = apiResponse.data.map(tweet => ({\n    post_id: tweet.id,\n    views: tweet.public_metrics.impression_count,\n    likes: tweet.public_metrics.like_count,\n    comments: tweet.public_metrics.reply_count,\n    shares: tweet.public_metrics.retweet_count,\n    saves: 0, // Twitter doesn't expose bookmarks\n    new_followers: 0\n  }));\n} else if (platform === 'linkedin') {\n  metricsArray = apiResponse.elements.map(stat => ({\n    post_id: stat.ugcPost,\n    views: stat.totalShareStatistics.impressionCount,\n    likes: stat.totalShareStatistics.likeCount,\n    comments: stat.totalShareStatistics.commentCount,\n    shares: stat.totalShareStatistics.shareCount,\n    saves: 0,\n    new_followers: 0\n  }));\n}\n\n// Calculate engagement score (identity-weighted)\nreturn metricsArray.map(metrics => {\n  const post = posts.find(p => p.post_id === metrics.post_id);\n  \n  // Identity signal weighting\n  const identityScore = (\n    (metrics.saves * 5) +           // Save = strong intent\n    (metrics.comments * 3) +        // Comment = engagement\n    (metrics.new_followers * 10) +  // Follow = identity alignment\n    (metrics.shares * 2) +          // Share = endorsement\n    (metrics.likes * 1)             // Like = weak signal\n  );\n  \n  const engagementRate = metrics.views > 0 ? (identityScore / metrics.views) * 100 : 0;\n  const engagementScore = Math.min(100, Math.round(identityScore / 10));\n  \n  return {\n    content_id: post?.content_id,\n    platform: platform,\n    post_id: metrics.post_id,\n    views: metrics.views,\n    likes: metrics.likes,\n    comments: metrics.comments,\n    shares: metrics.shares,\n    saves: metrics.saves,\n    new_followers: metrics.new_followers,\n    repeat_viewers: metrics.avg_view_duration || 0,\n    engagement_rate: Math.round(engagementRate * 100) / 100,\n    engagement_score: engagementScore,\n    identity_signals: {\n      saves: metrics.saves,\n      comments: metrics.comments,\n      new_followers: metrics.new_followers,\n      repeat_viewers: metrics.avg_view_duration || 0\n    },\n    created_at: new Date().toISOString()\n  };\n});"
+      },
+      "id": "8978dc50-6143-4507-874c-cf18a556aaea",
+      "name": "Calculate Identity-Weighted Scores",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        128,
+        6576
+      ],
+      "notes": "Saves=5x, Comments=3x, Followers=10x, Shares=2x, Likes=1x"
+    },
+    {
+      "parameters": {
+        "operation": "insert"
+      },
+      "id": "8cdb00f4-01a6-46a4-8b5b-ee0806cd8a2a",
+      "name": "Save Performance Data",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        352,
+        6576
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery"
+      },
+      "id": "76bde5e9-3b88-4292-bb31-68e0f1f8a7db",
+      "name": "Get 7-Day Performance Data",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        6976
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.all().map(i => i.json);\n\nconst byPillar = {\n  Health: {posts: [], total_score: 0, identity_total: 0, platforms: {}, topics: {}, flags: {}},\n  Wealth: {posts: [], total_score: 0, identity_total: 0, platforms: {}, topics: {}, flags: {}},\n  Wisdom: {posts: [], total_score: 0, identity_total: 0, platforms: {}, topics: {}, flags: {}},\n  Integration: {posts: [], total_score: 0, identity_total: 0, platforms: {}, topics: {}, flags: {}}\n};\n\ndata.forEach(post => {\n  const pillar = post.pillar;\n  if (!byPillar[pillar]) return;\n  \n  byPillar[pillar].posts.push(post);\n  byPillar[pillar].total_score += post.engagement_score;\n  \n  // Identity signals\n  const identitySignals = JSON.parse(post.identity_signals || '{}');\n  byPillar[pillar].identity_total += (identitySignals.saves || 0) + (identitySignals.new_followers || 0);\n  \n  // Platform performance\n  if (!byPillar[pillar].platforms[post.platform]) {\n    byPillar[pillar].platforms[post.platform] = {total: 0, count: 0, identity: 0};\n  }\n  byPillar[pillar].platforms[post.platform].total += post.engagement_score;\n  byPillar[pillar].platforms[post.platform].count++;\n  byPillar[pillar].platforms[post.platform].identity += (identitySignals.saves || 0) + (identitySignals.new_followers || 0);\n  \n  // Topic performance\n  if (!byPillar[pillar].topics[post.topic]) {\n    byPillar[pillar].topics[post.topic] = {total: 0, count: 0};\n  }\n  byPillar[pillar].topics[post.topic].total += post.engagement_score;\n  byPillar[pillar].topics[post.topic].count++;\n  \n  // Philosophy flag tracking\n  if (!byPillar[pillar].flags[post.philosophy_flag]) {\n    byPillar[pillar].flags[post.philosophy_flag] = {total: 0, count: 0};\n  }\n  byPillar[pillar].flags[post.philosophy_flag].total += post.engagement_score;\n  byPillar[pillar].flags[post.philosophy_flag].count++;\n});\n\n// Calculate averages and detect patterns\nObject.keys(byPillar).forEach(pillar => {\n  const d = byPillar[pillar];\n  d.avg_score = d.posts.length > 0 ? Math.round(d.total_score / d.posts.length) : 0;\n  d.identity_avg = d.posts.length > 0 ? Math.round(d.identity_total / d.posts.length) : 0;\n  \n  // Best platforms\n  d.best_platforms = Object.entries(d.platforms)\n    .map(([platform, stats]) => ({\n      platform,\n      avg_score: Math.round(stats.total / stats.count),\n      identity_rate: Math.round(stats.identity / stats.count)\n    }))\n    .sort((a, b) => b.identity_rate - a.identity_rate)\n    .slice(0, 3);\n  \n  // Top topics\n  d.top_topics = Object.entries(d.topics)\n    .map(([topic, stats]) => ({topic, avg_score: Math.round(stats.total / stats.count)}))\n    .sort((a, b) => b.avg_score - a.avg_score)\n    .slice(0, 3);\n  \n  // Philosophy flag performance\n  d.flag_performance = Object.entries(d.flags)\n    .map(([flag, stats]) => ({flag, avg_score: Math.round(stats.total / stats.count)}))\n    .sort((a, b) => b.avg_score - a.avg_score);\n});\n\n// Detect strongest/weakest pillar\nconst pillarRankings = Object.entries(byPillar)\n  .filter(([pillar]) => pillar !== 'Integration')\n  .map(([pillar, data]) => ({pillar, identity_avg: data.identity_avg}))\n  .sort((a, b) => b.identity_avg - a.identity_avg);\n\nconst strongestPillar = pillarRankings[0]?.pillar;\nconst weakestPillar = pillarRankings[pillarRankings.length - 1]?.pillar;\n\n// Detect generic drift (low identity signals despite high engagement)\nconst genericDriftPillars = Object.entries(byPillar)\n  .filter(([pillar, data]) => {\n    const ratio = data.identity_avg / (data.avg_score || 1);\n    return ratio < 0.3 && data.posts.length > 2; // <30% identity signals = generic\n  })\n  .map(([pillar]) => pillar);\n\nreturn {\n  week_of: $today.minus({days: 7}).toISODate(),\n  by_pillar: byPillar,\n  strongest_pillar: strongestPillar,\n  weakest_pillar: weakestPillar,\n  generic_drift: genericDriftPillars,\n  total_posts: data.length\n};"
+      },
+      "id": "7f0b48f3-17de-4f75-934d-e478cba2010e",
+      "name": "Aggregate by Pillar (Detect Drift)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        6976
+      ],
+      "notes": "Identifies strongest pillar + generic drift (low identity signals)"
+    },
+    {
+      "parameters": {},
+      "id": "153ab697-27a3-46d1-ba88-011c95a7e593",
+      "name": "Intelligence Report Prompt",
+      "type": "@n8n/n8n-nodes-langchain.promptTemplate",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        7072
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "43dd6da8-ee81-4ef0-88e8-5bc9e9c95c53",
+      "name": "Intelligence AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        -96,
+        6976
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiOutput = $input.first().json.output;\nconst jsonMatch = aiOutput.match(/```json\\s*([\\s\\S]*?)```/) || aiOutput.match(/\\{[\\s\\S]*\"weekly_intelligence\"[\\s\\S]*\\}/);\nif (!jsonMatch) return {error: 'No intelligence JSON'};\n\nconst intelligence = JSON.parse(jsonMatch[0].replace(/```json|```/g, '').trim());\n\nreturn {\n  analysis_id: 'ANALYSIS-' + Date.now(),\n  week_of: $('Aggregate by Pillar (Detect Drift)').item.json.week_of,\n  created_at: new Date().toISOString(),\n  weekly_intelligence: intelligence.weekly_intelligence,\n  status: 'ready_for_feedback'\n};"
+      },
+      "id": "d8476fb5-aafb-44c8-9de2-4501548966e7",
+      "name": "Parse Intelligence Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        128,
+        6976
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert"
+      },
+      "id": "a757eee4-111b-4834-9ed9-c93eadcb9402",
+      "name": "Save Weekly Analysis",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        352,
+        6976
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.N8N_WEBHOOK_BASE_URL }}/webhook/strategy-feedback",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "analysis_id",
+              "value": "={{ $json.analysis_id }}"
+            },
+            {
+              "name": "week_of",
+              "value": "={{ $json.week_of }}"
+            },
+            {
+              "name": "intelligence",
+              "value": "={{ JSON.stringify($json.weekly_intelligence) }}"
+            },
+            {
+              "name": "trigger_source",
+              "value": "workflow_8_analytics"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b572a206-c11e-4269-8575-2a8cec708dad",
+      "name": "Trigger Feedback to Workflow 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        576,
+        6976
+      ],
+      "notes": "Automatically feeds insights back into next week's strategy"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "maxTokens": 2500,
+          "temperature": 0.7
+        }
+      },
+      "id": "6052d20f-db61-4437-8425-46f7799efe4d",
+      "name": "OpenAI GPT-4o3",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        6880
+      ]
+    },
+    {
+      "parameters": {
+        "content": "🎯 WHAT YOU NOW HAVE:\nA self-improving, philosophy-driven content engine that:\n\nPlans (Workflow 1) → Pillar-pure strategy with identity focus\nCreates (Workflow 2) → Master content with explicit tradeoffs + stances\nAdapts (Workflow 3) → 15 platform-native versions (no copy-paste)\nDistributes (Workflows 4-7) → Automated publishing across all channels\nLearns (Workflow 8) → Identity-focused analytics that feed back into strategy\n\nHow the Feedback Loop Works:\nSunday 11:30 PM: Workflow 8 generates intelligence report\n↓\nSunday 11:30 PM: Webhook triggers Workflow 1 with insights\n↓\nNext Sunday 6:00 PM: Workflow 1 incorporates intelligence into new strategy\n↓\nMonday-Sunday: Content executes based on improved strategy\n↓\nNext Sunday 11:30 PM: Performance measured, new insights generated\n↓\nLOOP REPEATS ♻️\nResult: System gets smarter every week. Identity signals improve. Generic drift eliminated. Pillar thinking sharpens.",
+        "height": 448,
+        "width": 592,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        8512
+      ],
+      "id": "411fb29e-f96b-4158-8341-06d6a7196a8e",
+      "name": "Sticky Note8"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule: Sunday 6pm EST": {
+      "main": [
+        [
+          {
+            "node": "Get 30-Day Performance (Pillar-Segmented)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get 30-Day Performance (Pillar-Segmented)": {
+      "main": [
+        [
+          {
+            "node": "Analyze by Pillar (Identity-Focused)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze by Pillar (Identity-Focused)": {
+      "main": [
+        [
+          {
+            "node": "Strategy AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4o": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Strategy AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Strategy AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse Strategy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Strategy": {
+      "main": [
+        [
+          {
+            "node": "Save Strategy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Strategy": {
+      "main": [
+        [
+          {
+            "node": "Build Calendar Entries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Calendar Entries": {
+      "main": [
+        [
+          {
+            "node": "Save to Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule: Daily 8am EST": {
+      "main": [
+        [
+          {
+            "node": "Get Today's Content Plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Today's Content Plan": {
+      "main": [
+        [
+          {
+            "node": "Content Plan Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Plan Found?": {
+      "main": [
+        [
+          {
+            "node": "Parse Content Plan",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Content Today (Exit)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Content Plan": {
+      "main": [
+        [
+          {
+            "node": "Master Content AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Master Content AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse & Validate Master Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Validate Master Content": {
+      "main": [
+        [
+          {
+            "node": "Save Master Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Master Content": {
+      "main": [
+        [
+          {
+            "node": "Update Calendar Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Calendar Status": {
+      "main": [
+        [
+          {
+            "node": "Master Content Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Master Content Valid?": {
+      "main": [
+        [
+          {
+            "node": "Trigger Workflow 3: Platform Adaptation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generation Failed (Log)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4o1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Master Content AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Platform Adaptation Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Webhook Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Webhook Data": {
+      "main": [
+        [
+          {
+            "node": "Get Master Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Master Content": {
+      "main": [
+        [
+          {
+            "node": "Parse Master Content JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Master Content JSON": {
+      "main": [
+        [
+          {
+            "node": "Calculate Optimal Posting Times",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Optimal Posting Times": {
+      "main": [
+        [
+          {
+            "node": "Adaptation AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adaptation AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse & Validate 15 Adaptations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Validate 15 Adaptations": {
+      "main": [
+        [
+          {
+            "node": "Save Adaptations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Adaptations": {
+      "main": [
+        [
+          {
+            "node": "Build Distribution Triggers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Distribution Triggers": {
+      "main": [
+        [
+          {
+            "node": "Trigger Distribution Workflows (4-7)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Distribution Workflows (4-7)": {
+      "main": [
+        [
+          {
+            "node": "Response: Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4o2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Adaptation AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Short-Form Video Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Webhook Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Platform Adaptations": {
+      "main": [
+        [
+          {
+            "node": "Parse Short-Form Adaptations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Short-Form Adaptations": {
+      "main": [
+        [
+          {
+            "node": "Get B-Roll from Library (Pillar-Tagged)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Select Voice by Pillar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Voice by Pillar": {
+      "main": [
+        [
+          {
+            "node": "Generate AI Voiceover (ElevenLabs)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Final Video": {
+      "main": [
+        [
+          {
+            "node": "Get Platform Upload Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Platform Upload Config": {
+      "main": [
+        [
+          {
+            "node": "Upload Video to Platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Video to Platform": {
+      "main": [
+        [
+          {
+            "node": "Extract Video ID & URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Video ID & URL": {
+      "main": [
+        [
+          {
+            "node": "Needs Publish Step?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Publish Step?": {
+      "main": [
+        [
+          {
+            "node": "Publish Video (TikTok/IG)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Already Published (YouTube/Snap)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish Video (TikTok/IG)": {
+      "main": [
+        [
+          {
+            "node": "Log Published Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Already Published (YouTube/Snap)": {
+      "main": [
+        [
+          {
+            "node": "Log Published Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Published Content": {
+      "main": [
+        [
+          {
+            "node": "Response: Success1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Webhook Data1": {
+      "main": [
+        [
+          {
+            "node": "Get Platform Adaptations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Visual Story Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Webhook Data2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Visual Adaptations": {
+      "main": [
+        [
+          {
+            "node": "Get Pillar Design System",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pillar Design System": {
+      "main": [
+        [
+          {
+            "node": "Route by Platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Platform": {
+      "main": [
+        [
+          {
+            "node": "Generate Carousel Slides (Identity-Focused)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Carousel Slides (Identity-Focused)": {
+      "main": [
+        [
+          {
+            "node": "Upload Instagram Carousel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Instagram Carousel": {
+      "main": [
+        [
+          {
+            "node": "Publish Instagram Carousel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish Instagram Carousel": {
+      "main": [
+        [
+          {
+            "node": "Log Published Visual Asset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate IG Story Frames (Interaction-Focused)": {
+      "main": [
+        [
+          {
+            "node": "Upload Instagram Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Instagram Story": {
+      "main": [
+        [
+          {
+            "node": "Log Published Visual Asset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Snapchat Story (Raw/Informal)": {
+      "main": [
+        [
+          {
+            "node": "Upload Snapchat Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Snapchat Story": {
+      "main": [
+        [
+          {
+            "node": "Log Published Visual Asset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Published Visual Asset": {
+      "main": [
+        [
+          {
+            "node": "Response: Success2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Webhook Data2": {
+      "main": [
+        [
+          {
+            "node": "Get Platform Adaptations1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Platform Adaptations1": {
+      "main": [
+        [
+          {
+            "node": "Parse Visual Adaptations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Text Platform Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Webhook Data3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Text Adaptations": {
+      "main": [
+        [
+          {
+            "node": "Route by Platform1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Format Twitter/X": {
+      "main": [
+        [
+          {
+            "node": "Post Twitter Thread (Tweet 1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Twitter Thread (Tweet 1)": {
+      "main": [
+        [
+          {
+            "node": "Build Thread Replies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Thread Replies": {
+      "main": [
+        [
+          {
+            "node": "Post Remaining Thread Tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Remaining Thread Tweets": {
+      "main": [
+        [
+          {
+            "node": "Log Published Text Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Format LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "Post to LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "Log Published Text Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Facebook Post": {
+      "main": [
+        [
+          {
+            "node": "Post to Facebook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Facebook": {
+      "main": [
+        [
+          {
+            "node": "Log Published Text Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Format Reddit (Value-First)": {
+      "main": [
+        [
+          {
+            "node": "Post to Reddit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Reddit": {
+      "main": [
+        [
+          {
+            "node": "Log Published Text Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Published Text Post": {
+      "main": [
+        [
+          {
+            "node": "Response: Success3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Webhook Data3": {
+      "main": [
+        [
+          {
+            "node": "Get Platform Adaptations2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Platform Adaptations2": {
+      "main": [
+        [
+          {
+            "node": "Parse Text Adaptations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Platform1": {
+      "main": [
+        [
+          {
+            "node": "Validate & Format Twitter/X",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Long-Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Webhook Data4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Long-Form Adaptations": {
+      "main": [
+        [
+          {
+            "node": "Route by Platform2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate YouTube Long-Form (Depth Required)": {
+      "main": [
+        [
+          {
+            "node": "YouTube: Manual Production Note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "YouTube: Manual Production Note": {
+      "main": [
+        [
+          {
+            "node": "Log Published Long-Form Asset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Blog Article (Product Seeds Embedded)": {
+      "main": [
+        [
+          {
+            "node": "Publish to WordPress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish to WordPress": {
+      "main": [
+        [
+          {
+            "node": "Log Published Long-Form Asset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Newsletter Email (Product Seeds)": {
+      "main": [
+        [
+          {
+            "node": "Get Active Subscribers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Active Subscribers": {
+      "main": [
+        [
+          {
+            "node": "Send Newsletter via Gmail API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Newsletter via Gmail API": {
+      "main": [
+        [
+          {
+            "node": "Log Published Long-Form Asset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Pinterest Pin (Links to Blog)": {
+      "main": [
+        [
+          {
+            "node": "Post to Pinterest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Pinterest": {
+      "main": [
+        [
+          {
+            "node": "Log Published Long-Form Asset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Published Long-Form Asset": {
+      "main": [
+        [
+          {
+            "node": "Response: Success4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Webhook Data4": {
+      "main": [
+        [
+          {
+            "node": "Get Platform Adaptations3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Platform Adaptations3": {
+      "main": [
+        [
+          {
+            "node": "Parse Long-Form Adaptations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Platform2": {
+      "main": [
+        [
+          {
+            "node": "Validate YouTube Long-Form (Depth Required)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule: Daily 11pm EST": {
+      "main": [
+        [
+          {
+            "node": "Get Last 24h Published Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Last 24h Published Content": {
+      "main": [
+        [
+          {
+            "node": "Group by Platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Group by Platform": {
+      "main": [
+        [
+          {
+            "node": "Fetch TikTok Analytics",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Instagram Analytics",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch YouTube Analytics",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Twitter/X Analytics",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch LinkedIn Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch TikTok Analytics": {
+      "main": [
+        [
+          {
+            "node": "Calculate Identity-Weighted Scores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Instagram Analytics": {
+      "main": [
+        [
+          {
+            "node": "Calculate Identity-Weighted Scores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch YouTube Analytics": {
+      "main": [
+        [
+          {
+            "node": "Calculate Identity-Weighted Scores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Twitter/X Analytics": {
+      "main": [
+        [
+          {
+            "node": "Calculate Identity-Weighted Scores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch LinkedIn Analytics": {
+      "main": [
+        [
+          {
+            "node": "Calculate Identity-Weighted Scores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Identity-Weighted Scores": {
+      "main": [
+        [
+          {
+            "node": "Save Performance Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule: Sunday 11:30pm EST": {
+      "main": [
+        [
+          {
+            "node": "Get 7-Day Performance Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get 7-Day Performance Data": {
+      "main": [
+        [
+          {
+            "node": "Aggregate by Pillar (Detect Drift)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate by Pillar (Detect Drift)": {
+      "main": [
+        [
+          {
+            "node": "Intelligence AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intelligence AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse Intelligence Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Intelligence Report": {
+      "main": [
+        [
+          {
+            "node": "Save Weekly Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Weekly Analysis": {
+      "main": [
+        [
+          {
+            "node": "Trigger Feedback to Workflow 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4o3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Intelligence AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "e9532c77-7623-420d-9ecc-386cbcb9ff2c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "800d2c55e0c945221ccf72832a9f05e5f37f5d1f3c23c49d41513c9d5655015d"
+  },
+  "id": "P2hBuZW3qrfmIJFVb7PZm",
+  "tags": []
+}

@@ -20,6 +20,53 @@ Get alignment on the plan before the first keystroke. This is non-negotiable.
 
 A wrong plan costs 5 minutes. A wrong build costs 5 hours.
 
+## Vault Organization (Multi-Offering)
+The Optimus Assets vault is organized into 4 top-level hubs plus the existing
+website-development workflow files at root. Anyone (human or agent) entering the
+vault should know where things live.
+
+**The 4 hubs:**
+- **`00 — Empire Index/`** — vault navigation. Start here. Contains the master README,
+  MOCs (Maps of Content), the canonical tag schema, and the glossary.
+- **`Offerings/`** — what Optimus sells. Per-offering hubs.
+  - `01 Website Development/` — productized core. Templates and lessons live at vault root + `knowledge/`; this hub is the index.
+  - `02 AI Agents/` — umbrella for 3 in-development agent products: `01 Chat Assistant/`, `02 Voice Receptionist/`, `03 Marketing Team/`. Cross-product patterns live in `shared-knowledge/`.
+- **`Optimus Inc/`** — the company itself (drinking own champagne). Optimus's own
+  marketing site, deployed agent instances, market intelligence, social pipeline, brand.
+  Distinct from Offerings: Offerings = template/IP, Optimus Inc = Optimus's own deployment.
+- **`Optimus Academy/`** — daily personal learning hub. ~90 min/day capture across
+  Anthropic courses, NVIDIA classes, YouTube on Claude/agentic concepts, tool tracking
+  (NemoClaw, OpenClaw, etc.). The `apply-to-optimus/` subfolder is the bridge that
+  connects learning to offering improvements.
+
+**The workflow that fills Optimus Academy:** `/learn` (defined in `learn-prompt.md` at
+vault root). Paste a transcript / YouTube URL / course notes → Claude generates three
+traces (daily entry + atomic concept note(s) + optional apply-to-optimus bridge) with
+scan-and-decide deduplication so `concepts/` doesn't fragment.
+
+**Website-dev workflow is unchanged.** All existing root files (`CLAUDE.md`,
+`project-prime.md`, `website-build-template.md`, `build-checklist.md`, `intake-prompt.md`,
+`market-research-prompt.md`, `end-to-end-workflow.md`, `frontend-design.md`, `retro.md`,
+`initial-business-data.md`, `market-intelligence.md`, `animation-inspiration.md`,
+`animated-logo-inspiration.md`, `Revamp logo light.png`) and the entire `knowledge/`
+folder (108 files of errors, patterns, retrospectives, sales, onboarding) stay where
+they are. Every existing wikilink and every agent's Required Reading section keeps
+working without edits. The reorg is additive, not migrational.
+
+**Tag schema** lives at `00 — Empire Index/tag-schema.md` — every NEW note (after
+2026-04-26) uses tags from that schema. Existing files stay untagged and findable
+by their existing wikilinks. Tag families: `#offering/*`, `#layer/*`, `#learning/*`,
+`#applies-to/*`, `#stage/*`, `#status/*`.
+
+**Where to put new content (quick reference):**
+- New website-dev lesson learned during a build → `knowledge/errors/` or `knowledge/patterns/` (unchanged from before)
+- New website-dev client retrospective → `knowledge/retrospectives/` (unchanged)
+- New AI agent pattern shared across chat+voice+marketing → `Offerings/02 AI Agents/shared-knowledge/lessons/`
+- New AI agent pattern specific to one product → `Offerings/02 AI Agents/0X <product>/lessons/`
+- Daily learning capture → `/learn` (writes to `Optimus Academy/`)
+- Competitor or market signal about Optimus's own market → `Optimus Inc/market-intelligence/`
+- Anything about a specific client project → that client's own repo (e.g. `c:\Projects\<client-slug>\`), NOT this vault — only the post-project retrospective lands here in `knowledge/retrospectives/`
+
 ## Subagent Delegation Rule
 Any build phase with 3 or more discrete tasks MUST be broken into individual tasks
 and delegated to subagents. One subagent per task. Run independent tasks in parallel.

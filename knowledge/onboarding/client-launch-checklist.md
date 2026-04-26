@@ -73,13 +73,19 @@
    - Name: `www`
    - Value: `cname.vercel-dns.com`
 
-### 3B. Update GoDaddy DNS
-1. Log into GoDaddy → **My Domains → DNS**
-2. Delete any existing A records pointing to GoDaddy's default parking page
+### 3B. Update DNS at Registrar
+1. Log into the domain registrar (GoDaddy, Northwest Registered Agent, etc.) → DNS settings
+2. Delete any existing A records pointing to the registrar's default parking page
 3. Add new A record: Name `@`, Value = Vercel IP from step 3A
 4. Add CNAME: Name `www`, Value = `cname.vercel-dns.com`
 5. Save changes
 6. DNS propagation: usually 5–30 minutes, can take up to 48 hours
+
+**Non-GoDaddy registrar fallback (see build-log Error #51):**
+If the A record for the root domain won't propagate (common with Northwest Registered Agent), skip the A record entirely. Instead:
+1. Only add the CNAME for `www` → `cname.vercel-dns.com`
+2. Use the registrar's built-in **Forwarding** feature to 301 the root domain to the `www` version
+3. In Vercel, configure the root domain to redirect to `www` (or remove it and only keep `www`)
 
 ### 3C. Verify in Vercel
 1. Return to Vercel → Project → Settings → Domains
