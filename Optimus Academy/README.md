@@ -9,31 +9,29 @@ tags: [#layer/optimus-os, #status/active]
 
 Personal daily learning hub. ~90 minutes a day across YouTube videos on Claude concepts and new releases (NemoClaw, OpenClaw, etc.), NVIDIA classes, Anthropic courses, agentic AI / autonomous agents / multi-agent systems, and whatever new tooling surfaces day-to-day. Separate from `[[../Offerings/README|Offerings]]` (what Optimus sells) and `[[../Optimus Inc/README|Optimus Inc]]` (the company itself). This folder is intentionally personal. It captures learning that may or may not yet apply to Optimus operations. The bridge from learning to business lives in `[[apply-to-optimus/README|apply-to-optimus/]]` — when a concept clearly improves an offering, a bridge note gets written that explicitly states "Concept X improves Offering Y by doing Z." That is the connective tissue that turns daily learning into compounding business value, and it is the engine that gets Optimus to a fully autonomous organization in the next 1-2 years.
 
-## Folder model — sources vs concepts (read this first)
+## Folder model — daily IS the source capture (read this first)
 
-The vault separates **immutable per-source captures** from **synthesized atomic concept distillations**. Both folders work together. Every learning session writes to both.
+The vault separates **comprehensive per-source captures** (which live as H2 sections inside daily files) from **synthesized atomic concept distillations** (which live as their own files in `concepts/`). There is NO separate `sources/` folder. The daily file IS where the full source extraction goes.
 
 | Folder | What lives here | Mutation rule |
 |---|---|---|
-| `[[sources/]]` | One file per video / article / course module / book chapter / podcast / raw notes session. Comprehensive detail extraction. The source's title and publisher are the file's identity. | **Immutable.** Never appended after creation. If you re-watch the same video and learn something new, create a new dated source file (or update the relevant concept files instead). |
-| `[[concepts/]]` | One file per reusable atomic idea. Synthesized from one or more source files. The reusable distillation. | **Living.** Original definition stays stable at top. New findings from later sources append as `## Update — YYYY-MM-DD HH:MM — from [[source]]` sections. |
-| `[[apply-to-optimus/README\|apply-to-optimus/]]` | One file per (concept × offering) operational insight. "Concept X improves Offering Y by doing Z." | **Living.** Same append behavior as concepts. |
-| `[[daily/]]` | One file per day. Chronological pointer with wikilinks to source + concepts + bridges captured that day. | Append-by-time within each day's file. |
+| `[[daily/]]` | One file per day. Multiple sources captured the same day → multiple H2 sections in one daily file, each with comprehensive detail extraction. Source attribution sits prominently at the top of each H2. | New H2 sections append throughout the day; existing H2 capture sections never modified after creation. |
+| `[[concepts/]]` | One file per **topic** (not per source). Synthesized atomic distillations. The reusable layer above the raw daily captures. | Living. Original definition stays stable at top. New findings from later sources append as `## Update — date — from [[daily/...]]` sections. |
+| `[[apply-to-optimus/README\|apply-to-optimus/]]` | One file per (concept × offering) operational insight. "Concept X improves Offering Y by doing Z." | Living. Same append behavior as concepts. |
 | `[[courses/]]` | Structured course notes by source: `anthropic/`, `nvidia/`, `youtube/`, `books/`. Each course gets its own subfolder when started. Module-by-module notes live inside the course folder. | Manual organization. |
 | `[[tools-tracking/]]` | New tool releases and ecosystem changes. NemoClaw, OpenClaw, Claude features, agent frameworks. One file per tool. Tracks what is real, what shipped, what to evaluate. | Manual updates. |
 
-**The relationship between sources and concepts.** Concrete example: watch a video today on "Obsidian + Claude combo" → next month watch "Supercharging Obsidian + Claude" → in this hybrid model, BOTH videos get their own immutable source file (with full detail extraction preserved) AND there's one growing `obsidian-claude-integration` concept file that consolidates what's actually known about the topic across both videos. The concept file's visible blockquote at the top lists both source files. The newest video's findings appear as a `## Update — YYYY-MM-DD HH:MM — from [[source]]` block in the concept's `## Updates` section.
+**The daily-vs-concept relationship.** Concrete example: watch a video today on "Obsidian + Claude combo" → the comprehensive notes go into today's daily file as one H2 section. Next month, watch "Supercharging Obsidian + Claude" → its comprehensive notes go into NEXT MONTH's daily file as one H2 section (each video captured immutably in its own day). The shared `obsidian-claude-integration` concept file consolidates what's actually known about the topic across both videos: the original definition stays stable at the top; the new findings from the second video append as a `## Update — YYYY-MM-DD HH:MM — from [[../daily/<later-date>#<anchor>]]` block. The concept file's visible blockquote at the top lists both daily-anchor sources.
 
-**Cross-references are bidirectional and load-bearing.** Every source file lists the concepts it taught (in `concepts-extracted:` frontmatter and the visible `## Key Concepts Extracted` section). Every concept file lists the source files it was distilled from (in `source-files:` frontmatter and the visible blockquote at top). You can answer "what did this video teach?" from a source file and "where did I learn this concept?" from a concept file with one click.
+**Cross-references are bidirectional and load-bearing.** Every daily H2 section's inline `concepts-touched::` field lists the concepts it touched (as wikilinks). Every concept file's `source-references:` frontmatter and visible blockquote list the daily-anchor sources that contributed to it (as wikilinks like `[[../daily/2026-04-26#11:36 — "Source Title" by Publisher]]`). You can answer "what concepts did this video teach?" from a daily H2 and "where did I learn this concept?" from a concept file with one click.
 
 ## The `/learn` workflow
 
-Paste a transcript, YouTube URL, or course notes. Run `/learn`. Claude generates four traces:
+Paste a transcript, YouTube URL, or course notes. Run `/learn`. Claude generates three traces:
 
-1. **An immutable source file** in `sources/YYYY-MM-DD-<source-slug>.md` — comprehensive detail extraction, never appended after creation.
-2. **One or more concept files** in `concepts/<concept-slug>.md` — created OR updated via scan-and-decide. The synthesized atomic distillations.
-3. **A daily entry** in `daily/YYYY-MM-DD.md` — the chronological pointer linking to source + concepts + bridges.
-4. **Zero or more bridge notes** in `apply-to-optimus/<concept-slug>-applied-to-<offering-slug>.md` — operational insights, when applicable.
+1. **A daily file H2 capture section** in `daily/YYYY-MM-DD.md` — the comprehensive per-source extraction, with inline Dataview metadata fields and source-attribution blockquote at the top. New H2 section in today's file (or new file if today doesn't have one yet).
+2. **One concept file per TOPIC** in `concepts/<concept-slug>.md` — created OR updated via scan-and-decide. The synthesized atomic distillation. Most sources touch one topic, so one concept file gets created or updated. A wide-ranging course module might touch 2-3 topics.
+3. **Zero or more bridge notes** in `apply-to-optimus/<concept-slug>-applied-to-<offering-slug>.md` — operational insights, when the topic has clear application to one of the four Optimus offerings.
 
 Plus tags on every file. Plus a commit.
 
@@ -41,80 +39,101 @@ The full prompt that drives this lives at `[[../learn-prompt|learn-prompt]]` at 
 
 ## The scan-and-decide rule
 
-`/learn` always CREATES a new source file (no scan; sources are immutable). Then it scans `concepts/` and `apply-to-optimus/` for topic overlap before writing the synthesized concept and bridge files.
+Daily file H2 captures are always CREATED (immutable per source). The scan-and-decide logic applies only to `concepts/` and `apply-to-optimus/` — those are the living layers where dedup matters.
 
-- **Strong match exists** → APPENDS a `## Update — YYYY-MM-DD HH:MM — from [[source]]` section to the existing concept or bridge file. The concept stays in one place and accretes detail over time.
-- **Borderline match** → ASKS. Does not silently merge. Default suggestion: CREATE NEW.
-- **No match** → CREATES a new file using the rigid concept/bridge structure.
+For each topic the source touches, /learn:
+- **Strong match exists** in `concepts/` → APPENDS a `## Update — YYYY-MM-DD HH:MM — from [[daily-anchor]]` section to the existing concept file. The concept stays in one place and accretes detail over time.
+- **Borderline match** → ASKS. Default suggestion: APPEND to existing.
+- **No match** → CREATES a new concept file using the rigid concept structure.
 
-Default-to-create when uncertain. A false-merge buries information inside the wrong file and is very expensive to undo. A false-create produces two files on similar topics, which is cheap to fix later by merging.
+**Default-to-APPEND on borderline.** False-merge (folding new info into an adjacent concept) is recoverable later by splitting. False-fragmentation (creating a new concept file when an existing one would have absorbed the topic) accumulates and degrades the synthesis layer faster. Sub-patterns of an existing topic stay as `### sub-headings` inside that concept's `## Mechanics`, NOT as separate concept files.
 
 ## Rigid identical structure — the contract
 
-Every file produced by `/learn` follows a rigid section structure for its file type. **Section headers are always present, in the same order, even when the section has no content.** Empty sections show literally `(none)` as the body. This is non-negotiable.
+Every file produced by `/learn` follows a rigid section structure for its file type. **Section headers are always present, in the same order, even when the section has no content.** Empty sections show literally `(none)` as the body.
 
-The reason: predictability beats efficiency. A reader scrolling through any source file knows that code lives in `## Code & Examples`. They never have to scan to find it. They never wonder if a section was skipped because there was nothing to say or because the author got lazy. `(none)` means "I checked, and there genuinely was nothing for this section."
+The reason: predictability beats efficiency. A reader scrolling through any daily H2 section knows that code lives in `### Code & Examples`. They never have to scan to find it. They never wonder if a section was skipped because there was nothing to say or because the author got lazy. `(none)` means "I checked, and there genuinely was nothing for this section."
 
-When NOT to use `(none)`: Don't use it to dodge work. If the source has 3 code examples, all 3 belong in `## Code & Examples`. If the source has zero code examples (a pure theory talk), then `(none)` is correct. The test: did you check, and was there genuinely nothing? Then `(none)`. Did you skip the section because it was a hassle? Then go back and fill it.
+When NOT to use `(none)`: don't use it to dodge work. The test: did you check, and was there genuinely nothing? Then `(none)`. Did you skip the section because it was a hassle? Then go back and fill it.
 
-### Source file structure
+## Autonomy bake-ins — non-negotiable from day 1
 
-Path: `sources/YYYY-MM-DD-<source-slug>.md`. Immutable after creation.
+Every /learn-produced file carries autonomy hooks so that future autonomous agents can operate over the vault without reading every file individually:
+
+- **`schema-version: 1`** in YAML frontmatter on every file (enables safe future migrations)
+- **Inline Dataview `key:: value` fields** under every H2 source section in daily files (queryable per-source metadata)
+- **Deterministic slug rule** — same input always produces same slug (defined in `[[../00 — Empire Index/tag-schema|tag-schema.md]]`)
+- **Controlled `domain:` vocabulary** — pick from the 11-entry list in tag-schema.md, don't invent
+- **`captured-by: human | agent:<name>`** field — future-proofs autonomous-vs-manual capture audits
+- **`review-by: <YYYY-MM-DD>`** on concept files (default created+6mo) — enables nightly autonomous stale-knowledge surface
+- **Source URL canonical form** — normalized at capture time per the rule in tag-schema.md so dedup-by-URL works
+
+These hooks cost almost nothing per file. Retrofitting them across hundreds of historical files later is painful and prone to drift. They're baked in from day 1.
+
+## Daily file structure
+
+Path: `daily/YYYY-MM-DD.md`. Multiple H2 capture sections per day (one per source). Each H2 capture section is immutable after creation.
 
 ```
 ---
-title: <Source Title>
-source-type: <video|article|course|book|podcast|notes>
-publisher: <publisher/author/channel>
-url: <URL or "n/a">
-source-date: <YYYY-MM-DD or "unknown">
-captured: <YYYY-MM-DD HH:MM>
-duration: <"32 min" or "n/a">
-domain: <claude-api | agents | obsidian | etc.>
-concepts-extracted: [<concept-slug-1>, <concept-slug-2>]
-tags: [#learning/captured, #applies-to/<offering-or-all>]
+date: YYYY-MM-DD
+schema-version: 1
+tags: [#learning/captured]
 ---
 
-# <Source Title>
+# YYYY-MM-DD — Daily Learning
 
-> **Source title:** "<Source Title>"
-> **By:** <publisher/author>
-> **Type:** <video|article|course|book|podcast|notes>
-> **URL:** <link or n/a>
+## HH:MM — "Source Title" by Publisher
+
+publisher:: Publisher Name
+source-type:: video
+url:: <canonical-url-or-n/a>
+source-date:: <YYYY-MM-DD or unknown>
+captured:: YYYY-MM-DD HH:MM
+captured-by:: human
+duration:: <duration or n/a>
+domain:: <controlled-vocab>
+concepts-touched:: [[../concepts/concept-slug]]
+bridges-created:: [[../apply-to-optimus/bridge-slug]] | (none)
+
+> **Source title:** "Source Title"
+> **By:** Publisher Name
+> **Type:** video
+> **URL:** <canonical-url>
 > **Captured:** YYYY-MM-DD HH:MM
-> **Duration:** <32 min or n/a>
+> **Duration:** <duration>
 
-## Summary
-## Key Concepts Extracted
-## Detailed Notes
-## Code & Examples
-## Notable Quotes
-## Action Items
-## Open Questions
-## Related Sources
+### Summary
+### Key Concepts Extracted
+### Detailed Notes
+### Code & Examples
+### Notable Quotes
+### Action Items
+### Open Questions
 ```
 
-All 9 body sections always present. The visible blockquote with source attribution is non-negotiable — readers see attribution the moment they open the file, without peeking at YAML.
+All 7 H3 sections always present. Inline Dataview fields are mandatory under each H2. Visible blockquote with source attribution is mandatory.
 
-### Concept file structure
+## Concept file structure
 
-Path: `concepts/<concept-slug>.md`. Living distillation.
+Path: `concepts/<concept-slug>.md`. Living distillation. ONE file per topic.
 
 ```
 ---
 title: <Concept Name>
-domain: <domain>
+schema-version: 1
+domain: <controlled-vocab>
 created: YYYY-MM-DD
 last-updated: YYYY-MM-DD HH:MM
-source-files: [<YYYY-MM-DD-source-slug-1>, <YYYY-MM-DD-source-slug-2>]
+review-by: <YYYY-MM-DD ~6 months ahead>
+source-references: ["[[../daily/YYYY-MM-DD#HH:MM — \"Source Title\" by Publisher]]"]
 tags: [#learning/synthesized, #applies-to/<offering-or-all>]
 ---
 
 # <Concept Name>
 
 > **Concept distilled from:**
-> - [[../sources/YYYY-MM-DD-<source-slug-1>]] — <publisher>
-> - [[../sources/YYYY-MM-DD-<source-slug-2>]] — <publisher>
+> - [[../daily/YYYY-MM-DD#HH:MM — "Source Title" by Publisher]] — Publisher
 >
 > **Last updated:** YYYY-MM-DD HH:MM
 
@@ -127,15 +146,76 @@ tags: [#learning/synthesized, #applies-to/<offering-or-all>]
 ## Updates
 ```
 
-All 7 body sections always present. The `## Updates` section starts empty on creation but the header is still there — it's the contract that signals "this is where future findings will land." When a later source teaches more about this concept, `/learn` appends a `### YYYY-MM-DD HH:MM — <label> — from [[../sources/<source>]]` block under `## Updates` and bumps frontmatter `last-updated` + adds the new source to `source-files:`. The original `## What it is` / `## When to use` / `## Mechanics` / `## Examples` / `## Gotchas` content is byte-identical from one capture to the next.
+All 7 body sections always present. The `## Updates` section starts empty on creation but the header is still there — it's the contract that signals "this is where future findings will land." When a later source teaches more about this concept, `/learn` appends a `### YYYY-MM-DD HH:MM — <label> — from [[../daily/<date>#<anchor>]]` block under `## Updates` and bumps frontmatter `last-updated` + adds the new daily-anchor to `source-references:`. The original `## What it is` / `## When to use` / `## Mechanics` / `## Examples` / `## Gotchas` content is byte-identical from one capture to the next.
+
+## Useful Dataview queries
+
+The inline Dataview metadata baked into every daily H2 section makes the vault queryable from day 1. Drop these into any note inside the vault to see live results.
+
+**1. All sources by publisher (sorted by date)**
+```dataview
+TABLE publisher, source-type, captured, domain, concepts-touched
+FROM "Optimus Academy/daily"
+WHERE publisher
+SORT captured DESC
+```
+
+**2. All concepts in a given domain** (replace `obsidian` with the domain you care about)
+```dataview
+LIST
+FROM "Optimus Academy/concepts"
+WHERE domain = "obsidian"
+SORT last-updated DESC
+```
+
+**3. Bridges by status** — kanban-style summary
+```dataview
+TABLE WITHOUT ID file.link AS Bridge, status, offering, last-updated
+FROM "Optimus Academy/apply-to-optimus"
+WHERE status
+SORT status ASC, last-updated DESC
+```
+
+**4. Sources captured in last 7 days**
+```dataview
+TABLE publisher, source-type, captured, domain
+FROM "Optimus Academy/daily"
+WHERE captured >= date(today) - dur(7 days)
+SORT captured DESC
+```
+
+**5. Concepts with 2+ source references** (cross-validated topics)
+```dataview
+TABLE length(source-references) AS sources, domain, last-updated
+FROM "Optimus Academy/concepts"
+WHERE length(source-references) >= 2
+SORT length(source-references) DESC
+```
+
+**6. Concepts not yet bridged to any offering** (the "interesting but not actionable" backlog)
+```dataview
+LIST
+FROM "Optimus Academy/concepts"
+WHERE !contains(file.outlinks, "apply-to-optimus")
+```
+
+**7. Concepts past their `review-by` date** (stale-knowledge surface)
+```dataview
+TABLE review-by, last-updated, domain
+FROM "Optimus Academy/concepts"
+WHERE review-by AND review-by < date(today)
+SORT review-by ASC
+```
+
+The same query set lives in `[[../optimus-system-guide]]` (the canonical operating manual) — they're duplicated here for convenience at the point of use.
 
 ## Tag schema
 
 Full schema: `[[00 — Empire Index/tag-schema|the master tag schema]]`. Most-used tags in this hub:
 
-- `#learning/captured` — raw capture, not yet processed
+- `#learning/captured` — raw capture (used on daily file YAML)
 - `#learning/synthesized` — distilled into a concept note
-- `#learning/applied` — wired into an Optimus offering
+- `#learning/applied` — wired into an Optimus offering (used on bridges)
 - `#applies-to/website-dev`
 - `#applies-to/ai-agents`
 - `#applies-to/ai-agents/chat`

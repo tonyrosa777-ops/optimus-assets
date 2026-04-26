@@ -26,8 +26,9 @@ One concept can apply to multiple offerings. When that happens, write multiple f
 ```
 ---
 title: <Concept> applied to <Offering>
+schema-version: 1
 concept: [[../concepts/<concept-slug>]]
-source-files: [<YYYY-MM-DD-source-slug-1>, <YYYY-MM-DD-source-slug-2>]
+source-references: ["[[../daily/YYYY-MM-DD#HH:MM — \"Source Title\" by Publisher]]"]
 offering: [[../../Offerings/<offering-path>/README]]
 created: YYYY-MM-DD
 last-updated: YYYY-MM-DD HH:MM
@@ -36,7 +37,9 @@ tags: [#learning/applied, #applies-to/<offering>]
 ---
 ```
 
-The `source-files:` list grows over time. When a later source teaches more about the same concept and that new finding strengthens (or modifies) the application, the bridge note's `## Updates` section captures the delta and the new source slug joins this frontmatter list.
+The `source-references:` list grows over time. When a later source teaches more about the same concept and that new finding strengthens (or modifies) the application, the bridge note's `## Updates` section captures the delta and the new daily-anchor wikilink joins this frontmatter list.
+
+`schema-version: 1` is mandatory on every bridge file — enables safe future migrations when the structure evolves.
 
 ## Visible blockquote header
 
@@ -45,12 +48,14 @@ Right under the H1, every bridge note carries a visible attribution blockquote s
 ```
 > **Concept:** [[../concepts/<concept-slug>]]
 > **Source(s):**
-> - [[../sources/YYYY-MM-DD-<source-slug-1>]] — <publisher>
-> - [[../sources/YYYY-MM-DD-<source-slug-2>]] — <publisher>
+> - [[../daily/YYYY-MM-DD#HH:MM — "Source Title" by Publisher]] — <publisher>
+> - [[../daily/<later-date>#HH:MM — "Other Source Title" by Other Publisher]] — <publisher>
 > **Offering:** [[../../Offerings/<offering-folder>/README]]
 > **Status:** `not-started`
 > **Last updated:** YYYY-MM-DD HH:MM
 ```
+
+Source references use **daily-anchor wikilinks** — `[[../daily/YYYY-MM-DD#<H2 heading text>]]`. The anchor text is the H2 heading from the daily file (Obsidian resolves `[[file#heading]]` natively). This points at the actual H2 capture section inside the daily file, not at a separate source file.
 
 ## Body structure — rigid identical contract
 
@@ -79,7 +84,7 @@ One of: `not-started` / `in-progress` / `applied` / `verified`. Mirrored in fron
 
 ### `## Updates`
 
-Empty on creation but the header is still present — it is the contract that signals "this is where future findings will land." When a new source adds to this insight, append a `### YYYY-MM-DD HH:MM — <label> — from [[../sources/<source-slug>]]` block here. Decisions made, blockers hit, results measured, new source findings — all stack chronologically. The original `## What I learned` / `## Why it applies` / `## How to apply it` content stays byte-identical from one update to the next; deltas live in `## Updates`.
+Empty on creation but the header is still present — it is the contract that signals "this is where future findings will land." When a new source adds to this insight, append a `### YYYY-MM-DD HH:MM — <label> — from [[../daily/<date>#<anchor>]]` block here. Decisions made, blockers hit, results measured, new source findings — all stack chronologically. The original `## What I learned` / `## Why it applies` / `## How to apply it` content stays byte-identical from one update to the next; deltas live in `## Updates`.
 
 ## Promotion path
 

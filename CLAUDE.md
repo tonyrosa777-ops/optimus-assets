@@ -25,6 +25,8 @@ The Optimus Assets vault is organized into 4 top-level hubs plus the existing
 website-development workflow files at root. Anyone (human or agent) entering the
 vault should know where things live.
 
+**For end-to-end vault operating procedures, read [`optimus-system-guide.md`](optimus-system-guide.md).** That file is the canonical operating manual — it covers all 4 hubs, the killer chain (source → daily capture → concept synthesis → apply-to-optimus bridge → offering improvement), the 5 main workflows, the autonomy roadmap, and the maintenance protocol. Update the system guide BEFORE making structural changes to the vault. This CLAUDE.md file documents rules; the system guide documents how-to.
+
 **The 4 hubs:**
 - **`00 — Empire Index/`** — vault navigation. Start here. Contains the master README,
   MOCs (Maps of Content), the canonical tag schema, and the glossary.

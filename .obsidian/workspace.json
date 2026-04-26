@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "knowledge/retrospectives/enchanted-madison.md",
+                "file": "Optimus Academy/daily/2026-04-26.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "enchanted-madison"
+              "title": "2026-04-26"
             }
           }
         ]
@@ -180,27 +180,31 @@
       "bases:Create new base": false
     }
   },
-  "active": "08baa5b202e14f9c",
+  "active": "126aed7348a21ec9",
   "lastOpenFiles": [
+    "CLAUDE.md.tmp.45980.1777222287339",
+    "Optimus Academy/apply-to-optimus/README.md.tmp.45980.1777222246809",
+    "Optimus Academy/apply-to-optimus/README.md.tmp.45980.1777222234562",
+    "Optimus Academy/README.md.tmp.45980.1777222215029",
+    "Optimus Academy/apply-to-optimus/obsidian-claude-integration-applied-to-ai-marketing.md.tmp.45980.1777222103244",
+    "Optimus Academy/concepts/obsidian-claude-integration.md.tmp.45980.1777222088501",
+    "Optimus Academy/daily/2026-04-26.md.tmp.45980.1777222003759",
+    "optimus-system-guide.md",
+    "optimus-system-guide.md.tmp.45980.1777221926222",
+    "learn-prompt.md.tmp.45980.1777221874789",
+    "00 — Empire Index/tag-schema.md.tmp.45980.1777221589723",
+    "Optimus Academy/concepts/obsidian-claude-integration.md",
+    "Optimus Academy/concepts/claude-code-on-vault.md",
+    "knowledge/retrospectives/enchanted-madison.md",
     "knowledge/build-log.md.tmp.9728.1775190544981",
-    "knowledge/build-log.md.tmp.9728.1775190536049",
-    "project-prime.md.tmp.36452.1775016918521",
-    "knowledge/build-log.md.tmp.36452.1775016907928",
     "knowledge/errors/prime-loads-global-template-instead-of-project.md",
-    "end-to-end-workflow.md.tmp.39108.1774944136621",
-    "initial-business-data.md.tmp.39108.1774944131927",
     "knowledge/errors/stripe-21-api-version-dahlia.md",
-    "knowledge/errors/stripe-21-api-version-dahlia.md.tmp.31844.1774938856878",
-    "knowledge/build-log.md.tmp.31844.1774938839978",
-    "knowledge/build-log.md.tmp.31844.1774938833003",
     "CLAUDE.md",
     "website-build-template.md",
     "project-prime.md",
     "intake-prompt.md",
     "knowledge/build-log.md",
     "knowledge/errors/zod-v4-errormap-rename.md",
-    "knowledge/build-log.md.tmp.23136.1774928454821",
-    "project-prime.md.tmp.23136.1774928447094",
     "knowledge/errors/vercel-subdirectory-404.md"
   ]
 }

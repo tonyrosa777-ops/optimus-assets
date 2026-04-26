@@ -1,7 +1,8 @@
 ---
 title: Obsidian + Claude Integration applied to AI Marketing Team
+schema-version: 1
 concept: [[../concepts/obsidian-claude-integration]]
-source-files: [2026-04-26-claude-obsidian-is-insane-by-julian-goldie-seo]
+source-references: ["[[../daily/2026-04-26#11:36 — \"Claude Obsidian is INSANE!\" by Julian Goldie SEO]]"]
 offering: [[../../Offerings/02 AI Agents/03 Marketing Team/README]]
 created: 2026-04-26
 last-updated: 2026-04-26 11:36
@@ -13,7 +14,7 @@ tags: [#learning/applied, #applies-to/ai-agents/marketing]
 
 > **Concept:** [[../concepts/obsidian-claude-integration]]
 > **Source(s):**
-> - [[../sources/2026-04-26-claude-obsidian-is-insane-by-julian-goldie-seo]] — Julian Goldie SEO
+> - [[../daily/2026-04-26#11:36 — "Claude Obsidian is INSANE!" by Julian Goldie SEO]] — Julian Goldie SEO
 > **Offering:** [[../../Offerings/02 AI Agents/03 Marketing Team/README]]
 > **Status:** `not-started`
 > **Last updated:** 2026-04-26 11:36
