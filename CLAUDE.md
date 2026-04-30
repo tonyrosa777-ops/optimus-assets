@@ -20,6 +20,60 @@ Get alignment on the plan before the first keystroke. This is non-negotiable.
 
 A wrong plan costs 5 minutes. A wrong build costs 5 hours.
 
+## Founder Vision
+Anthony Rosa is the founder of Optimus Business Solutions. Before
+making any architectural decision on AI systems or upsells, read:
+`C:\Projects\Optimus Assets\anthony-rosa\north-star.md`
+
+The Optimus stack — every upsell, every system, day one:
+- FastAPI
+- anthropic SDK (Claude API direct)
+- Pydantic v2
+- supabase-py
+- Twilio (SMS + voice telephony)
+- Personaplex (voice model — full-duplex speech-to-speech)
+
+n8n is not in this stack in any capacity.
+
+Backend services in Python. Client widgets in TypeScript/React (only
+the Chat Assistant has a client widget). Voice agent uses Personaplex
+on a Twilio Media Streams bridge with FastAPI handling tool calls
+(Calendly, CRM, SMS, escalation, post-call summary).
+
+Every agent uses the four primitives in
+[`Offerings/02 AI Agents/shared-knowledge/agent-infrastructure.md`](Offerings/02%20AI%20Agents/shared-knowledge/agent-infrastructure.md):
+- **Memory store** (Pydantic-typed, Supabase + pgvector)
+- **Tool registry** (typed, permissioned, rate-limited)
+- **Observability layer** (Langfuse default; Supabase fallback)
+- **Approval/sandboxing** (graduate from human-in-the-loop to autonomy)
+
+The four-tier upsell ladder:
+- **Tier 1 — Chat Assistant** — $1,500 / $597
+- **Tier 2 — Voice Receptionist** — $2,500 / $797
+- **Tier 3 — Marketing Team** — $3,500 / $1,497 (template every Tier-4 inherits)
+- **Tier 4 — Autonomous AI Employee** — $7,500–15,000 / $2,500–5,000+
+  (custom-trained per client on open-source harness, private per-client
+  GPU deployment — see [`Offerings/02 AI Agents/04 Autonomous Employee/python-architecture.md`](Offerings/02%20AI%20Agents/04%20Autonomous%20Employee/python-architecture.md)
+  for deployment options)
+
+Marketing Team is NOT replaced by Tier-4. It stays as the accessible
+top tier AND the prerequisite template every Tier-4 build inherits.
+
+Every shipped system gets a public GitHub repo with `README`,
+`/docs/architecture.png`, `/docs/agent-shape.md` (memory schema, tool
+surface, observability hooks — even non-agent systems document N/A),
+FastAPI auto-docs, and `/docs/retro.md`. The DJ Custom Clothing logo
+pipeline is the engineering-hygiene reference; Marketing Team will be
+the agent-architecture reference. See: [`anthony-rosa/portfolio-standards.md`](anthony-rosa/portfolio-standards.md).
+
+Long-term destination: Tier-4 Autonomous AI Employees as Optimus's
+flagship product, hosted on private per-client GPU compute.
+**Drink-Own-Champagne milestone: 2027-Q3** — Optimus's own marketing
+pipeline + inbound qualification + scheduling runs autonomously
+without daily attention. See "The End Goal" in
+[`anthony-rosa/north-star.md`](anthony-rosa/north-star.md) for the full
+deployment thesis.
+
 ## Vault Organization (Multi-Offering)
 The Optimus Assets vault is organized into 4 top-level hubs plus the existing
 website-development workflow files at root. Anyone (human or agent) entering the

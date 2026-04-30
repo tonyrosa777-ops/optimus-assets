@@ -14,16 +14,19 @@ If this guide and CLAUDE.md disagree, CLAUDE.md wins on rules. This guide wins o
 - **After that:** section-jump for the workflow you need. Each workflow section is self-contained.
 - **Before any structural change to the vault:** update the relevant section of this guide first. Then change the files. Then add a Changelog entry. See section 13 (Maintenance protocol). A structural change without a guide update is drift, and audits will flag it.
 
-## 3. The 4 hubs at a glance
+## 3. The 4 hubs + founder layer
 
-The vault has four top-level hubs plus the existing website-dev workflow files at root. Hubs are scoped by purpose, not by tooling.
+The vault has four top-level hubs plus a founder layer plus the existing website-dev workflow files at root. Hubs are scoped by purpose, not by tooling.
 
 | Hub | One-line purpose | Index |
 |---|---|---|
 | `00 — Empire Index/` | Vault navigation, master tag schema, glossary. Start here when you don't know where something lives. | [[00 — Empire Index/README]] |
-| `Offerings/` | What Optimus sells. One subfolder per product line: website-dev (productized core), and three in-development AI agent products. | [[Offerings/README]] |
+| `Offerings/` | What Optimus sells. Website Development (productized core) + three in-development AI agent products + Tier-4 Autonomous AI Employee. | [[Offerings/README]] |
 | `Optimus Inc/` | The company itself. Optimus's own marketing site, deployed agent instances, market intelligence, social pipeline, brand. Drink-own-champagne layer. | [[Optimus Inc/README]] |
 | `Optimus Academy/` | Daily personal learning hub (~90 min/day). Capture from courses, videos, books, articles. The bridge from learning to revenue. | [[Optimus Academy/README]] |
+| `anthony-rosa/` | **Founder layer.** Personal vision, technical roadmap, portfolio standards, wins log, private journal. Sits *above* the company layer — read upstream of all build decisions on AI systems and upsells. | [[anthony-rosa/north-star]] |
+
+**The founder layer is not a fifth hub — it is the layer above the hubs.** `anthony-rosa/north-star.md` is fed into Claude prime context (referenced from [[CLAUDE]] under `## Founder Vision`) for AI/upsell architectural decisions. `anthony-rosa/journal/` is personal and never auto-fed to Claude. The static docs (north-star, ai-engineer-roadmap, portfolio-standards, wins) constrain *what* gets built across the four hubs; the journal feeds back into them on weekly review.
 
 **Root-level workflow files coexist with the hubs.** The website-dev pipeline ([[CLAUDE]], [[project-prime]], [[website-build-template]], [[build-checklist]], [[intake-prompt]], [[market-research-prompt]], [[end-to-end-workflow]], [[frontend-design]], [[retro]], [[learn-prompt]]) and the entire `knowledge/` folder (errors, patterns, retrospectives, sales, onboarding) all stay where they were before the multi-offering reorg. The hubs were added around the website pipeline. Nothing was migrated. Every existing wikilink and every agent's Required Reading section keeps working without edits.
 
@@ -34,6 +37,8 @@ The whole system exists to execute one chain:
 > **Source consumed → daily capture → concept synthesis → apply-to-optimus bridge → offering improvement → measurable revenue impact.**
 
 Every workflow below is a step in this chain. Every folder in the vault is a stage of it. If a workflow does not advance the chain, it does not belong in the vault.
+
+**The founder layer (`anthony-rosa/`) is read upstream of the chain.** Vision, roadmap, standards, and end-goal milestones in `north-star.md` constrain *what offerings get built and which capabilities compound* — they do not enter the chain themselves. A concept that doesn't advance the four-tier upsell ladder toward the End Goal (autonomous AI employees by 2027-Q3 Drink-Own-Champagne, Tier-4 productized destination) is captured but de-prioritized for bridging. See [[anthony-rosa/north-star]].
 
 A concrete example end to end:
 
@@ -173,7 +178,15 @@ When in doubt, file under the single product. It is cheaper to copy a lesson int
 
 ### Per-product subfolder discipline (AI Agents)
 
-Each of the three agent products owns its own tech stack and its own lessons inside its product folder. `01 Chat Assistant/`, `02 Voice Receptionist/`, `03 Marketing Team/` each have their own README, current-state, and lessons. The umbrella `Offerings/02 AI Agents/` folder holds only `shared-knowledge/` and the three product subfolders.
+Each of the four agent products owns its own tech stack and its own lessons inside its product folder. `01 Chat Assistant/`, `02 Voice Receptionist/`, `03 Marketing Team/`, `04 Autonomous Employee/` each have their own README, current-state, and lessons. The umbrella `Offerings/02 AI Agents/` folder holds only `shared-knowledge/` and the four product subfolders.
+
+### The canonical Optimus stack — single source of truth
+
+The four AI agent products share one Python stack from day one: FastAPI · anthropic SDK (Claude API direct) · Pydantic v2 · supabase-py · Twilio (SMS + voice telephony) · Personaplex (voice model). Tier-4 only adds an open-source agent harness and private per-client GPU compute. n8n is not in this stack in any capacity. The canonical reference lives at `[[Offerings/02 AI Agents/shared-knowledge/tech-stack]]`.
+
+Every agent (Marketing Team, Voice Receptionist, Tier-4 Autonomous AI Employee) shares four infrastructure primitives: memory store · tool registry · observability layer · approval/sandboxing. Defined once at `[[Offerings/02 AI Agents/shared-knowledge/agent-infrastructure]]`. The lower three tiers compound into Tier-4 through these primitives — Tier-4 IS them with an open-source harness on top.
+
+Both files are governed by `[[anthony-rosa/north-star]]` (founder layer). When proposing or making any architectural decision on the upsell stack, read north-star first.
 
 ## 8. Workflow 4 — Optimus Inc maintenance (drink-own-champagne)
 
@@ -406,3 +419,4 @@ Terminology lives at [[00 — Empire Index/glossary]]. Do not duplicate definiti
 - 2026-04-26 — Initial vault scaffold (Empire Index + Offerings + Optimus Inc + Optimus Academy). Commit ea4033d.
 - 2026-04-26 — /learn workflow introduced (initial sources/concepts/bridges/daily model). Commit 1371a99.
 - 2026-04-26 — /learn restructured: sources collapsed into daily; topic-recognition tightened; autonomy bake-ins added (Dataview inline fields, schema-version, deterministic slugs, controlled domain vocab, captured-by, review-by, URL canonicalization, example Dataview queries). Concepts consolidated. System guide introduced. Commit <pending>.
+- 2026-04-29 — Added `anthony-rosa/` founder layer at vault root with The End Goal autonomous-AI-employees vision, Drink-Own-Champagne milestone (2027-Q3), reinvestment loop, moat statement. Established canonical Python stack (FastAPI + anthropic SDK + Pydantic + supabase-py + Twilio + Personaplex) for all upsells — codified in `Offerings/02 AI Agents/shared-knowledge/tech-stack.md`. Removed n8n from the stack entirely. Added Tier-4 Autonomous AI Employee as fourth product line in `Offerings/02 AI Agents/04 Autonomous Employee/` — custom-trained per client on open-source harness, private per-client GPU deployment, $7,500-15,000 setup + $2,500-5,000+/mo. Added shared `agent-infrastructure.md` establishing four primitives (memory · tools · observability · approval) used across Tiers 2/3/4. Commit <pending>.
