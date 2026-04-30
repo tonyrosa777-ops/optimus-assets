@@ -28,7 +28,7 @@ tags: [layer/optimus-os, status/active]
 | Date | Milestone |
 |---|---|
 | **Apr 2025** | Debt paid off. |
-| **Apr 2025** | First AKT (Akash Network) investment. Aligned the portfolio with the long-term thesis. |
+| **Apr 2025** | First AKT investment. Aligned the portfolio with the long-term decentralized-compute thesis ([`north-star.md`](north-star.md) § My Idol — Greg Osuri). |
 | **Apr 2025** | $12,000 in savings with minimal expenses. The first runway buffer. |
 | **2026-04-29** | Founder layer (`anthony-rosa/`) added to vault. North-star, roadmap, portfolio standards, wins, journal scaffolded. The plan is now on paper. |
 | _next entry_ | — |

@@ -70,8 +70,6 @@ Every upsell is built once, correctly, in Python from day one. Greenfield. No ph
 - Personaplex (voice model — full-duplex speech-to-speech)
 - Tier-4 only adds: open-source agent harness (OpenClaw / Hermes / Letta / Pydantic AI / LangGraph — selection in `Offerings/02 AI Agents/04 Autonomous Employee/harness-research.md`) + Akash Network for private per-client GPU compute.
 
-n8n is not in this stack in any capacity.
-
 **Why this stack:** Real AI engineering skill compounds when you control the layers underneath. Every backend service in Python → real FastAPI / Pydantic / async expertise. Every agent on the four shared infrastructure primitives → composable agent-shaped components. Every system on a public GitHub repo with an architecture diagram → portfolio that survives any single client. By 30, the GitHub profile is the proof.
 
 ---

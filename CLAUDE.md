@@ -33,8 +33,6 @@ The Optimus stack — every upsell, every system, day one:
 - Twilio (SMS + voice telephony)
 - Personaplex (voice model — full-duplex speech-to-speech)
 
-n8n is not in this stack in any capacity.
-
 Backend services in Python. Client widgets in TypeScript/React (only
 the Chat Assistant has a client widget). Voice agent uses Personaplex
 on a Twilio Media Streams bridge with FastAPI handling tool calls

@@ -14,7 +14,7 @@ Nested tags (with `/`) are searchable both by parent and child. `#offering/ai-ch
 
 | Tag family | Tags | Use |
 |---|---|---|
-| Offering | `#offering/website-dev` `#offering/ai-chat` `#offering/ai-voice` `#offering/content-engine` `#offering/all` | What part of the business this note belongs to. Use `#offering/all` only for notes that genuinely apply to every product line (rare — usually a process or brand-level note). |
+| Offering | `#offering/website-dev` `#offering/ai-chat` `#offering/ai-voice` `#offering/content-engine` `#offering/autonomous-employee` `#offering/all` | What part of the business this note belongs to. Use `#offering/all` only for notes that genuinely apply to every product line (rare — usually a process or brand-level note). The four-tier AI agents ladder uses `#offering/ai-chat` (Tier 1) · `#offering/ai-voice` (Tier 2) · `#offering/content-engine` (Tier 3) · `#offering/autonomous-employee` (Tier 4). |
 | Layer | `#layer/optimus-os` `#layer/offering` `#layer/client` | Universality scope. `optimus-os` = applies to Optimus the company / universal rules; `offering` = applies to a specific product line; `client` = specific to one client engagement. |
 | Learning lifecycle | `#learning/captured` `#learning/synthesized` `#learning/applied` | Where in the personal-learning pipeline. `captured` = raw notes from a course/video/book; `synthesized` = refined into an atomic concept note; `applied` = bridged to an offering improvement. |
 | Cross-link | `#applies-to/website-dev` `#applies-to/ai-agents` `#applies-to/ai-agents/chat` `#applies-to/ai-agents/voice` `#applies-to/ai-agents/marketing` | Used in Optimus Academy notes to surface in offering hubs. Nested form `#applies-to/ai-agents` surfaces the note in all three agent products simultaneously. |
@@ -33,8 +33,9 @@ Examples to anchor the right intuition.
 | Daily learning entry in `Optimus Academy/daily/` | `#learning/captured` |
 | Atomic concept note in `Optimus Academy/concepts/` | `#learning/synthesized` `#status/active` |
 | Apply-to-Optimus bridge for a new Chat pattern | `#learning/applied` `#applies-to/ai-agents/chat` `#status/active` |
-| Apply-to-Optimus bridge that helps all 3 agent products | `#learning/applied` `#applies-to/ai-agents` `#status/active` |
-| In-progress n8n workflow for the Marketing Team | `#offering/content-engine` `#layer/offering` `#status/in-development` |
+| Apply-to-Optimus bridge that helps all 4 agent products | `#learning/applied` `#applies-to/ai-agents` `#status/active` |
+| In-progress Marketing Team Python build artifact (schema · endpoint spec · eval suite) | `#offering/content-engine` `#layer/offering` `#status/in-development` |
+| In-progress Tier-4 Autonomous AI Employee build artifact for a paying client | `#offering/autonomous-employee` `#layer/client` `#status/in-development` |
 | Optimus Inc competitor profile | `#layer/optimus-os` `#status/active` |
 | New tool being evaluated in `tools-tracking/` | `#learning/captured` `#status/draft` |
 
@@ -59,11 +60,11 @@ The `domain:` field on concept notes and the `domain::` inline field on daily-fi
 | `prompt-engineering` | Prompt design, structured outputs, few-shot, chain-of-thought, system prompts |
 | `obsidian` | Obsidian-specific patterns (plugins, vault structure, wikilinks, Dataview, daily notes) |
 | `evals` | Testing AI outputs, quality measurement, regression detection, eval harnesses |
-| `tooling` | Dev tools, terminals, IDEs, MCP servers, n8n, integrations, dev environment |
+| `tooling` | Dev tools, terminals, IDEs, MCP servers, workflow orchestrators, integrations, dev environment |
 | `voice` | Voice AI, telephony, TTS/STT, IVR, real-time speech |
 | `marketing` | Content marketing, SEO, social media, growth, copywriting, ads |
 | `web-dev` | Next.js, Tailwind, React, frontend, deployment, hosting |
-| `automation` | n8n workflows, triggers, integration patterns, Zapier-class tools |
+| `automation` | Workflow orchestrators, scheduled-task patterns, triggers, integration patterns, Zapier-class tools |
 | `business` | Pricing, packaging, sales, ops, positioning, hiring, finance |
 
 ## Slug rule (deterministic)

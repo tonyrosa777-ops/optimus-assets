@@ -12,7 +12,7 @@ tags: [layer/optimus-os, status/active]
 
 > The technical-skill progression that makes Tier-4 (Autonomous AI Employees) shippable by Year 3 and earns the right to operate at the infrastructure layer Greg Osuri occupies. Aligned to the four-tier upsell ladder in [`north-star.md`](north-star.md).
 
-This is engineering-skill progression. Deployment-infrastructure detail (Akash, GPU sizing, harness selection) lives elsewhere — in [`north-star.md`](north-star.md) for strategic framing, in `Offerings/02 AI Agents/02 Voice Receptionist/personaplex-architecture.md` for voice deployment, and in `Offerings/02 AI Agents/04 Autonomous Employee/python-architecture.md` for Tier-4 deployment.
+This is engineering-skill progression. Deployment-infrastructure detail (decentralized GPU compute, GPU sizing, harness selection) lives elsewhere — in [`north-star.md`](north-star.md) for strategic framing, in `Offerings/02 AI Agents/02 Voice Receptionist/personaplex-architecture.md` for voice deployment, and in `Offerings/02 AI Agents/04 Autonomous Employee/python-architecture.md` for Tier-4 deployment.
 
 ---
 
@@ -148,7 +148,7 @@ Pick **one** specialization and go deep:
 
 ### Skills to acquire
 
-- **Decentralized compute** — Akash Network + AkashML at depth. Understanding the stack Greg built. Deploying production AI workloads on private GPU compute marketplace.
+- **Decentralized compute** — private GPU compute marketplace at depth. Understanding the infrastructure stack Greg Osuri built (per [`north-star.md`](north-star.md) § My Idol). Deploying production AI workloads on decentralized GPU markets.
 - **Meaningful open-source contribution** — not a typo PR. A feature, a fix, a benchmark, a documented pattern that a project actually merges and references.
 - **Building something people use without being paid to build it** — a tool, a benchmark, a reference implementation. Optional: open-source the Tier-4 reference architecture (sanitized of client-specific details).
 - **Network inside the real AI engineering community** — speak, write, or publish on a technical topic at least once.
