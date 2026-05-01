@@ -270,7 +270,27 @@ Then per website-build-template.md:
 3. Create /src/data/site.ts with schema structure from website-build-template.md (empty values)
 4. Create full directory structure — stub all files
 5. Create animation wrappers in /src/components/animations/
-6. Create vercel.json at repo root: { "rootDirectory": "[project-folder-name]" }
+6. **Do NOT create a vercel.json at the repo root with `{ "rootDirectory": "..." }`.**
+   `rootDirectory` is NOT a valid `vercel.json` field — it's a project-level setting,
+   and Vercel silently ignores it in the config file. Putting it there is what caused
+   the Integrity Chimney deploy failure on 2026-04-30 (project.framework was null,
+   zero deployments queued). See `knowledge/errors/vercel-subdirectory-404.md`.
+
+   Instead, leave the repo root **without** any vercel.json, and configure the project
+   on Vercel itself the first time it's imported:
+     a. Push the repo to GitHub.
+     b. vercel.com/new → import the GitHub repo.
+     c. **In the import screen, set Root Directory = `[project-folder-name]`.**
+        Framework Preset auto-detects as Next.js once the root directory is correct.
+     d. Add production env vars (Settings → Environment Variables) before triggering
+        the first deploy, so the build picks them up.
+
+   Reference: Placed-Right-Fence has zero vercel.json at the repo root; the
+   `.vercel/project.json` lives inside `web/` and the project's Root Directory was
+   set in the dashboard at import time. Copy that pattern.
+
+   If a vercel.json is genuinely needed later (cron jobs, route headers, redirects,
+   build headers), put it INSIDE `[project-folder-name]/` — never at the repo root.
 7. Create .env.local at project root with ALL placeholder keys:
 
 ```bash
