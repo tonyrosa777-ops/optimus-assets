@@ -258,6 +258,76 @@ If content-writer emitted a banner comment at the top of site.ts (`// ⚠️ DEM
     Read: /src/app/robots.ts
     FAIL if: /studio is not in Disallow list
 
+### SECTION 7B — Bilingual Coverage Checks (only if /src/locales/ exists)
+
+This section runs ONLY when `[PROJECT_FOLDER]/src/locales/` exists — it indicates the
+project is bilingual (LMP-style EN/ES, Sylvia-style EN/HU, or any future locale pair
+under the same custom React Context + cookie pattern). If the locales directory does
+not exist, mark every item in this section SKIP with the note "monolingual project."
+
+The reference contract (CLAUDE.md Bilingual Copy Rule for LMP, ported per-client):
+every translatable user-facing string lives in `src/locales/<locale>/<namespace>.json`,
+with identical key paths across all supported locales. Components consume via
+`useTranslation()`, never hardcoded strings.
+
+[ ] EN ↔ ES key-path parity
+    Read: every file in [PROJECT_FOLDER]/src/locales/en/*.json
+    Read: every file in [PROJECT_FOLDER]/src/locales/es/*.json (or whatever the second locale is)
+    For each en/<namespace>.json:
+      - Verify the matching es/<namespace>.json file exists
+      - Walk both objects recursively, comparing every key path (dot-notation)
+      - Allowlist: `_meta` and `_compliance_flags` keys at the top of any ES file are
+        ES-only metadata and do NOT count as a parity violation. Any other key in EN
+        without a match in ES (or vice versa) is a parity FAIL.
+    FAIL if: any namespace file is missing in either locale
+    FAIL if: any key path in EN has no match in ES (list every missing path, max 20)
+    FAIL if: any key path in ES has no match in EN (orphan ES keys — same severity)
+    PASS if: deep diff returns zero non-allowlisted differences across all namespaces
+
+[ ] No hardcoded user-facing English strings in components or pages
+    Search: [PROJECT_FOLDER]/src/components/ and [PROJECT_FOLDER]/src/app/
+    Suggested regex: `['"][A-Z][a-zA-Z ]{4,}['"]` (capitalized, 5+ chars, in quotes)
+    Manually review each match against this allowlist:
+      - ARIA labels written in dual-language form (e.g., aria-label="Open / Abrir")
+      - Technical strings: classNames, data-attributes, regex patterns, JSON paths,
+        env-var names, Tailwind utility tokens
+      - The 7 verbatim compliance items rendered from `siteConfig.compliance`
+        (broker disclosure, SMS opt-in, NMLS link, privacy/terms/ADA, Equal Housing)
+      - US state proper nouns ("Massachusetts," "New Hampshire," etc.) — regulatory
+        convention, do not translate
+      - LO names, NMLS numbers, email addresses, phone numbers, hrefs
+      - Loan-program acronyms (FHA, VA, USDA, ARM, Jumbo) — render verbatim in all locales
+      - Dollar amounts, dates, percentages
+    FAIL if: any non-allowlisted match is a translatable user-facing string still
+    hardcoded in JSX (must be moved into the matching en/<namespace>.json AND
+    es/<namespace>.json in the same commit per CLAUDE.md Bilingual Copy Rule)
+    WARN if: borderline match where reviewer is uncertain — escalate to human
+
+[ ] ES `_meta.status` audit
+    Read: every file in [PROJECT_FOLDER]/src/locales/es/*.json
+    For each file, check the top-level `_meta` object (or document its absence).
+    Expected shape:
+      "_meta": { "status": "ai-demo-pending-review" | "reviewed", "reviewer": ..., "reviewed_at": ... }
+    Demo / Tuesday-pitch posture: every ES file may carry status "ai-demo-pending-review"
+    — that is the EXPECTED state during demo phase. Mark PASS for any file at this status
+    during demo / Phase 1.
+    Production launch posture: every ES file MUST be at status "reviewed" OR have a
+    documented exception logged in pre-launch-audit.md. Any namespace still at
+    "ai-demo-pending-review" at production-launch time is a FAIL — block launch until
+    native-speaker + compliance review is logged.
+    FAIL if: any ES file is missing the `_meta` object entirely
+    FAIL if: production launch run AND any ES file is still "ai-demo-pending-review"
+    PASS if: demo run AND every ES file has `_meta.status` set
+    PASS if: production run AND every ES file has `_meta.status: "reviewed"` (or waived)
+
+**Visible-state checks defer to Section 11 (multi-breakpoint browser audit) per CLAUDE.md:**
+This agent CANNOT verify the toggle is clickable, that Spanish strings don't overflow at
+375px, that the hero H1 still fits above the fold under the longer Spanish translation,
+or that the cookie-driven `<html lang>` updates render correctly. All of those belong to
+the Playwright audit in Section 11, run in BOTH locales per the audit playbook. Mark such
+items DEFERRED here with the note "Verified in Section 11 multi-breakpoint browser audit
+(both locales)."
+
 ### SECTION 8 — Mobile (file-level only — visible-state checks belong to Section 11)
 
 [ ] Hero animation handles mobile
