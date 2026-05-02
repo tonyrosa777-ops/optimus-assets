@@ -134,6 +134,22 @@ lower-quality output and exhausts context. The correct pattern:
 
 If a task is trivial (under 5 minutes, 1 file), do it inline. If it's substantive, delegate.
 
+**Concurrency checkpoint (enforcement):**
+When the rule fires (3+ discrete tasks, independent), the orchestrator's
+IMMEDIATE NEXT MESSAGE must contain all N Agent tool calls in a single
+function_calls block. Spawning agents one-per-message after the rule fires is a
+process failure — log it in build-log.md and re-spawn correctly.
+
+Exception: when an agent's input depends on a prior agent's output file, the
+two run sequentially. The dependency must be cited in the spawn brief
+("[design-synthesizer] depends on [market-researcher] output at
+market-intelligence.md").
+
+Default assumption: all 7 Phase 1 agents in project-prime.md are independent
+EXCEPT design-synthesizer ← market-researcher and content-writer ← design-synthesizer.
+The remaining four (animation-specialist, seo-aeo-specialist, plus any
+client-specific writes) run in parallel.
+
 ## Skill Creation Rule
 When you solve a problem in a new way that works — a component pattern, an integration
 flow, an animation approach, a build sequence — immediately:
@@ -190,12 +206,40 @@ Subagents spawned via the Agent tool must NOT follow the full 8-file pre-read se
 they load only the files listed in their agent file's Required Reading section.
 Loading all 8 files in every subagent wastes context before any work begins.
 
+## Pre-Task Memory Search Protocol
+Before spawning ANY agent or starting ANY substantive task, the orchestrator MUST:
+
+1. Read `C:\Users\Anthony\.claude\projects\c--Projects-Optimus-Assets\memory\MEMORY.md`
+   and identify any feedback/project memory entries relevant to the upcoming task.
+   Quote the relevant entry titles in the spawn brief or task plan.
+2. Grep `C:\Projects\Optimus Assets\knowledge\build-log.md` for keywords from the
+   task (component name, integration name, error type). If a row matches, read
+   the linked file in `knowledge/errors/` or `knowledge/patterns/` BEFORE spawning.
+3. If the task touches a known integration (Calendly, Stripe, Printful, fal.ai,
+   Sanity, Resend), explicitly cite the matching pattern from build-log.md in
+   the spawn brief.
+
+If no relevant memory exists, state "No prior memory matches" in the spawn brief.
+This is not optional — the silence confirms the search happened.
+
+Skipping this step has caused repeat-error incidents on prior builds (see
+build-log.md Errors #13, #23, plus several patterns rebuilt from scratch).
+
 ## Agent System Rules
 These rules apply whenever the Subagent Delegation Rule triggers agent spawning.
 
-**Agents never spawn agents.** Only orchestrators (workflow commands) spawn agents.
-If a subagent needs help, it reports back to the orchestrator — it does not spawn
-its own subagents. One level of hierarchy only. This is non-negotiable.
+**Orchestrator is the ledger; agents are the executors.** The orchestrator
+reads files, tracks state, plans phases, spawns agents, verifies outputs, and
+updates progress.md. Agents read their Required Reading, execute one task,
+write one output file, and return a handoff. Agents NEVER spawn other agents,
+NEVER update progress.md (the orchestrator does that on their behalf), and
+NEVER read state outside their Required Reading list. One level of hierarchy
+only — non-negotiable.
+
+Corollary: if an orchestrator finds itself writing component code, it has
+crossed into executor territory and should spawn an agent instead. If an agent
+finds itself spawning subagents or updating cross-project state, it has crossed
+into orchestrator territory and should return a handoff to the orchestrator.
 
 **Agents read files, not summaries.** Every agent gets context by reading known output
 files directly (market-intelligence.md, design-system.md, /data/site.ts). The orchestrator
@@ -205,9 +249,12 @@ does NOT pass summaries or briefings — it passes file paths. The agent reads t
 same file. Each agent owns exactly one output file or directory. If two tasks share an
 output file, they run sequentially — not in parallel.
 
-**Agents checkpoint progress.** After completing each discrete unit of work, the agent
-writes a progress note to progress.md. If an agent fails mid-task, the orchestrator
-can re-invoke it with "continue from [last checkpoint]" rather than starting over.
+**Agents emit checkpoints; the orchestrator writes them.** After completing each
+discrete unit of work, the agent returns a checkpoint string in its handoff
+(task completed, output file path, last sub-step, any blockers). The orchestrator
+appends that checkpoint to progress.md. If an agent fails mid-task, the orchestrator
+re-invokes it with "continue from [last checkpoint]" rather than starting over.
+Agents do not write to progress.md directly — that violates the ledger boundary.
 
 **Agent status lifecycle:** Every agent file has a status field: DRAFT → TESTED → VALIDATED.
 Only VALIDATED agents run without human review of the output. DRAFT agents always get
@@ -220,6 +267,21 @@ Validation criteria. Failing agents get re-run with a correction note — not si
 **Variable injection via CLAUDE.md.** Agents read the project's CLAUDE.md directly to
 get filled variables ([BUSINESS_NAME], [DOMAIN], etc. — already substituted by /prime).
 Orchestrators do NOT perform string substitution on agent file contents.
+
+**NEVER stop after agent spawn.** When the orchestrator spawns agents, the
+immediate next action is verification (read output files) and either integration
+or next-phase progression. The orchestrator does NOT stop, summarize, and ask
+"shall I proceed?" between agent completion and the post-task ritual. The
+ritual itself IS the proceed signal.
+
+Stop only at: phase completion (all phase agents done + integrated), explicit
+user blocker (clarification needed before next decision), or runtime error
+(agent failed, output missing, validation failed). "I'll wait for your input"
+is not a valid stop reason mid-phase.
+
+**Model routing via effort field.** Every agent file's `effort:` frontmatter maps
+to a specific Claude model — see `agent-routing.md` at vault root. The orchestrator
+consults the routing table at spawn time; model selection is never ad-hoc.
 
 ## Skill File Name Aliases
 Some design skills reference files by generic names that differ from this
@@ -274,6 +336,30 @@ Cross-project knowledge lives at `C:\Projects\Optimus Assets\knowledge\build-log
 - `knowledge/` = optional integrations (Sanity CMS, GHL, Instagram/Behold.so, bilingual support, credential-specific fields) and client-specific patterns. Agents consult knowledge/ only when initial-business-data.md indicates relevance.
 
 Before adding any rule to CLAUDE.md or website-build-template.md, ask: "Does this apply to EVERY build regardless of client, industry, or tier?" If no → knowledge/ as a reference pattern. If yes → it is a workflow rule and belongs here.
+
+## Post-Task Capture Ritual
+After ANY agent completes a substantive task, the orchestrator runs this 5-step
+ritual before moving to the next task:
+
+1. **Verify output.** Confirm the agent's output file exists, is non-empty, and
+   passes the agent's Validation criteria. Failing → re-spawn with correction.
+2. **Checkpoint.** Append a one-line entry to progress.md: agent name, output
+   file, status, timestamp. (Per the LEDGER rule, the orchestrator writes this —
+   not the agent.)
+3. **Capture surprises.** If the agent solved a non-obvious problem, used a
+   novel pattern, or hit a new error: write the entry NOW (not later) to
+   `knowledge/errors/<slug>.md` or `knowledge/patterns/<slug>.md` AND add the
+   index row to `knowledge/build-log.md`. Slug is deterministic (kebab-case
+   from problem title).
+4. **Skill check.** If the pattern is reusable across projects, run /skill-creator
+   inline. Three reusable patterns + no skill = process failure.
+5. **Memory update (if persistent).** If the surprise reveals a new user
+   preference or recurring constraint, append a feedback memory file to
+   `C:\Users\Anthony\.claude\projects\c--Projects-Optimus-Assets\memory\` and
+   add the row to MEMORY.md.
+
+Skip steps 3-5 only when there was nothing surprising. State "no surprises
+captured" explicitly so the silence confirms the ritual ran.
 
 ## Image Generation Rule (fal.ai)
 fal.ai image generation is NEVER optional and NEVER deferred. Every blog article ships
