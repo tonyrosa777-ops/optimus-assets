@@ -137,6 +137,37 @@ If content-writer emitted a banner comment at the top of site.ts (`// ⚠️ DEM
     Search: [PROJECT_FOLDER]/src for fal.ai, fal-cdn
     WARN if: any fal.ai URLs found — these should be replaced with real photos or kept as intentional AI art
 
+### SECTION 3B — Anti-AI-Slop Visual Patterns (file-level)
+
+Two specific aesthetic patterns slip past design-system.md and the Optimus Positioning Rule
+because they're component-implementation choices, not brand-direction choices. Both read as
+"generated, not designed" to anyone with a trained eye. Catch them here before browser audit.
+
+[ ] No figurative SVG illustrations of people or scenes
+    Search: [PROJECT_FOLDER]/src and [PROJECT_FOLDER]/public for inline `<svg>` blocks.
+    For each SVG longer than 50 lines or referenced in a hero/about/services context,
+    visually inspect (read the SVG content): does it depict a person, face, figure, scene,
+    or photo-like subject in vector form?
+    FAIL if: any inline SVG illustrates people, faces, scenes, or "photo-like" subjects.
+    Why: hand-drawn AI SVG of people is a signature low-effort AI aesthetic. People belong
+    in real photography or fal.ai-generated images (per CLAUDE.md Image Generation Rule).
+    Decorative SVG is fine for shapes, dividers, icons, brand marks, geometric patterns —
+    not for figurative scenes.
+
+[ ] No "AI signature" left-accent-border card pattern
+    Search: [PROJECT_FOLDER]/src for Tailwind classes `border-l-2`, `border-l-3`, `border-l-4`,
+    `border-l-[Npx]` applied to Card components or rounded section blocks. Also grep
+    [PROJECT_FOLDER]/src/app/globals.css for `border-left: <N>px` where N >= 3 on rounded surfaces.
+    WARN if: more than 2 components in the codebase use a left-side accent border on a
+    rounded card.
+    Why: the left-accent-border + rounded-card combination is a flagged AI-signature visual
+    (LLMs reach for it constantly because it's a "safe" way to add color emphasis). Use
+    border-all-sides (or none) + background tone for emphasis instead.
+
+(Both checks adopted from Huashu Design's content-guidelines methodology — see
+knowledge/patterns/huashu-extracted-critique-rubric.md for context. Methodology adoption
+only; the Huashu skill itself is NOT installed for license reasons.)
+
 ### SECTION 4 — Forms and Conversion Flows
 
 [ ] Contact form has action handler

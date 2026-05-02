@@ -124,13 +124,25 @@ If your 10 concepts are 10 color/direction/density variations of the same underl
 visual, you have ONE concept. Restart. A harsh critic can tell the difference — don't
 waste the critic round.
 
-Step 2 — Harsh critic evaluation:
-  Evaluate all 10 concepts yourself with brutal honesty. Score each 1-5 on:
+Step 2 — Harsh critic evaluation (6-dimension rubric):
+  Evaluate all 10 concepts yourself with brutal honesty. Score each 1-5 on EVERY dimension:
   - **Niche relevance**: Does it immediately scream "this business"? (1 = generic, 5 = unmistakable)
   - **Visual impact**: Will it impress in the first 2 seconds? (1 = forgettable, 5 = jaw-drop)
+  - **Visual hierarchy**: Does the animation lead the eye to the H1 + primary CTA, or compete with them? (1 = competes/distracts, 5 = supports/draws-toward)
+  - **Functionality**: Does every visual element serve the brand metaphor, or is decoration parasitic? (1 = pure decoration, 5 = every element earns its place)
   - **Technical feasibility**: Can it be built cleanly without iteration? (1 = risky, 5 = confident)
   - **Uniqueness**: Has this been done on a prior Optimus build? (1 = derivative, 5 = fresh)
-  Select the single highest-scoring concept. Write 1 sentence explaining why it wins.
+
+  Total possible: 30. The winner needs ≥22 AND no single dimension below 3.
+  Auto-reject any concept where Visual hierarchy or Functionality scored below 3 — those
+  failure modes produce hero animations that look impressive in screenshots but compete
+  with the H1 + primary CTA in production. The hero exists to convert, not to peacock.
+
+  Select the single highest-scoring concept. Write 2 sentences: why it wins AND why each
+  runner-up fell short on which dimension.
+
+  (Visual hierarchy + Functionality dimensions adopted from Huashu Design's critique-guide
+  methodology — see knowledge/patterns/huashu-extracted-critique-rubric.md for context.)
 
 Step 3 — Build ONLY the winning concept. No pivots mid-implementation.
 
