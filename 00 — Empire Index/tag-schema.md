@@ -16,8 +16,9 @@ Nested tags (with `/`) are searchable both by parent and child. `#offering/ai-ch
 |---|---|---|
 | Offering | `#offering/website-dev` `#offering/ai-chat` `#offering/ai-voice` `#offering/content-engine` `#offering/autonomous-employee` `#offering/all` | What part of the business this note belongs to. Use `#offering/all` only for notes that genuinely apply to every product line (rare — usually a process or brand-level note). The four-tier AI agents ladder uses `#offering/ai-chat` (Tier 1) · `#offering/ai-voice` (Tier 2) · `#offering/content-engine` (Tier 3) · `#offering/autonomous-employee` (Tier 4). |
 | Layer | `#layer/optimus-os` `#layer/offering` `#layer/client` | Universality scope. `optimus-os` = applies to Optimus the company / universal rules; `offering` = applies to a specific product line; `client` = specific to one client engagement. |
-| Learning lifecycle | `#learning/captured` `#learning/synthesized` `#learning/applied` | Where in the personal-learning pipeline. `captured` = raw notes from a course/video/book; `synthesized` = refined into an atomic concept note; `applied` = bridged to an offering improvement. |
-| Cross-link | `#applies-to/website-dev` `#applies-to/ai-agents` `#applies-to/ai-agents/chat` `#applies-to/ai-agents/voice` `#applies-to/ai-agents/marketing` | Used in Optimus Academy notes to surface in offering hubs. Nested form `#applies-to/ai-agents` surfaces the note in all three agent products simultaneously. |
+| Learning lifecycle | `#learning/captured` `#learning/synthesized` `#learning/enriched` `#learning/applied` | Where in the personal-learning pipeline. `captured` = raw notes from a course/video/book; `synthesized` = refined into an atomic concept note; `enriched` = concept augmented via Step 1.5 web enrichment (added to `#learning/synthesized`, not a replacement); `applied` = bridged to a target file (offering, agent, craft folder, Optimus Inc area, or tools-tracking). |
+| Cross-link | `#applies-to/website-dev` `#applies-to/ai-agents` `#applies-to/ai-agents/chat` `#applies-to/ai-agents/voice` `#applies-to/ai-agents/marketing` `#applies-to/craft/copywriting` `#applies-to/craft/psychology` `#applies-to/craft/sales` `#applies-to/craft/design` `#applies-to/optimus-inc/finance` `#applies-to/optimus-inc/marketing` `#applies-to/optimus-inc/operations` `#applies-to/optimus-inc/brand` `#applies-to/tools/<tool-slug>` | Used on bridge notes (`apply-to-optimus/`) to surface where the captured knowledge integrates. Five target zones: offerings (`website-dev`, `ai-agents/{chat,voice,marketing}`), cross-cutting craft (`craft/{copywriting,psychology,sales,design}`), Optimus the company itself (`optimus-inc/{finance,marketing,operations,brand}`), tool evaluations (`tools/<tool-slug>`), and the existing offering hubs. The `#applies-to/optimus-inc/marketing` tag is distinct from the Marketing-Team OFFERING — Optimus-Inc/marketing is the company's own marketing voice, the offering is the productized Marketing-Team agent. |
+| Value vector | `#value-vector/productivity` `#value-vector/overhead` `#value-vector/revenue` | Used on bridge notes alongside the structured `value-vector:` YAML field. Multi-valued — a bridge serving both productivity and revenue carries both tags. Drives the weekly review prioritization (revenue → productivity → overhead). Bridges that cannot map to any vector are NOT created (concept-only). |
 | Stage | `#stage/intake` `#stage/research` `#stage/scaffold` `#stage/build` `#stage/launch` `#stage/post-launch` | Where in a project lifecycle. Used on per-client notes and on retrospectives that diagnose a problem at a specific stage. |
 | Status | `#status/draft` `#status/active` `#status/archived` `#status/in-development` | Maturity. `draft` = WIP, not yet usable; `active` = current canonical version; `archived` = superseded but kept for history; `in-development` = product is being built. |
 
@@ -66,6 +67,14 @@ The `domain:` field on concept notes and the `domain::` inline field on daily-fi
 | `web-dev` | Next.js, Tailwind, React, frontend, deployment, hosting |
 | `automation` | Workflow orchestrators, scheduled-task patterns, triggers, integration patterns, Zapier-class tools |
 | `business` | Pricing, packaging, sales, ops, positioning, hiring, finance |
+| `copywriting` | Headlines, CTAs, hooks, structure, tone, copy editing patterns |
+| `sales` | Discovery, outreach, qualification, objection handling, closing motion |
+| `psychology` | Cognitive bias, persuasion, decision-making, mental models in marketing/UX |
+| `finance` | Runway, cash flow, pricing strategy, unit economics, founder finance |
+| `design` | Visual design, UI craft, micro-interactions, design systems, typography |
+| `productivity` | Personal/founder productivity tools, workflow optimization, time management |
+| `hiring` | Team building, role design, interview process, founder-as-hiring-manager |
+| `brand` | Brand voice, positioning, narrative, identity (Optimus's own + craft principles) |
 
 ## Slug rule (deterministic)
 
@@ -110,3 +119,4 @@ Edit this file. Note the change date. If a tag is being deprecated, leave it in 
 **Change log:**
 - 2026-04-26 — Initial schema (6 tag families, common combinations, hygiene rules)
 - 2026-04-26 — Added controlled `domain:` vocabulary (11 domains), deterministic slug rule, source URL canonical form rule. YAML-only tag rule added to hygiene.
+- 2026-05-02 — Capture-pipeline expansion: extended `#learning/*` with `#learning/enriched`. Extended `#applies-to/*` family from offerings-only to five zones (offerings + craft + optimus-inc + tools + tools-tracking). Added new tag family `#value-vector/{productivity,overhead,revenue}` for bridge prioritization. Extended controlled `domain:` vocabulary by 8 entries (copywriting, sales, psychology, finance, design, productivity, hiring, brand) to absorb broadened topic scope.

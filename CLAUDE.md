@@ -20,6 +20,26 @@ Get alignment on the plan before the first keystroke. This is non-negotiable.
 
 A wrong plan costs 5 minutes. A wrong build costs 5 hours.
 
+## Plan Preservation Rule
+Every plan that reaches approval and execution MUST be saved to the vault folder or project folder most relevant to what it changes, BEFORE execution begins. The auto-generated plan at `C:\Users\Anthony\.claude\plans\` is Claude Code's working memory — NOT a substitute for this vault-saved copy.
+
+**Where to save (route by primary impact):**
+- Plans touching AI capture or Optimus Academy → `C:\Projects\Optimus Assets\Optimus Academy\tools\<plan-name>.md`
+- Plans touching upsell architecture or AI agents → `C:\Projects\Optimus Assets\Offerings\02 AI Agents\<plan-name>.md`
+- Plans touching the agent system or CLAUDE.md globally → `C:\Projects\Optimus Assets\<plan-name>.md`
+- Plans touching founder vision → `C:\Projects\Optimus Assets\anthony-rosa\plans\<plan-name>.md`
+- Plans touching a specific client website build → `C:\Projects\<client-folder>\.claude\plans\<plan-name>.md` (e.g., `C:\Projects\Placed-Right-Fence\.claude\plans\shop-stripe-printful-integration.md`)
+- Plans touching multiple client projects or Optimus operations globally → `C:\Projects\Optimus Assets\<plan-name>.md`
+
+**Naming convention: kebab-case, descriptive of value delivered, not process.**
+- Good: `capture-pipeline-tiktok-whisper.md`
+- Good: `shop-stripe-printful-wiring.md`
+- Good: `hero-animation-three-layer-refactor.md`
+- Bad: `go-into-plan-mode-graceful-karp.md`
+- Bad: `my-opinion-on-joyful-spark.md`
+
+**Commit policy:** the plan file is committed in the SAME git commit as the changes it describes, so plan and implementation are permanently linked in git history. A plan committed without its implementation, or implementation committed without its plan, is a process failure — flag and fix before continuing.
+
 ## Founder Vision
 Anthony Rosa is the founder of Optimus Business Solutions. Before
 making any architectural decision on AI systems or upsells, read:
@@ -89,13 +109,36 @@ vault should know where things live.
   marketing site, deployed agent instances, market intelligence, social pipeline, brand.
   Distinct from Offerings: Offerings = template/IP, Optimus Inc = Optimus's own deployment.
 - **`Optimus Academy/`** — daily personal learning hub. ~90 min/day capture across
-  Anthropic courses, NVIDIA classes, YouTube on Claude/agentic concepts, tool tracking
+  Anthropic courses, NVIDIA classes, YouTube on Claude/agentic concepts, sales training,
+  copywriting, marketing psychology, finance, design, productivity tools, tool tracking
   (NemoClaw, OpenClaw, etc.). The `apply-to-optimus/` subfolder is the bridge that
-  connects learning to offering improvements.
+  connects learning to operational improvements across the vault.
+  - **Input pathways:** `/learn` accepts TikTok/IG/Reels/Shorts/X-video URLs (auto-downloads
+    via `yt-dlp` + transcribes via LOCAL `openai-whisper` — no API key, no per-call cost,
+    audio never leaves the machine), YouTube long-form URLs, article URLs, and pasted text.
+    The transcribe helper at `Optimus Academy/tools/transcribe-url.py` MUST be invoked via
+    `py -3.11` (Python 3.14 is broken on this machine; bare `python` will fail).
+    No `OPENAI_API_KEY` required.
+  - **Topic scope is broad, not AI-only.** `/learn` captures any source whose value applies
+    somewhere — sales training, copywriting craft, marketing psychology, finance,
+    productivity tools, design, hiring, ops. Bridges route to one of FIVE zones per the
+    bridge-target taxonomy in `Optimus Academy/apply-to-optimus/README.md`:
+    `Offerings/`, `knowledge/patterns/`, `knowledge/craft/<area>/` (lazy-create),
+    `Optimus Inc/<area>/` (verify per-area), `Optimus Academy/tools-tracking/`.
+  - **Multi-purpose principle:** every bridge declares one or more `value-vector`
+    tags from `{productivity, overhead, revenue}` with concrete reasoning. Bridges that
+    cannot map to any vector are NOT created — concept note only.
+  - **Enrichment + dedup:** shallow sources auto-trigger Step 1.5 web enrichment
+    (WebSearch + WebFetch), credited to a separate `enriched-from:` field on the concept
+    so daily-file source attribution stays clean. Append-time dedup blocks only
+    identical/near-verbatim repetition; variations are NEW info and always pass.
+  - **Weekly review surface:** `Optimus Academy/weekly-review.md` — Dataview-powered file
+    grouping bridges by value vector (revenue → productivity → overhead) plus aging /
+    abandonment candidates. Re-runs on file open.
 
 **The workflow that fills Optimus Academy:** `/learn` (defined in `learn-prompt.md` at
-vault root). Paste a transcript / YouTube URL / course notes → Claude generates three
-traces (daily entry + atomic concept note(s) + optional apply-to-optimus bridge) with
+vault root). Paste a transcript / TikTok URL / YouTube URL / course notes → Claude generates
+traces (daily entry + atomic concept note(s) + zero-or-more bridge notes) with
 scan-and-decide deduplication so `concepts/` doesn't fragment.
 
 **Website-dev workflow is unchanged.** All existing root files (`CLAUDE.md`,

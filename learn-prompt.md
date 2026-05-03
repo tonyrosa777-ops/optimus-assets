@@ -11,9 +11,13 @@ effort: medium
 Run from inside `c:\Projects\Optimus Assets\` with the input attached or pasted:
 
 ```
-/learn                          # input is whatever the user has pasted/attached in the conversation
-/learn <YouTube URL>            # fetch transcript first, then process
-/learn <topic hint>             # disambiguates ambiguous input
+/learn                                  # input is whatever the user has pasted/attached
+/learn <YouTube URL>                    # fetch transcript first, then process
+/learn <TikTok | IG Reel | Shorts URL>  # downloads + transcribes locally via Whisper
+/learn <X video URL>                    # same path as TikTok (yt-dlp + Whisper)
+/learn <article URL>                    # WebFetch the article, process as text
+/learn <topic hint>                     # disambiguates ambiguous input
+/learn --no-enrich <URL>                # skip the web-enrichment step (Step 1.7)
 ```
 
 Every session produces three traces:
@@ -100,21 +104,77 @@ Produce three deliverables. Work them in order.
 
 ### Step 1 — Read input, extract metadata + topic candidates
 
-Read the input fully. If it's a YouTube URL with no transcript provided, use WebFetch to get the transcript first.
+Read the input fully. Routing depends on the input shape:
 
-Extract source metadata:
-- **Source title** — the exact title of the video / article / course module / book chapter
-- **Source type** — one of: `video`, `article`, `course`, `book`, `podcast`, `notes`
-- **Publisher / author / channel** — who produced it (e.g. "Anthropic," "Julian Goldie SEO," "Andrej Karpathy," "personal note")
-- **URL** — the link to the source. Normalize to canonical form per tag-schema.md (strip tracking params, force https, prefer `youtube.com/watch?v=X`, etc.). If no URL: use literal string `n/a`.
-- **Source-date** — when the source was published (YYYY-MM-DD), or `unknown` if not stated
-- **Duration** — runtime if it's a video/podcast (e.g. `32 min`), or `n/a`
-- **Domain** — pick from the controlled vocabulary in tag-schema.md (`claude-api`, `agents`, `prompt-engineering`, `obsidian`, `evals`, `tooling`, `voice`, `marketing`, `web-dev`, `automation`, `business`). If no existing entry fits, propose adding to the vocab — don't silently invent.
+**(a) URL detection and transcription.** Detect the URL pattern in the input:
 
-Extract **candidate topics** (NOT atomic concepts yet):
-- A topic is a named, reusable area of knowledge (e.g. "Obsidian + Claude integration," "prompt caching," "agentic loops"). Most sources touch 1-2 topics; a wide-ranging course module might touch 3.
-- Sub-patterns of a single topic are NOT separate topics. ("Claude Code on a vault" is a sub-pattern of "Obsidian + Claude integration," not its own topic, until a future source teaches Claude Code applied to non-Obsidian contexts.)
-- For each topic, note its applicability to Optimus offerings (Website Dev, AI Chat Assistant, AI Voice Receptionist, Marketing Team).
+| URL pattern | Routing |
+|---|---|
+| `youtube.com/watch?v=...` | Use WebFetch to get the transcript (existing behavior, unchanged). |
+| `tiktok.com/...`, `vm.tiktok.com/...`, `instagram.com/reel/...`, `instagram.com/p/...`, `youtube.com/shorts/...`, `x.com/.../status/.../video/...` | Invoke the local transcribe helper. Run via Bash: `py -3.11 "Optimus Academy/tools/transcribe-url.py" "<URL>"`. **Use `py -3.11` exactly — never bare `python` or `python3` (Python 3.14 is broken on this machine and shadows 3.11).** Parse the JSON returned on stdout: `{transcript, publisher, title, url, source_date, duration}`. These fields seed the source metadata for Step 1 attribution. The transcript becomes the body the rest of the steps process. |
+| Plain article URL (any other http/https URL not matching the patterns above) | Use WebFetch on the URL to get the article body, parse for title/publisher/date from page metadata. |
+| No URL (pasted text, raw notes) | Use the input directly as the transcript/notes body; the user provides source metadata in the same message (or you ask for it). |
+
+**Exit-code handling for the transcribe helper:**
+- `0` — success; parse JSON, continue
+- `1` — runtime error; report stderr to the user verbatim, do not proceed
+- `3` — yt-dlp missing → tell user: "Run `py -3.11 -m pip install yt-dlp` then re-run."
+- `4` — ffmpeg missing → tell user: "Install ffmpeg (Windows: `scoop install ffmpeg` or `choco install ffmpeg`) then re-run."
+- `5` — openai-whisper missing → tell user: "Run `py -3.11 -m pip install openai-whisper` then re-run."
+- `6` — wrong Python version → tell user: "Invoke via `py -3.11`, not bare `python`."
+- Any other non-zero → report stderr verbatim, do not proceed.
+
+**(b) X (Twitter) handling rule.**
+- **Single posts:** skip. A single tweet (≤280 chars) is too short to earn a concept note. If the tweet sparks a real thought, capture the *thought* via paste-text, citing the tweet as inspiration in the source blockquote — do not capture the tweet itself.
+- **Threads:** worth capturing. Use the paste-text fallback (no URL detection routes to it). Anthony copies the full thread (top to bottom), pastes into `/learn`, sets `publisher = @handle`, `url = link to first tweet`, `source-type = thread`, `source-date = first tweet date`.
+- **Embedded videos:** the URL pattern detection above already routes `x.com/.../status/.../video` through the transcribe helper. No special handling.
+- This rule prevents the most common social-media failure mode: fragmenting `concepts/` with single-tweet one-liners.
+
+**(c) Extract source metadata.** From whichever path above, you now have:
+
+- **Source title** — the exact title (from yt-dlp metadata, page meta tags, or user-provided)
+- **Source type** — one of: `video`, `article`, `course`, `book`, `podcast`, `notes`, `thread` (X threads)
+- **Publisher / author / channel** — who produced it
+- **URL** — canonical form per tag-schema.md (strip tracking params, force https, prefer `youtube.com/watch?v=X`). Literal `n/a` if none.
+- **Source-date** — `YYYY-MM-DD` or `unknown`
+- **Duration** — runtime (e.g. `32 min`) or `n/a`
+- **Domain** — controlled vocab from tag-schema.md (`claude-api`, `agents`, `prompt-engineering`, `obsidian`, `evals`, `tooling`, `voice`, `marketing`, `web-dev`, `automation`, `business`, plus extensions: `copywriting`, `sales`, `psychology`, `finance`, `design`, `productivity`, `hiring`, `brand`). If nothing fits, propose adding to the vocab.
+
+**(d) Extract candidate topics** (NOT atomic concepts yet):
+- A topic is a named, reusable area of knowledge.
+- Sub-patterns of a single topic are NOT separate topics — they live as sub-headings under `## Mechanics` in the parent concept.
+- For each topic, note its applicability to any of the five bridge target zones (see Step 4): an Optimus offering, `knowledge/patterns/`, `knowledge/craft/<area>/`, `Optimus Inc/<area>/`, or `Optimus Academy/tools-tracking/`.
+
+### Step 1.5 — Enrichment via web search (when source is shallow)
+
+Short-form sources (TikToks, Reels, Shorts) frequently surface a topic without explaining it deeply enough to evaluate. A 15-second TikTok mentioning "DialogueDB is the new agent memory tool" is real signal but the source itself can't fill out Mechanics / Examples / Gotchas. Enrichment fixes this by augmenting the captured concept with web research — *without* polluting the original source attribution.
+
+**Auto-trigger when ANY of the following are true** (otherwise skip enrichment):
+- Source duration < 60 seconds OR transcript word count < 200
+- Source mentions a specific named tool / framework / library / SDK / agent that does NOT yet have a concept file in `concepts/`
+- Borderline scan-and-decide case in Step 3 (the source is too thin to confidently choose CREATE vs APPEND)
+- The user explicitly passed `--enrich` (force-enrich even if conditions don't trigger)
+
+**Auto-skip when ANY of the following are true:**
+- The user passed `--no-enrich` (explicit opt-out for personal/contextual sources)
+- Long-form source (full YouTube > 5 min, article > 1000 words) — it's already rich
+- Topic exists in `concepts/` AND scan-and-decide says HIGH MATCH — just append the new source reference, no enrichment needed
+
+**Enrichment procedure (when triggered):**
+1. Identify the canonical name of the topic / tool / concept the source surfaces (e.g., "DialogueDB", "agentic memory store").
+2. Run 2-3 WebSearch queries — vary the angle:
+   - `"<topic> documentation"` (find authoritative source)
+   - `"<topic> review"` OR `"<topic> vs <closest existing concept>"` (find evaluative content)
+   - `"<topic> when to use"` OR `"<topic> tradeoffs"` (find Gotchas substrate)
+3. Read the top 3-5 results via WebFetch. Cap total enrichment work at 5 fetches to avoid bloat.
+4. Synthesize the enriched info into the concept's Mechanics / Examples / Gotchas sections. Keep the original transcript content distinct — enrichment fills the rich technical detail the original source lacked.
+5. **Source attribution split:** the daily file's H2 section credits ONLY the original source (the TikTok), not the enrichment URLs. The concept file's frontmatter gets a NEW `enriched-from:` field listing the enrichment URLs:
+   ```yaml
+   enriched-from: ["https://docs.example.com/...", "https://news.example.com/..."]
+   ```
+6. Tag the concept with `#learning/enriched` in addition to `#learning/synthesized` so it's queryable in Dataview.
+
+**Why the source-attribution split matters:** if both the TikTok AND the enrichment URLs were credited equally on the daily file, future "show me everything I learned from TikTok creator X" queries would return enrichment URLs that have nothing to do with creator X. Enrichment is *concept-level* augmentation, not *capture-level* re-attribution.
 
 ### Step 2 — Write the daily file capture
 
@@ -223,7 +283,12 @@ created: YYYY-MM-DD
 last-updated: YYYY-MM-DD HH:MM
 review-by: <YYYY-MM-DD ~6 months ahead>
 source-references: ["[[../daily/YYYY-MM-DD#HH:MM — \"Source Title\" by Publisher]]"]
-tags: [#learning/synthesized, #applies-to/<offering-or-all>]
+enriched-from: []   # populated only when Step 1.5 enrichment fires; list of URLs read via WebSearch/WebFetch
+tags: [#learning/synthesized, #applies-to/<offering-or-zone>]
+# Forward-compat fields for future Optimus University compilation (all OPTIONAL):
+level: <foundational | intermediate | advanced>   # pedagogical difficulty; populate when source makes it obvious
+prerequisites: []                                  # wikilinks to concepts learner needs first; only fill when source explicitly references them
+audience: []                                       # multi-valued from {founder, developer, marketer, client, optimus-internal}
 ---
 
 # <Concept Name>
@@ -255,6 +320,16 @@ tags: [#learning/synthesized, #applies-to/<offering-or-all>]
 <Empty on creation. Future updates from later sources land here.>
 ```
 
+**Forward-compat field decision rules** (all three optional — leave blank when ambiguous):
+
+- **`level`**: `foundational` if the source teaches a primitive ("what is anchoring"). `advanced` if it builds on assumed primitives ("how anchoring interacts with loss aversion in 3-tier pricing"). `intermediate` is the default when ambiguous. Omit entirely if you genuinely cannot judge.
+- **`prerequisites`**: only fill when the source explicitly references another concept that already exists in `concepts/`. Do NOT invent prerequisites the source doesn't reference. Empty list `[]` is fine.
+- **`audience`**: multi-valued from `{founder, developer, marketer, client, optimus-internal}`. A copywriting tactic universally useful → `[founder, marketer]`. A developer-only Next.js pattern → `[developer]`. If unsure → omit. Better blank than wrong.
+
+These fields are the substrate for future Optimus University compilation. They turn `concepts/` into a Dataview-queryable course library — `"foundational copywriting concepts targeting founder audience, ordered by prerequisite depth"` → course outline. Adding the fields after the fact is 10× the cost of adding them at capture time.
+
+**`enriched-from:` field:** populated ONLY when Step 1.5 enrichment fires. Lists the URLs read via WebSearch/WebFetch to augment the concept beyond the original source. Empty list `[]` when enrichment didn't fire.
+
 **Section headers mandatory:** What it is / When to use / Mechanics / Examples / Gotchas / Related Concepts / Updates. The `## Updates` section is empty on creation but the header is still there — it signals "this is where future findings will land."
 
 **`review-by:` is created date + ~6 months.** AI moves fast; concepts written today might be stale in 6 months. The autonomous nightly stale-knowledge job (planned) will scan for concepts past their review-by date.
@@ -270,58 +345,127 @@ tags: [#learning/synthesized, #applies-to/<offering-or-all>]
    ```
    > - [[../daily/YYYY-MM-DD#HH:MM — "Source Title" by Publisher]] — Publisher
    ```
-5. Append a new block under the existing `## Updates` section:
+5. **Information-delta check** (the dedup gate):
+   - Read what the existing concept already covers in its `## What it is` / `## When to use` / `## Mechanics` / `## Examples` / `## Gotchas` sections AND in any prior `## Updates` blocks.
+   - Compare the new source's content against what's already there.
+   - **Block ONLY identical/near-verbatim repetition.** If the new source says the same thing already in the concept (same point, same example, same gotcha — just different wording), do NOT add an `## Updates` block. The `source-references:` list still gets the new daily-anchor (so the concept tracks every source that taught it), but no body content change.
+   - **Variations always pass.** A new angle on a known principle, a new example of a known pattern, a new gotcha not previously listed, a new mechanism, a new use case, a contradiction worth noting — these are all NEW information and ALWAYS earn an `## Updates` block. Variations are never rejected.
+   - When in doubt: append. False-restate (slightly redundant Updates block) is recoverable later by editing. False-suppress (omitting a real variation) loses information permanently.
+6. If the information-delta check passed (new info present), append a new block under the existing `## Updates` section:
    ```markdown
    ### YYYY-MM-DD HH:MM — <short label> — from [[../daily/YYYY-MM-DD#HH:MM — "Source Title" by Publisher]]
-   <What this new source added beyond the original definition. Specific. Cite which `#### sub-topic` of the daily section if applicable. Don't restate what the daily capture already covers — just the *delta* this source brings to the concept.>
+   <The delta — what this source added beyond what the concept already had. Specific. Cite which `#### sub-topic` of the daily section if applicable. Focus on the new angle, new example, new gotcha, or new mechanism — NOT a re-summary of what was already there.>
    ```
-6. Do NOT modify any of: `## What it is`, `## When to use`, `## Mechanics`, `## Examples`, `## Gotchas`, `## Related Concepts` body content. The top stays stable; new findings live only in `## Updates`.
-7. Optionally bump `review-by:` to a fresh ~6-months-out date if this update materially refreshes the concept. Otherwise leave it alone.
+7. Do NOT modify any of: `## What it is`, `## When to use`, `## Mechanics`, `## Examples`, `## Gotchas`, `## Related Concepts` body content. The top stays stable; new findings live only in `## Updates`.
+8. Optionally bump `review-by:` to a fresh ~6-months-out date if this update materially refreshes the concept. Otherwise leave it alone.
+9. If Step 1.5 enrichment fired during this APPEND run, also update the concept's `enriched-from:` frontmatter list with the new enrichment URLs (preserve any existing entries; this is additive).
 
-### Step 4 — Apply-to-Optimus bridge note(s) (when applicable)
+### Step 4 — Bridge note(s): route to one of FIVE target zones (not just offerings)
 
-Only create a bridge note when the topic has a clear, concrete application to one of the four Optimus offerings. Pure theory or "interesting but not actionable" content does NOT get a bridge note — skip this step in that case.
+Bridges are NOT scoped to the four Optimus offerings only. The captured topic is broader than AI tooling — sales training feeds copy craft, finance content feeds Optimus Inc operations, marketing psychology feeds CRO, tool reviews feed the internal stack. The bridge layer routes to wherever the knowledge would actually integrate.
 
-If the topic applies to multiple offerings, create multiple bridge notes (one per offering).
+**Two stop conditions that turn this into a no-op (concept-only, no bridge):**
 
-Run the same scan-and-decide on `Optimus Academy/apply-to-optimus/*.md` first — if a bridge for this concept+offering pair already exists, APPEND a `## Update` section instead of duplicating.
+1. **No clear target.** If you cannot point to a specific existing-or-soon-to-exist file in the vault that would meaningfully integrate this knowledge, do NOT create a bridge. A vague bridge is dead weight in the weekly review.
+2. **No clear value vector.** Per the multi-purpose principle, every bridge MUST declare at least one of `productivity` / `overhead` / `revenue` with concrete reasoning. If you cannot map the concept to at least one vector ("this lifts conversion because…", "this cuts build time because…"), the concept goes to `concepts/` only.
+
+When in doubt, skip the bridge. The user can add one later by editing the concept's `Updates` section once both target AND value vector become clear. Prefer no bridge over a vague bridge in either dimension.
+
+#### The five bridge target zones
+
+Every captured concept's `applies-to:` wikilink points to one of these zones. A single concept may produce multiple bridges — one per applicable zone:
+
+| Zone | Folder | Folder existence at capture time |
+|---|---|---|
+| `Offerings/<offering>/` | Existing offering hub (`Offerings/01 Website Development/`, `Offerings/02 AI Agents/...`) | All exist |
+| `knowledge/patterns/` | Cross-website-build patterns | Exists, populated |
+| `knowledge/craft/<area>/` | Cross-cutting craft: `copywriting`, `psychology`, `sales`, `design` | **Does NOT exist** for any `<area>` — lazy-create on first use |
+| `Optimus Inc/<area>/` | Optimus the company itself: `finance`, `operations`, `brand`, `website`, `market-intelligence`, `social-pipeline`, `ai-agents` | Some exist (`brand`, `website`, `market-intelligence`, `social-pipeline`, `ai-agents/<tier>/`); `finance` and `operations` do NOT exist — lazy-create per-area |
+| `Optimus Academy/tools-tracking/<tool-slug>.md` | Flat file per tool, single-file format (not a subfolder) | Folder exists with `.gitkeep`; first real file populates it |
+
+**Folder creation rule before any bridge write:** verify the parent folder exists via Bash `Test-Path` (PowerShell). If absent, `New-Item -ItemType Directory -Force` (or `mkdir -p`) creates it. Never assume existence. Never preemptively scaffold empty folders.
+
+#### Concrete routing map (source topic → primary + secondary targets)
+
+Use this table to pick `applies-to:` targets. Most rows produce 1-3 bridges, never 0 (unless both stop conditions trigger).
+
+| Source topic | Primary bridge target | Secondary bridge target |
+|---|---|---|
+| **Sales / cold outreach tactics** | `.claude/agents/sales/gap-analyzer.md` | `knowledge/craft/sales/<slug>.md` (lazy-create) |
+| **Copywriting craft** (headlines, CTAs, hooks, structure, tone) | `.claude/agents/build/content-writer.md` | `knowledge/craft/copywriting/<slug>.md` (lazy-create) |
+| **Marketing psychology / cognitive bias** | `.claude/agents/build/content-writer.md` AND `.claude/agents/onboarding/design-synthesizer.md` | `knowledge/craft/psychology/<slug>.md` (lazy-create) AND/OR `Optimus Inc/brand/<slug>.md` if it changes Optimus's own marketing voice |
+| **CRO / landing page conversion** | `.claude/agents/build/content-writer.md` AND `.claude/agents/onboarding/design-synthesizer.md` | `knowledge/patterns/<slug>.md` |
+| **Visual design / UI craft** | `.claude/agents/onboarding/design-synthesizer.md` AND `.claude/agents/build/animation-specialist.md` | `knowledge/craft/design/<slug>.md` (lazy-create) AND/OR `frontend-design.md` |
+| **SEO / AEO / discoverability** | `.claude/agents/build/seo-aeo-specialist.md` | `knowledge/patterns/<slug>.md` |
+| **Market research / discovery patterns** | `.claude/agents/onboarding/market-researcher.md` | `knowledge/patterns/<slug>.md` |
+| **QA / launch / pre-deploy checks** | `.claude/agents/launch/pre-launch-auditor.md` | `knowledge/patterns/<slug>.md` AND/OR `knowledge/errors/<slug>.md` |
+| **Finance / runway / pricing strategy for Optimus** | `Optimus Inc/finance/<slug>.md` (lazy-create) | `optimus-system-guide.md` if vault operations change |
+| **Hiring / team / org design** | `Optimus Inc/operations/<slug>.md` (lazy-create) | None |
+| **Optimus's own marketing / brand voice** | `Optimus Inc/brand/<slug>.md` (folder exists, write directly) | None |
+| **Optimus's own website / content strategy** | `Optimus Inc/website/<slug>.md` (folder exists) | `.claude/agents/build/content-writer.md` if it generalizes |
+| **Competitive intelligence on Optimus's market** | `Optimus Inc/market-intelligence/<slug>.md` (folder exists) | None |
+| **Social media pipeline / Optimus's own social** | `Optimus Inc/social-pipeline/<slug>.md` (folder exists) | None |
+| **Optimus's own deployed AI agents** (drink-own-champagne) | `Optimus Inc/ai-agents/<tier>/<slug>.md` (folders exist for chat-assistant, voice-receptionist, marketing-team, autonomous-employee) | Mirror to `Offerings/02 AI Agents/0X/lessons/` if generalizable |
+| **Tool reviews / new framework / new SDK** | `Optimus Academy/tools-tracking/<tool-slug>.md` (write directly into existing folder) | `optimus-system-guide.md` only if adopting changes vault ops; OR a Tier-3/Tier-4 `lessons/` file if agent-framework candidate |
+| **Vault operations / Obsidian workflow / capture process** | `optimus-system-guide.md` (vault root canonical operating manual) | None |
+| **General AI news** (model release, API change, industry trend) | **No bridge — concept note only** unless actionable | If actionable → `optimus-system-guide.md` AND/OR `Offerings/02 AI Agents/0X/lessons/` |
+| **Productivity tools for Anthony's own workflow** | `Optimus Inc/operations/personal-stack.md` (lazy-create, append-only single file) | None |
+
+**Worked examples for the four most common source types:**
+
+1. **Sales-training TikTok** — concept: pricing anchor tactic → Bridge A → `.claude/agents/build/content-writer.md` (`value-vector: [productivity, revenue]`); Bridge B → `knowledge/craft/copywriting/anchoring-pricing.md` (`value-vector: [productivity]`).
+2. **Finance YouTube** — concept: bootstrapped runway rule → Bridge → `Optimus Inc/finance/runway-rules.md` (`value-vector: [overhead, revenue]`). No other zone applies.
+3. **AI tool review** — concept: new agent framework features → Bridge A → `Optimus Academy/tools-tracking/<tool-slug>.md` (`value-vector: [productivity]`); Bridge B (only if Tier-3/Tier-4 candidate) → `Offerings/02 AI Agents/shared-knowledge/lessons/<slug>.md` (`value-vector: [productivity, revenue]`).
+4. **Marketing psychology article** — concept: cognitive bias used in CRO → Bridge A → `.claude/agents/build/content-writer.md` (`value-vector: [productivity, revenue]`); Bridge B → `.claude/agents/onboarding/design-synthesizer.md` (`value-vector: [productivity, revenue]`); Bridge C → `knowledge/craft/psychology/<slug>.md` (`value-vector: [productivity]`).
 
 #### CREATE path — new bridge
 
-Path: `Optimus Academy/apply-to-optimus/<concept-slug>-applied-to-<offering-slug>.md`
+Run scan-and-decide on `Optimus Academy/apply-to-optimus/*.md` first — if a bridge for this concept+target pair already exists, APPEND instead of duplicating.
 
-Offering slugs: `website-dev`, `ai-chat`, `ai-voice`, `ai-marketing`, or `all-agents` (when it applies to chat + voice + marketing simultaneously).
+Path: `Optimus Academy/apply-to-optimus/<concept-slug>-applied-to-<target-slug>.md`
+
+Target slug examples: `content-writer`, `gap-analyzer`, `optimus-inc-finance`, `optimus-inc-brand`, `tools-tracking-langgraph`, `craft-copywriting`, `craft-psychology`. Slug is derived deterministically from the target file path.
 
 ```markdown
 ---
-title: <Concept Name> applied to <Offering Name>
+title: <Concept Name> applied to <Target>
 schema-version: 1
 concept: [[../concepts/<concept-slug>]]
 source-references: ["[[../daily/YYYY-MM-DD#HH:MM — \"Source Title\" by Publisher]]"]
-offering: [[../../Offerings/<offering-folder>/README]]
+applies-to: [[<wikilink-to-target-file>]]
 created: YYYY-MM-DD
 last-updated: YYYY-MM-DD HH:MM
 status: not-started
-tags: [#learning/applied, #applies-to/<offering-tag>]
+value-vector: [<one-or-more-of: productivity, overhead, revenue>]    # MANDATORY, multi-valued
+expected-impact: <small | medium | large>                             # OPTIONAL, populate when source makes magnitude obvious
+tags: [#learning/applied, #applies-to/<zone-tag>]
 ---
 
-# <Concept Name> applied to <Offering Name>
+# <Concept Name> applied to <Target>
 
 > **Concept:** [[../concepts/<concept-slug>]]
 > **Source(s):**
 > - [[../daily/YYYY-MM-DD#HH:MM — "Source Title" by Publisher]] — Publisher
-> **Offering:** [[../../Offerings/<offering-folder>/README]]
+> **Applies to:** [[<wikilink-to-target-file>]]
 > **Status:** `not-started`
+> **Value vector(s):** <productivity, overhead, revenue — list which apply>
+> **Expected impact:** <small | medium | large | unset>
 > **Last updated:** YYYY-MM-DD HH:MM
 
 ## What I learned
 <1-2 sentence summary with link to the concept note>
 
-## Why it applies to <offering>
-<Concrete mechanism — what about the offering today benefits>
+## Why it applies to <target>
+<Concrete mechanism — what about the target file/agent/area today benefits from absorbing this concept>
 
 ## How to apply it
-<Actionable steps. File paths if known. Agent changes. Workflow tweaks. Commit-level granularity is great.>
+<Actionable steps. File paths. Agent prompt edits. Workflow tweaks. The bridge does NOT auto-edit the target file — Anthony reviews this section and applies the change manually. This is the change-request, not the change.>
+
+## Value vector reasoning
+<For each tagged value vector, one sentence on the concrete mechanism. Examples:
+- `productivity`: every future client site inherits this anchor via content-writer.md, ~10 min saved per pricing page build
+- `revenue`: lifts quiz-to-booking conversion ~5% based on source's cited data
+- `overhead`: removes the manual "did I remember to anchor?" check from every build>
 
 ## Status
 `not-started`
@@ -330,11 +474,34 @@ tags: [#learning/applied, #applies-to/<offering-tag>]
 <Empty on creation. Future updates from later sources land here.>
 ```
 
-**Section headers mandatory:** What I learned / Why it applies / How to apply it / Status / Updates.
+**Section headers mandatory:** What I learned / Why it applies / How to apply it / Value vector reasoning / Status / Updates.
+
+**Tag mapping by target zone** (use the right `#applies-to/*` tag for the bridge):
+
+| Target zone | Tag |
+|---|---|
+| `Offerings/01 Website Development/` | `#applies-to/website-dev` |
+| `Offerings/02 AI Agents/...` | `#applies-to/ai-agents` (or `#applies-to/ai-agents/{chat,voice,marketing}` for tier-specific) |
+| `knowledge/craft/copywriting/` | `#applies-to/craft/copywriting` |
+| `knowledge/craft/psychology/` | `#applies-to/craft/psychology` |
+| `knowledge/craft/sales/` | `#applies-to/craft/sales` |
+| `knowledge/craft/design/` | `#applies-to/craft/design` |
+| `Optimus Inc/finance/` | `#applies-to/optimus-inc/finance` |
+| `Optimus Inc/marketing/` | `#applies-to/optimus-inc/marketing` |
+| `Optimus Inc/operations/` | `#applies-to/optimus-inc/operations` |
+| `Optimus Inc/brand/` | `#applies-to/optimus-inc/brand` |
+| `tools-tracking/<tool>.md` | `#applies-to/tools/<tool-slug>` |
 
 #### APPEND path — existing bridge
 
-Same pattern as concept-append: bump `last-updated`, add to `source-references:` list, add wikilink to visible blockquote, append a `### YYYY-MM-DD HH:MM — <label> — from [[<daily-anchor>]]` block under `## Updates`. Don't touch the original `## What I learned` / `## Why it applies` / `## How to apply it` / `## Status` content.
+Same dedup nuance as concept-append (Step 3): only block IDENTICAL/near-verbatim repetition; variations always pass.
+
+1. Read the existing file in full.
+2. Bump `last-updated`. Add to `source-references:` list. Add wikilink to visible blockquote.
+3. **Information-delta check:** does the new source add anything beyond what the bridge already says in `## What I learned` / `## Why it applies` / `## How to apply it` / `## Value vector reasoning` and prior `## Updates`? Variations (new angle, new application step, new vector reasoning, contradictory data) always pass. Identical/near-verbatim repetition is blocked — `source-references:` still grows but no body change.
+4. If delta exists, append a `### YYYY-MM-DD HH:MM — <label> — from [[<daily-anchor>]]` block under `## Updates`.
+5. **Value-vector merge rule:** if the new source reveals an additional value vector not on the existing bridge, ADD it to `value-vector:` (e.g., a bridge originally tagged `[productivity]` learns from a new source that the same pattern lifts revenue → becomes `[productivity, revenue]`). Never remove existing vectors during APPEND.
+6. Don't touch the original body content of `## What I learned` / `## Why it applies` / `## How to apply it` / `## Value vector reasoning` / `## Status`.
 
 ### Step 5 — Update cross-references
 

@@ -37,6 +37,31 @@ Plus tags on every file. Plus a commit.
 
 The full prompt that drives this lives at `[[../learn-prompt|learn-prompt]]` at vault root.
 
+## Input pathways — what `/learn` accepts
+
+`/learn` is the single capture skill. The input layer routes by URL pattern:
+
+| Input | Pathway | Notes |
+|---|---|---|
+| `youtube.com/watch?v=...` (long-form) | `WebFetch` for transcript | Existing path, unchanged. |
+| `tiktok.com`, `vm.tiktok.com`, `instagram.com/reel`, `instagram.com/p`, `youtube.com/shorts`, `x.com/.../status/.../video` | `[[tools/transcribe-url.py]]` — yt-dlp downloads audio + LOCAL openai-whisper transcribes | No API key. No external request to OpenAI. Privacy-preserving. |
+| Plain article URL | `WebFetch` for body + meta tags | Existing path, unchanged. |
+| Pasted text / raw notes | Direct processing | Existing path. User provides source attribution in the same message. |
+| X (Twitter) single posts | **Skip** — too short to earn a concept note | Capture the *thought* via paste-text if a tweet sparks one, but don't capture the tweet itself. |
+| X threads | Paste-text fallback | Copy full thread top-to-bottom, paste into `/learn` with `publisher = @handle`, `url = first-tweet-link`, `source-type = thread`. |
+
+**Critical invocation rule:** `transcribe-url.py` must be invoked via `py -3.11` exactly — never bare `python` or `python3`. Python 3.14 is broken on this machine and shadows 3.11 on PATH. The `/learn` skill spec spells this out so a future Claude run doesn't fall back to `python` and crash.
+
+**No second API key required.** Local Whisper means transcription is offline, free, and private. The Anthropic SDK key already in the env is the only key in the loop.
+
+**Enrichment when sources are shallow** (added during execution): a 15-second TikTok mentioning a tool is real signal but the source itself can't fill out Mechanics/Examples/Gotchas. `/learn` Step 1.5 auto-fires WebSearch + WebFetch when the source is short (<60s or <200 words), mentions a new tool/framework, or hits a borderline scan-and-decide case. The enriched info populates the concept's body; the original source still owns the daily file's H2 attribution; the enrichment URLs land in a new `enriched-from:` field on the concept's frontmatter. Opt out per call with `/learn --no-enrich <URL>`.
+
+**Within-concept dedup at append time** (added during execution): when `/learn` appends to an existing concept, it ONLY blocks identical/near-verbatim repetition. Variations always pass — a new angle on a known principle, a new example, a new gotcha, a new mechanism are NEW information and earn an `## Updates` block. The `source-references:` list always grows with the new daily-anchor regardless of whether the body changes.
+
+**Folder creation policy.** Bridges may need to write into folders that don't exist yet (`knowledge/craft/<area>/`, `Optimus Inc/finance/`, `Optimus Inc/operations/`). Before any bridge write, `/learn` runs `Test-Path` on the parent folder; if missing, `New-Item -ItemType Directory -Force` creates it. Never preemptively scaffold empty folders. Folders materialize only when a real bridge file lands.
+
+**Weekly review surface:** see `[[weekly-review]]` — Dataview-powered file that lists active bridges grouped by value vector (revenue → productivity → overhead), plus applied-awaiting-promotion and 30+-day abandonment candidates. Dataview re-runs on file open; no script.
+
 ## The scan-and-decide rule
 
 Daily file H2 captures are always CREATED (immutable per source). The scan-and-decide logic applies only to `concepts/` and `apply-to-optimus/` — those are the living layers where dedup matters.
@@ -215,12 +240,13 @@ Full schema: `[[00 — Empire Index/tag-schema|the master tag schema]]`. Most-us
 
 - `#learning/captured` — raw capture (used on daily file YAML)
 - `#learning/synthesized` — distilled into a concept note
-- `#learning/applied` — wired into an Optimus offering (used on bridges)
+- `#learning/enriched` — concept augmented via Step 1.5 web enrichment
+- `#learning/applied` — wired into an Optimus offering or other bridge target (used on bridges)
 - `#applies-to/website-dev`
-- `#applies-to/ai-agents`
-- `#applies-to/ai-agents/chat`
-- `#applies-to/ai-agents/voice`
-- `#applies-to/ai-agents/marketing`
+- `#applies-to/ai-agents`, `#applies-to/ai-agents/{chat,voice,marketing}`
+- `#applies-to/craft/{copywriting,psychology,sales,design}` — cross-cutting craft
+- `#applies-to/optimus-inc/{finance,marketing,operations,brand}` — Optimus the company itself
+- `#applies-to/tools/<tool-slug>` — tool-evaluation captures
 
 ## Active study tracks
 
