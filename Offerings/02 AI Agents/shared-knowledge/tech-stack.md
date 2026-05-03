@@ -13,9 +13,25 @@ This file is governed by [`anthony-rosa/north-star.md`](../../../anthony-rosa/no
 
 ---
 
-## Runtime commitment — Python first
+## Stack evaluation principle — mission > stack loyalty
 
-Every Optimus AI agent product (Tiers 1–4) is built once, correctly, in Python from day one. No phasing. No migration. No "current state vs target state."
+The stack documented below is the **current default** for every Optimus AI agent product, NOT a locked future commitment. Per the founder layer's mission (bring the world's newest technology to small businesses at affordable prices, so big corporate isn't the only segment benefiting from the AI boom), the canonical stack is subordinate to mission-fit. When a newer technology delivers more client value at SMB-affordable pricing, the stack updates.
+
+Equally — and this matters as much as flexibility — the stack does NOT swap on hype. Stack changes are gated on:
+
+1. Documented value-to-clients brainstorm in the relevant bridge note (`Optimus Academy/apply-to-optimus/<concept-slug>.md`).
+2. Enriched external research with at least 3 authoritative sources beyond a single trade-press article or short-form video.
+3. Spike-test results with measured numbers, not speculation.
+4. Drink-own-champagne deployment on Optimus Inc's own ops for ≥30 days where relevant.
+5. Written decision rationale tied to mission fit (not stack loyalty, not hype, not portfolio narrative).
+
+When the gate clears, this file updates in the same commit as the bridge that proved the case. Until it clears, the canonical default below applies. See `feedback_mission-trumps-stack-loyalty.md` (memory) for the full evaluation discipline. Live evaluations live in `Optimus Academy/apply-to-optimus/` — open candidates currently include OpenClaw multi-agent orchestration (see `apply-to-optimus/openclaw-multi-agent-orchestration.md`).
+
+---
+
+## Runtime commitment — Python first (current default)
+
+Every Optimus AI agent product (Tiers 1–4) is currently built once, correctly, in Python from day one. No phasing. No migration. No "current state vs target state." Greenfield builds with the default stack until a documented mission-fit case proves a better alternative.
 
 | Layer | Stack |
 |---|---|
@@ -99,8 +115,10 @@ Things every agent product is likely to need. Pick the cross-product default onc
 ## What this file is NOT
 
 - Not the place to document a per-product implementation. That lives in each product's `tech-stack-research.md` and `python-architecture.md`.
-- Not the place to make stack decisions on a one-off basis. The stack is the stack. If a build needs something off this list, propose it — and either the proposal becomes a new line on this table (cross-product), a new line in the relevant product's tech-stack-research (per-product), or it gets rejected.
+- Not the place to make stack decisions on a one-off basis. The default stack documented above is the working baseline; per-build divergences are surfaced via the apply-to-optimus bridge layer (`Optimus Academy/apply-to-optimus/`) and gated on the Stack evaluation principle at the top of this file.
 - Not the place where deployment-thesis content lives. Stack tools live here; the long-term private per-client GPU compute thesis is documented in [`../../../anthony-rosa/north-star.md`](../../../anthony-rosa/north-star.md) and concrete deployment options live in `04 Autonomous Employee/python-architecture.md`.
+
+**When this file changes:** an evaluation in `Optimus Academy/apply-to-optimus/<concept>.md` cleared all five gates (brainstorm → enriched research → spike-test → drink-own-champagne where relevant → written rationale), and the change lands in the SAME commit as the bridge that proved the case. The file's commit history is the record of how the stack evolved against mission-fit.
 
 ---
 

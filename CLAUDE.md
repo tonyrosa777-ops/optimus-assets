@@ -45,7 +45,23 @@ Anthony Rosa is the founder of Optimus Business Solutions. Before
 making any architectural decision on AI systems or upsells, read:
 `C:\Projects\Optimus Assets\anthony-rosa\north-star.md`
 
-The Optimus stack — every upsell, every system, day one:
+**Mission > stack loyalty.** Optimus's mission is to bring the world's
+newest technology to small businesses at affordable prices, so big
+corporate isn't the only segment benefiting from the AI boom. Stack
+choices are subordinate to mission fit. The current default stack
+(below) is what serves the mission today; it is NOT a locked future
+commitment. When a newer technology delivers more client value at
+SMB-affordable pricing, the stack evolves. Equally, the stack does
+NOT swap on hype — changes are gated on documented value-to-clients
+brainstorm + enriched external research + spike-test results +
+(where relevant) drink-own-champagne validation for ≥30 days +
+written decision rationale tied to mission fit. Stay flexible.
+Change only after analysis. See
+`C:\Users\Anthony\.claude\projects\c--Projects-Optimus-Assets\memory\feedback_mission-trumps-stack-loyalty.md`
+for the full evaluation discipline. Live stack-evolution evaluations
+live in `Optimus Academy/apply-to-optimus/`.
+
+**Current default Optimus stack — applied today for every upsell:**
 - FastAPI
 - anthropic SDK (Claude API direct)
 - Pydantic v2

@@ -50,7 +50,7 @@ The website is the entry point. **The AI systems are the career.**
 
 ## 4. The Four-Tier Upsell Ladder
 
-Every upsell is built once, correctly, in Python from day one. Greenfield. No phasing, no migration, no V1/V2.
+Every upsell is built once, correctly, with the current default stack. Greenfield. No phasing, no migration, no V1/V2 — there's nothing deployed to migrate from.
 
 | Tier | Product | Setup | MRR | What it teaches toward Tier-4 |
 |---|---|---|---|---|
@@ -61,7 +61,7 @@ Every upsell is built once, correctly, in Python from day one. Greenfield. No ph
 
 **Total addressable MRR per fully-onboarded client: ~$5,400–7,900/mo.**
 
-**The canonical Optimus stack — every upsell, every system, day one:**
+**The current default Optimus stack — every upsell, every system, applied today:**
 - FastAPI
 - anthropic SDK (Claude API direct)
 - Pydantic v2
@@ -70,7 +70,15 @@ Every upsell is built once, correctly, in Python from day one. Greenfield. No ph
 - Personaplex (voice model — full-duplex speech-to-speech)
 - Tier-4 only adds: open-source agent harness (OpenClaw / Hermes / Letta / Pydantic AI / LangGraph — selection in `Offerings/02 AI Agents/04 Autonomous Employee/harness-research.md`) + Akash Network for private per-client GPU compute.
 
-**Why this stack:** Real AI engineering skill compounds when you control the layers underneath. Every backend service in Python → real FastAPI / Pydantic / async expertise. Every agent on the four shared infrastructure primitives → composable agent-shaped components. Every system on a public GitHub repo with an architecture diagram → portfolio that survives any single client. By 30, the GitHub profile is the proof.
+**Why this stack is the current default:** Two compounding reasons.
+
+First and foremost — **mission-fit.** Optimus's mission is to bring the world's newest technology to small businesses at affordable prices, ensuring big corporate isn't the only segment benefiting from the AI boom. Today the canonical Python stack is the path that delivers most client value at SMB-affordable pricing: direct Anthropic SDK access keeps model cost transparent and swappable, FastAPI keeps per-build engineering time low, Pydantic keeps the schema layer disciplined enough to ship fast, Personaplex on Twilio Media Streams gives real voice quality without enterprise pricing.
+
+Second — **portfolio compounding.** Real AI engineering skill compounds when you control the layers underneath. Every backend service in Python → real FastAPI / Pydantic / async expertise. Every agent on the four shared infrastructure primitives → composable agent-shaped components. Every system on a public GitHub repo with an architecture diagram → portfolio that survives any single client. By 30, the GitHub profile is the proof. *Portfolio compounding is real, but it is "nice to have" — it cannot trump client value when the two diverge.*
+
+**Stack evolution principle — mission > stack loyalty.** The canonical stack above is the current default, NOT a locked future commitment. When a newer technology delivers more client value at SMB-affordable pricing — broader channel coverage, lower per-build cost, faster time-to-value, new client segments unlocked — the stack updates. Optimus is a business; business comes first; portfolio narrative is secondary. Equally, the stack does NOT swap on hype: changes are gated on documented value-to-clients brainstorm, enriched external research, spike-test results, and (where relevant) drink-own-champagne validation for ≥30 days. Stay flexible. Change only after analysis. See `feedback_mission-trumps-stack-loyalty.md` for the full evaluation discipline. Live evaluations live in `Optimus Academy/apply-to-optimus/` — that folder is the substrate where stack evolution gets considered honestly.
+
+The Tier-4 harness layer (OpenClaw / Hermes / Letta / Pydantic AI / LangGraph) is a working example of this principle already encoded — Tier-4 was designed open from day one because no single harness has emerged as obviously dominant. The same openness applies up the stack as evidence warrants.
 
 ---
 
