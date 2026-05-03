@@ -173,6 +173,8 @@ tags: [#learning/synthesized, #applies-to/<offering-or-all>]
 
 All 7 body sections always present. The `## Updates` section starts empty on creation but the header is still there — it's the contract that signals "this is where future findings will land." When a later source teaches more about this concept, `/learn` appends a `### YYYY-MM-DD HH:MM — <label> — from [[../daily/<date>#<anchor>]]` block under `## Updates` and bumps frontmatter `last-updated` + adds the new daily-anchor to `source-references:`. The original `## What it is` / `## When to use` / `## Mechanics` / `## Examples` / `## Gotchas` content is byte-identical from one capture to the next.
 
+**Concept body discipline:** concept body is **subject-pure** (teaches the topic itself for awareness) and **enrichment-substance-dense** (every `enriched-from:` URL contributes at least one body fact). Optimus-relationship framing belongs ONLY in `apply-to-optimus/` bridges, never in the concept body. See `learn-prompt.md` → CREATE path for the full Concept body discipline rules.
+
 ## Useful Dataview queries
 
 The inline Dataview metadata baked into every daily H2 section makes the vault queryable from day 1. Drop these into any note inside the vault to see live results.

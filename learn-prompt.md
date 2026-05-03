@@ -320,6 +320,14 @@ audience: []                                       # multi-valued from {founder,
 <Empty on creation. Future updates from later sources land here.>
 ```
 
+**Concept body discipline (non-negotiable, two rules).**
+
+**Rule 1 — Subject-purity.** Concept body teaches the topic itself for the user's awareness — what it is, how it works, when its actual users would use it, examples drawn from the topic's domain, gotchas about the topic. Zero Optimus-relationship framing in the body: no "Optimus does/doesn't adopt this", no "Tier-3/Tier-4 builds should mirror this", no "this is for our Marketing Team agent", no client-build advisories. If the concept has clear Optimus application, that goes in a SEPARATE bridge note in `apply-to-optimus/` per Step 4. Subject-pure concepts stay useful if Optimus's scope shifts later (e.g., into e-commerce, hardware, retail).
+
+**Rule 2 — Enrichment must materialize as body substance.** When Step 1.5 enrichment fires, every URL added to `enriched-from:` MUST contribute at least one substantive subject fact to the body (Mechanics, Examples, or Gotchas — not just a citation in passing). The frontmatter `enriched-from:` field is bibliography, NOT substance. If enrichment ran but the body grew by fewer than ~5 substantive subject facts beyond what the original transcript said, enrichment was wasted — go back and pull more facts before writing. Token spend on web searches is justified ONLY by deep subject knowledge landing in the body.
+
+**Reference tone:** `obsidian-claude-integration.md` describes Obsidian + Claude on its own terms with dense Mechanics sub-sections, code examples, and seven gotchas — that's the floor for body density and subject-purity. The `accio-2-alibaba-sourcing-agent.md` rewrite (post this skill update) is a second reference: ~1,500-word subject-dense concept with no Optimus framing in the body and every enriched URL contributing real facts.
+
 **Forward-compat field decision rules** (all three optional — leave blank when ambiguous):
 
 - **`level`**: `foundational` if the source teaches a primitive ("what is anchoring"). `advanced` if it builds on assumed primitives ("how anchoring interacts with loss aversion in 3-tier pricing"). `intermediate` is the default when ambiguous. Omit entirely if you genuinely cannot judge.

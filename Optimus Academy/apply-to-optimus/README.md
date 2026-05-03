@@ -40,6 +40,8 @@ One concept can apply to multiple target zones. When that happens, write multipl
 
 ## Multi-purpose principle — every bridge declares a business outcome
 
+**The bridge is the ONLY place Optimus-relationship framing belongs.** Concept files in `concepts/` stay subject-pure — they teach the topic itself, no "we don't adopt this" or "Tier-3/Tier-4 should mirror this." All Optimus-relationship reasoning (where to apply, why it works for Optimus, value-vector mechanics) lives here in the bridge. See `learn-prompt.md` → CREATE path for the full Concept body discipline rules.
+
 Every bridge MUST declare at least one `value-vector` from `productivity` / `overhead` / `revenue` with concrete reasoning. Multi-valued by default — most bridges serve 2-3 vectors simultaneously.
 
 | Vector | What it means | Examples |
