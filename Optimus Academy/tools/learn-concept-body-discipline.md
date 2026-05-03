@@ -177,7 +177,7 @@ Files:
 ## Reference Patterns
 
 - **Tone reference for the Accio rewrite:** `Optimus Academy/concepts/obsidian-claude-integration.md` — clean subject-pure body with sub-sections, examples, gotchas.
-- **Bridge handles Optimus framing correctly:** `Optimus Academy/apply-to-optimus/obsidian-claude-integration-applied-to-ai-marketing.md` — gap analysis + 5-phase application reasoning lives here, NOT in the concept.
+- **Bridge handles Optimus framing correctly:** `Optimus Academy/apply-to-optimus/obsidian-claude-integration.md` (specifically the `## Applied to AI Marketing Team (Tier-3)` H2 section) — gap analysis + 5-phase application reasoning lives here, NOT in the concept.
 - **Slug + URL canonical rules:** `00 — Empire Index/tag-schema.md` (already followed in current Accio capture; no change).
 
 ## Verification

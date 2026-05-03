@@ -1,29 +1,43 @@
 ---
-title: Obsidian + Claude Integration applied to AI Marketing Team
+title: Obsidian + Claude Integration — apply-to-Optimus bridges
 schema-version: 1
 concept: [[../concepts/obsidian-claude-integration]]
 source-references: ["[[../daily/2026-04-26#11:36 — \"Claude Obsidian is INSANE!\" by Julian Goldie SEO]]"]
-offering: [[../../Offerings/02 AI Agents/03 Marketing Team/README]]
 created: 2026-04-26
 last-updated: 2026-04-26 11:36
-status: not-started
-tags: [#learning/applied, #applies-to/ai-agents/marketing]
+tags: [#learning/applied, #applies-to/ai-agents/marketing, #status/active]
 ---
 
-# Obsidian + Claude Integration applied to AI Marketing Team
+# Obsidian + Claude Integration — apply-to-Optimus bridges
 
 > **Concept:** [[../concepts/obsidian-claude-integration]]
 > **Source(s):**
 > - [[../daily/2026-04-26#11:36 — "Claude Obsidian is INSANE!" by Julian Goldie SEO]] — Julian Goldie SEO
-> **Offering:** [[../../Offerings/02 AI Agents/03 Marketing Team/README]]
-> **Status:** `not-started`
+>
 > **Last updated:** 2026-04-26 11:36
 
-## What I learned
+---
+
+## Applied to AI Marketing Team (Tier-3)
+
+applies-to:: [[../../Offerings/02 AI Agents/03 Marketing Team/README]]
+status:: not-started
+value-vector:: revenue, productivity
+expected-impact:: medium
+created:: 2026-04-26
+last-updated:: 2026-04-26 11:36
+
+> **Applies to:** [[../../Offerings/02 AI Agents/03 Marketing Team/README]]
+> **Status:** `not-started`
+> **Value vector(s):** revenue, productivity
+> **Expected impact:** medium
+> **Last updated:** 2026-04-26 11:36
+
+### What I learned
 
 The [[../concepts/obsidian-claude-integration]] pattern — vault of plain-text notes plus Claude API plus optional Claude Code orchestration — works as a complete content-strategy substrate. Goldie's third "advanced move" describes generating five YouTube scripts in his voice from a research folder in 10 minutes, replacing what used to be a week of manual work. The vault is the substrate; Claude is the engine; the prompt is the policy.
 
-## Why it applies to AI Marketing Team
+### Why it applies to AI Marketing Team
 
 The Marketing Team offering's current implementation uses **n8n + Supabase + GPT-4o** running weekly to score 30-day content performance and generate strategy recommendations (per `[[../../Offerings/02 AI Agents/03 Marketing Team/tech-stack-research]]`). It's a strong stack for *strategy generation from quantitative performance data*, but it does not currently address:
 
@@ -33,7 +47,7 @@ The Marketing Team offering's current implementation uses **n8n + Supabase + GPT
 
 The strongest framing: **Obsidian + Claude is not a replacement for the n8n strategy engine — it's the natural complement on the *output* side.** Strategy engine says "this week, post about X for the Health pillar." Obsidian + Claude says "given X, the client's voice notes, and the research folder, here are three drafts."
 
-## How to apply it
+### How to apply it
 
 **Phase 1 — Validate internally on Optimus's own marketing (drink own champagne):**
 - Stand up `Optimus Inc/social-pipeline/content-calendar/` as the Optimus-side vault for content drafts (already scaffolded per the Empire reorg)
@@ -62,10 +76,15 @@ The strongest framing: **Obsidian + Claude is not a replacement for the n8n stra
 - Currently the Marketing Team offering is in development with TBD pricing. The Obsidian + Claude integration could be: (a) bundled into the base offering, (b) a separate "Voice Engine" upsell, or (c) the differentiator that pulls clients up from a passive strategy report into active draft delivery
 - Decision blocked on validating Phase 1 internally
 
-## Status
+### Value vector reasoning
+
+- `revenue`: Obsidian + Claude as the content-output layer is a candidate differentiator that pulls clients from passive strategy reports (commodity output) into active draft delivery (premium output) — meaningful uplift potential on Tier-3 close rate and ARPU once productized.
+- `productivity`: voice-aware draft generation cuts the client's manual writing time from week-scale to minutes — Goldie's source claim of "10 minutes vs all week" is the upper bound; even at half that, it's a force multiplier on every Marketing Team engagement.
+
+### Status
 
 `not-started`
 
-## Updates
+### Updates
 
 (none)

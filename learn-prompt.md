@@ -24,7 +24,7 @@ Every session produces three traces:
 
 1. **Daily file** in `Optimus Academy/daily/YYYY-MM-DD.md` — comprehensive per-source capture. Created if doesn't exist; appended (new H2 section) if today's file already has prior captures.
 2. **One concept file** in `Optimus Academy/concepts/<concept-slug>.md` per TOPIC the source touches — created OR updated via scan-and-decide.
-3. **Zero or more bridge notes** in `Optimus Academy/apply-to-optimus/<concept-slug>-applied-to-<offering-slug>.md` when the topic has clear application to one of Optimus's four offerings.
+3. **Zero or more application H2 sections** inside `Optimus Academy/apply-to-optimus/<concept-slug>.md` when the topic has clear application to one or more target zones. The bridge file is created on first application and accretes new H2 sections for each additional target zone (mirroring how the daily file has multiple H2 source-capture sections inside one date-keyed file).
 
 **When to invoke:** Anytime new learning needs to land in the vault. ~90 minutes per day target. Cheaper to run /learn three times in a session than to batch a week into one capture.
 
@@ -72,7 +72,7 @@ The vault has THREE locations where /learn writes:
 |---|---|---|
 | `Optimus Academy/daily/` | One file per day. Multiple sources captured the same day → multiple H2 sections in one daily file. Each H2 section is the comprehensive capture for one source (full detail extraction). | New H2 sections append throughout the day; existing H2 sections never modified after creation. |
 | `Optimus Academy/concepts/` | One file per topic. Synthesized atomic distillations. | Original definition stays stable at top. New findings from later sources append as `## Update — date — from [[daily/<date>#<anchor>]]` sections. |
-| `Optimus Academy/apply-to-optimus/` | One file per (concept × offering) operational insight. | Same append behavior as concepts. |
+| `Optimus Academy/apply-to-optimus/` | One file per **concept** (filename: `<concept-slug>.md`, no `-applied-to-` suffix). Multiple applications of the same concept live as multiple `## Applied to <Target>` H2 sections inside that one file (mirrors `daily/` exactly). | New application H2 sections append; existing application H2 bodies stay byte-identical, with new findings landing in each H2's `### Updates` sub-section. |
 
 **There is NO `sources/` folder.** The daily file IS the source capture. Source attribution lives prominently in each H2's inline Dataview fields + visible blockquote.
 
@@ -421,70 +421,90 @@ Use this table to pick `applies-to:` targets. Most rows produce 1-3 bridges, nev
 
 **Worked examples for the four most common source types:**
 
-1. **Sales-training TikTok** — concept: pricing anchor tactic → Bridge A → `.claude/agents/build/content-writer.md` (`value-vector: [productivity, revenue]`); Bridge B → `knowledge/craft/copywriting/anchoring-pricing.md` (`value-vector: [productivity]`).
-2. **Finance YouTube** — concept: bootstrapped runway rule → Bridge → `Optimus Inc/finance/runway-rules.md` (`value-vector: [overhead, revenue]`). No other zone applies.
-3. **AI tool review** — concept: new agent framework features → Bridge A → `Optimus Academy/tools-tracking/<tool-slug>.md` (`value-vector: [productivity]`); Bridge B (only if Tier-3/Tier-4 candidate) → `Offerings/02 AI Agents/shared-knowledge/lessons/<slug>.md` (`value-vector: [productivity, revenue]`).
-4. **Marketing psychology article** — concept: cognitive bias used in CRO → Bridge A → `.claude/agents/build/content-writer.md` (`value-vector: [productivity, revenue]`); Bridge B → `.claude/agents/onboarding/design-synthesizer.md` (`value-vector: [productivity, revenue]`); Bridge C → `knowledge/craft/psychology/<slug>.md` (`value-vector: [productivity]`).
+1. **Sales-training TikTok** — concept: pricing anchor tactic → Bridge file: `pricing-anchor.md`. Two H2 application sections inside: `## Applied to content-writer agent` (`value-vector:: productivity, revenue`) and `## Applied to craft copywriting` (`value-vector:: productivity`).
+2. **Finance YouTube** — concept: bootstrapped runway rule → Bridge file: `bootstrapped-runway-rules.md`. One H2 application section: `## Applied to Optimus Inc finance` (`value-vector:: overhead, revenue`). No other zone applies.
+3. **AI tool review** — concept: new agent framework features → Bridge file: `<framework-slug>.md`. H2 application 1: `## Applied to tools-tracking` (`value-vector:: productivity`). H2 application 2 (only if Tier-3/Tier-4 candidate): `## Applied to AI Agents shared-knowledge` (`value-vector:: productivity, revenue`).
+4. **Marketing psychology article** — concept: cognitive bias used in CRO → Bridge file: `<bias-slug>.md`. Three H2 application sections: `## Applied to content-writer agent`, `## Applied to design-synthesizer agent`, `## Applied to craft psychology`.
 
-#### CREATE path — new bridge
+#### Three paths for handling the bridge file
 
-Run scan-and-decide on `Optimus Academy/apply-to-optimus/*.md` first — if a bridge for this concept+target pair already exists, APPEND instead of duplicating.
+Before writing, glob `Optimus Academy/apply-to-optimus/<concept-slug>.md` and inspect:
 
-Path: `Optimus Academy/apply-to-optimus/<concept-slug>-applied-to-<target-slug>.md`
+| Situation | Path | Action |
+|---|---|---|
+| File does not exist | **CREATE FILE** | New file with file-level YAML + visible blockquote + ONE `## Applied to <Target>` H2 section |
+| File exists, target H2 does NOT exist | **APPEND-NEW-APPLICATION** | Add a new `## Applied to <Target>` H2 section below existing ones (after `---` separator) |
+| File exists, target H2 ALREADY exists | **APPEND-TO-EXISTING-APPLICATION** | Add `#### YYYY-MM-DD HH:MM — <label>` block under that H2's `### Updates` sub-section (information-delta gated) |
 
-Target slug examples: `content-writer`, `gap-analyzer`, `optimus-inc-finance`, `optimus-inc-brand`, `tools-tracking-langgraph`, `craft-copywriting`, `craft-psychology`. Slug is derived deterministically from the target file path.
+#### CREATE FILE path — new bridge file (concept has no bridges yet)
+
+Path: `Optimus Academy/apply-to-optimus/<concept-slug>.md`
+
+Filename is just the concept slug. NO `-applied-to-<target>` suffix. Same convention as `daily/YYYY-MM-DD.md` — the unifying key is the filename; per-application detail lives in H2 sections inside.
 
 ```markdown
 ---
-title: <Concept Name> applied to <Target>
+title: <Concept Name> — apply-to-Optimus bridges
 schema-version: 1
 concept: [[../concepts/<concept-slug>]]
 source-references: ["[[../daily/YYYY-MM-DD#HH:MM — \"Source Title\" by Publisher]]"]
-applies-to: [[<wikilink-to-target-file>]]
 created: YYYY-MM-DD
 last-updated: YYYY-MM-DD HH:MM
-status: not-started
-value-vector: [<one-or-more-of: productivity, overhead, revenue>]    # MANDATORY, multi-valued
-expected-impact: <small | medium | large>                             # OPTIONAL, populate when source makes magnitude obvious
-tags: [#learning/applied, #applies-to/<zone-tag>]
+tags: [#learning/applied, <#applies-to/zone-tag-for-each-application>, #status/active]
 ---
 
-# <Concept Name> applied to <Target>
+# <Concept Name> — apply-to-Optimus bridges
 
 > **Concept:** [[../concepts/<concept-slug>]]
 > **Source(s):**
 > - [[../daily/YYYY-MM-DD#HH:MM — "Source Title" by Publisher]] — Publisher
-> **Applies to:** [[<wikilink-to-target-file>]]
-> **Status:** `not-started`
-> **Value vector(s):** <productivity, overhead, revenue — list which apply>
-> **Expected impact:** <small | medium | large | unset>
+>
 > **Last updated:** YYYY-MM-DD HH:MM
 
-## What I learned
+---
+
+## Applied to <Target Display Name>
+
+applies-to:: [[<wikilink-to-target-file>]]
+status:: not-started
+value-vector:: revenue, productivity
+expected-impact:: medium
+created:: YYYY-MM-DD
+last-updated:: YYYY-MM-DD HH:MM
+
+> **Applies to:** [[<wikilink-to-target-file>]]
+> **Status:** `not-started`
+> **Value vector(s):** revenue, productivity
+> **Expected impact:** medium
+> **Last updated:** YYYY-MM-DD HH:MM
+
+### What I learned
 <1-2 sentence summary with link to the concept note>
 
-## Why it applies to <target>
+### Why it applies to <target>
 <Concrete mechanism — what about the target file/agent/area today benefits from absorbing this concept>
 
-## How to apply it
+### How to apply it
 <Actionable steps. File paths. Agent prompt edits. Workflow tweaks. The bridge does NOT auto-edit the target file — Anthony reviews this section and applies the change manually. This is the change-request, not the change.>
 
-## Value vector reasoning
+### Value vector reasoning
 <For each tagged value vector, one sentence on the concrete mechanism. Examples:
 - `productivity`: every future client site inherits this anchor via content-writer.md, ~10 min saved per pricing page build
 - `revenue`: lifts quiz-to-booking conversion ~5% based on source's cited data
 - `overhead`: removes the manual "did I remember to anchor?" check from every build>
 
-## Status
+### Status
 `not-started`
 
-## Updates
+### Updates
 <Empty on creation. Future updates from later sources land here.>
 ```
 
-**Section headers mandatory:** What I learned / Why it applies / How to apply it / Value vector reasoning / Status / Updates.
+**Mandatory sub-section headers under each H2 application section:** What I learned / Why it applies / How to apply it / Value vector reasoning / Status / Updates.
 
-**Tag mapping by target zone** (use the right `#applies-to/*` tag for the bridge):
+**The H2 anchor itself is load-bearing.** Cross-references from concept files, daily files, or other bridges point at specific applications via `[[<concept-slug>#Applied to <Target Display Name>]]`. Choose Target Display Names that are stable and human-readable — they become permanent anchors.
+
+**Tag mapping by target zone** (use the right `#applies-to/*` tag — file-level `tags:` aggregates the zone tag for each application H2 in the file):
 
 | Target zone | Tag |
 |---|---|
@@ -500,27 +520,41 @@ tags: [#learning/applied, #applies-to/<zone-tag>]
 | `Optimus Inc/brand/` | `#applies-to/optimus-inc/brand` |
 | `tools-tracking/<tool>.md` | `#applies-to/tools/<tool-slug>` |
 
-#### APPEND path — existing bridge
+#### APPEND-NEW-APPLICATION path — bridge file exists, new target zone
 
-Same dedup nuance as concept-append (Step 3): only block IDENTICAL/near-verbatim repetition; variations always pass.
+A `/learn` run identifies a target zone for this concept that no existing H2 section covers. Procedure:
 
-1. Read the existing file in full.
-2. Bump `last-updated`. Add to `source-references:` list. Add wikilink to visible blockquote.
-3. **Information-delta check:** does the new source add anything beyond what the bridge already says in `## What I learned` / `## Why it applies` / `## How to apply it` / `## Value vector reasoning` and prior `## Updates`? Variations (new angle, new application step, new vector reasoning, contradictory data) always pass. Identical/near-verbatim repetition is blocked — `source-references:` still grows but no body change.
-4. If delta exists, append a `### YYYY-MM-DD HH:MM — <label> — from [[<daily-anchor>]]` block under `## Updates`.
-5. **Value-vector merge rule:** if the new source reveals an additional value vector not on the existing bridge, ADD it to `value-vector:` (e.g., a bridge originally tagged `[productivity]` learns from a new source that the same pattern lifts revenue → becomes `[productivity, revenue]`). Never remove existing vectors during APPEND.
-6. Don't touch the original body content of `## What I learned` / `## Why it applies` / `## How to apply it` / `## Value vector reasoning` / `## Status`.
+1. Read the existing bridge file in full.
+2. Append a new `## Applied to <New Target Display Name>` H2 section at the bottom (after a `---` horizontal-rule separator). The H2 carries its own inline Dataview fields, visible blockquote, and 6 sub-sections per the CREATE template.
+3. Bump file-level `last-updated:` to the new application's timestamp.
+4. Add the new application's `#applies-to/<zone>` tag to file-level `tags:` if not already present.
+5. If the new source-reference is not already in file-level `source-references:`, add it (additive — never remove old sources).
+6. Add a wikilink line to the file-level visible blockquote's source list if a new source contributed.
+
+Do NOT modify any of the existing H2 sections during this path. The new application appends below them.
+
+#### APPEND-TO-EXISTING-APPLICATION path — bridge file exists, target H2 already exists
+
+A `/learn` run identifies the same target zone for this concept that an existing H2 already covers (e.g., a follow-up YouTube video adds a new gotcha to an already-bridged application). Procedure (mirrors concept-APPEND):
+
+1. Read the existing bridge file in full.
+2. Bump that H2's inline `last-updated::` to the new timestamp.
+3. **Information-delta check:** does the new source add anything beyond what the H2 already says in `### What I learned` / `### Why it applies` / `### How to apply it` / `### Value vector reasoning` and prior `### Updates`? Variations (new angle, new application step, new vector reasoning, contradictory data) always pass. Identical/near-verbatim repetition is blocked — file-level `source-references:` still grows but no H2 body change.
+4. If delta exists, append a `#### YYYY-MM-DD HH:MM — <label> — from [[<daily-anchor>]]` block under that H2's `### Updates` sub-section.
+5. **Value-vector merge rule:** if the new source reveals an additional value vector not on the existing H2, ADD it to that H2's inline `value-vector::` (e.g., `[productivity]` → `[productivity, revenue]`). Never remove existing vectors during APPEND.
+6. Don't touch the original body content of `### What I learned` / `### Why it applies` / `### How to apply it` / `### Value vector reasoning` / `### Status`.
+7. Bump file-level `last-updated:` to the new timestamp. Append the new daily-anchor to file-level `source-references:` if not already present. Append the new daily-anchor to the file-level visible blockquote's source list if not already present.
 
 ### Step 5 — Update cross-references
 
 After all concept and bridge files are written/updated:
 
 1. **Update the daily H2 section's `concepts-touched::` inline field** with the resolved concept wikilinks (whether they were created or updated).
-2. **Update the daily H2 section's `bridges-created::` inline field** with the bridge wikilinks (or `(none)` if no bridge was created).
+2. **Update the daily H2 section's `bridges-created::` inline field** with H2-anchor wikilinks pointing at the specific application H2 sections affected by this `/learn` run, or `(none)` if no bridge was created. Format: `[[../apply-to-optimus/<concept-slug>#Applied to <Target Display Name>]]`. Each application H2 gets its own anchor link — multiple applications in the same `/learn` run produce a comma-separated list of anchors.
 3. **Verify each touched concept file's `source-references:` frontmatter** includes the new daily-anchor wikilink.
-4. **Verify each touched bridge file's `source-references:` frontmatter** includes the new daily-anchor wikilink.
+4. **Verify each touched bridge file's file-level `source-references:` frontmatter** includes the new daily-anchor wikilink.
 
-Bidirectional linking is the load-bearing invariant — every source knows what concepts it touched; every concept knows what daily captures fed it.
+Bidirectional linking is the load-bearing invariant — every source knows what concept-application H2s it touched; every concept and bridge knows what daily captures fed it.
 
 ### Step 6 — Tag application audit
 
@@ -541,7 +575,7 @@ learn(<domain>): <one-line summary of what was captured>
 
 - Source: [[YYYY-MM-DD#HH:MM — "Source Title" by Publisher]] (in daily file)
 - Concepts: <slug-1> (created|updated), <slug-2> (created|updated)
-- Bridges: <offering-1>[, <offering-2>] | none
+- Bridges: <concept-slug-1> (file-created | application-appended | source-update-appended) <Applied to Target>; ... | none
 ```
 
 Example:
@@ -550,7 +584,7 @@ learn(obsidian): Obsidian + Claude integration patterns
 
 - Source: [[2026-04-26#11:36 — "Claude Obsidian is INSANE!" by Julian Goldie SEO]]
 - Concepts: obsidian-claude-integration (created)
-- Bridges: ai-marketing (Obsidian + Claude as content engine substrate)
+- Bridges: obsidian-claude-integration (file-created) Applied to AI Marketing Team (Tier-3)
 ```
 
 Then `git push`.
@@ -595,7 +629,32 @@ Before committing, validate every file you wrote:
 - New `### YYYY-MM-DD HH:MM — <label> — from [[<daily-anchor>]]` block exists under `## Updates`
 - Original `## What it is` / `## When to use` / `## Mechanics` / `## Examples` / `## Gotchas` body content is BYTE-IDENTICAL to before
 
-**Bridge file checklist:** Same pattern as concept (CREATE: 5 sections + Updates; APPEND: bump + append-only).
+**Bridge file checklist:**
+
+For CREATE FILE path:
+- File-level YAML has all required fields (title, schema-version, concept, source-references, created, last-updated, tags)
+- File-level visible blockquote at top has concept link + source list + last-updated
+- Exactly one `## Applied to <Target>` H2 section (will grow as future applications append)
+- That H2 has inline Dataview fields (applies-to, status, value-vector, expected-impact, created, last-updated) all present
+- That H2 has visible blockquote with applies-to + status + value-vectors + expected-impact + last-updated
+- That H2 has all 6 sub-sections in order: What I learned / Why it applies / How to apply it / Value vector reasoning / Status / Updates
+- Empty sub-sections show `(none)`, not omitted
+
+For APPEND-NEW-APPLICATION path:
+- File-level `last-updated:` bumped
+- File-level `tags:` includes the new application's `#applies-to/<zone>` tag
+- File-level `source-references:` includes the new daily-anchor (if new source contributed)
+- A new `## Applied to <Target>` H2 section exists at bottom, separated from prior H2 by `---`
+- New H2 follows full template (inline fields + blockquote + 6 sub-sections)
+- Existing H2 sections are BYTE-IDENTICAL to before
+
+For APPEND-TO-EXISTING-APPLICATION path:
+- That H2's inline `last-updated::` bumped
+- File-level `last-updated:` bumped, `source-references:` grew with new daily-anchor
+- New `#### YYYY-MM-DD HH:MM — <label> — from [[<daily-anchor>]]` block exists under that H2's `### Updates` sub-section
+- That H2's `### What I learned` / `### Why it applies` / `### How to apply it` / `### Value vector reasoning` / `### Status` body content is BYTE-IDENTICAL to before
+- That H2's `value-vector::` may have grown (additive only — never remove vectors)
+- All other H2 sections in the file are BYTE-IDENTICAL to before
 
 **Cross-reference checklist:**
 - Daily H2 section's `concepts-touched::` inline field matches the concepts touched

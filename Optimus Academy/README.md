@@ -17,7 +17,7 @@ The vault separates **comprehensive per-source captures** (which live as H2 sect
 |---|---|---|
 | `[[daily/]]` | One file per day. Multiple sources captured the same day → multiple H2 sections in one daily file, each with comprehensive detail extraction. Source attribution sits prominently at the top of each H2. | New H2 sections append throughout the day; existing H2 capture sections never modified after creation. |
 | `[[concepts/]]` | One file per **topic** (not per source). Synthesized atomic distillations. The reusable layer above the raw daily captures. | Living. Original definition stays stable at top. New findings from later sources append as `## Update — date — from [[daily/...]]` sections. |
-| `[[apply-to-optimus/README\|apply-to-optimus/]]` | One file per (concept × offering) operational insight. "Concept X improves Offering Y by doing Z." | Living. Same append behavior as concepts. |
+| `[[apply-to-optimus/README\|apply-to-optimus/]]` | One file per **concept**. Multiple applications of the same concept live as separate H2 sections inside the file (mirroring how `daily/` has multiple H2 source-capture sections inside one date-keyed file). Each H2 is one operational insight: "Concept X improves Target Y by doing Z." | Living. New applications append as new H2 sections; existing H2 application bodies stay byte-identical, with new findings landing in each H2's `### Updates` sub-section. |
 | `[[courses/]]` | Structured course notes by source: `anthropic/`, `nvidia/`, `youtube/`, `books/`. Each course gets its own subfolder when started. Module-by-module notes live inside the course folder. | Manual organization. |
 | `[[tools-tracking/]]` | New tool releases and ecosystem changes. NemoClaw, OpenClaw, Claude features, agent frameworks. One file per tool. Tracks what is real, what shipped, what to evaluate. | Manual updates. |
 
@@ -31,7 +31,7 @@ Paste a transcript, YouTube URL, or course notes. Run `/learn`. Claude generates
 
 1. **A daily file H2 capture section** in `daily/YYYY-MM-DD.md` — the comprehensive per-source extraction, with inline Dataview metadata fields and source-attribution blockquote at the top. New H2 section in today's file (or new file if today doesn't have one yet).
 2. **One concept file per TOPIC** in `concepts/<concept-slug>.md` — created OR updated via scan-and-decide. The synthesized atomic distillation. Most sources touch one topic, so one concept file gets created or updated. A wide-ranging course module might touch 2-3 topics.
-3. **Zero or more bridge notes** in `apply-to-optimus/<concept-slug>-applied-to-<offering-slug>.md` — operational insights, when the topic has clear application to one of the four Optimus offerings.
+3. **Zero or more application H2 sections** inside `apply-to-optimus/<concept-slug>.md` — operational insights, one H2 per target zone where the concept meaningfully integrates. The bridge file is created on first application and accretes new H2 sections for each additional target zone over time.
 
 Plus tags on every file. Plus a commit.
 
