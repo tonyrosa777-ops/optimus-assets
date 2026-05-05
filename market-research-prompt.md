@@ -39,6 +39,21 @@ Extract:
 
 These are your research seeds. Everything that follows builds from them.
 
+### Precondition — identity is grounded upstream
+
+`/intake` Step 1.5 (External Business Grounding) externally verifies base city, service area,
+license numbers, social profiles, and review platform list before this prompt runs. Trust it.
+Do NOT re-verify location.
+
+If `initial-business-data.md` still shows `⚠️ NOT FOUND` on any of:
+- Section 1 Location / Base city / Service area
+- Section 7 Testimonials (platform list + counts)
+
+stop immediately and surface `[BLOCKED-ON: Intake grounding incomplete — re-run /intake before /market-research]`.
+Do not run downstream research anchored to an ungrounded base.
+
+The platform list in Section 7 is your map for verbatim review mining (see Audience research below).
+
 ---
 
 ## RESEARCH METHODOLOGY
@@ -47,14 +62,20 @@ For each section below, you will search the web, analyze real competitor sites,
 and synthesize findings. Do not rely solely on `initial-business-data.md` —
 treat it as your briefing document, not your research output.
 
-**Competitor research process:**
-1. Start with the competitors named in Section 8 of `initial-business-data.md`
-2. Search for 2–3 additional competitors in the same market (same geography or
-   same category nationally) that the client may not be aware of
-3. For each competitor: visit their site, note their positioning, pricing, conversion
-   flow, design quality, and trust signals
-4. Look for patterns across competitors — what everyone does (table stakes) vs.
-   what no one does (opportunity gaps)
+**Competitor research process — three explicit tiers:**
+
+The output competitor analysis tags every competitor as `[DIRECT]`, `[ADJACENT]`, or `[BENCHMARK]`. Mixing tiers in a single list is what produces premium design-build firms in a research aimed at a working contractor — useful for nothing.
+
+1. **`[DIRECT]` — 3-4 head-to-head competitors. Mandatory.**
+   Same SERP, same town/region (use the verified base city from intake), same price tier. These are who the client actually loses leads to. Discovery method: search the queries the buyer would search — "[service] [verified city]", "[service] near [verified city]", "[service] [verified region]" — and pull top organic + map-pack results. The client's named competitor list (from Section 8 of intake) is a starting set, NOT the universe.
+
+2. **`[ADJACENT]` — 1-2 same-region different-tier competitors.**
+   Same region, different price tier (premium-vs-volume, full-service-vs-specialty). Useful for boundary mapping and pricing anchoring. Not who the client loses leads to most often, but who shapes the regional market context.
+
+3. **`[BENCHMARK]` — 1 mandatory national best-in-class site.**
+   A top-5 site nationally in this category. The design-system aspiration target — feeds the design-synthesizer agent. If the client requested specific national references in intake or discovery, use those; otherwise pick the top-ranking nationally.
+
+For each competitor (any tier): visit their site, note positioning, pricing, conversion flow, design quality, and trust signals. Look for patterns across the `[DIRECT]` set — what everyone does (table stakes) vs. what no one does (opportunity gaps). The `[BENCHMARK]` is read for what to elevate toward, not for gap analysis (it's already best-in-class).
 
 **Pricing research process:**
 - Search for pricing pages, Reddit threads, Facebook groups, and review sites in
@@ -64,9 +85,20 @@ treat it as your briefing document, not your research output.
   main offer feel reasonable?
 
 **Audience research process:**
-- Read reviews on Google, Yelp, TripAdvisor, or relevant platforms for competitors
-- Look for recurring language in positive AND negative reviews — this is how the
-  audience actually describes their experience
+
+**First — verbatim review pull from THIS BUSINESS.** Intake Step 1.5 located the platforms where reviews of this business exist (Section 7 of `initial-business-data.md`). Mine each of those platforms for 5-10 verbatim quotes. These are the highest-value voice inputs — they're how this business's actual customers talk, not just how the category talks.
+
+For each platform listed in intake's Section 7 (Google, Facebook, HomeAdvisor, BBB, Nextdoor, Yelp — whichever surfaced):
+- Pull at minimum 5 verbatim quotes, ideally 10
+- Quote text exactly + attribute (reviewer first name + last initial if shown, platform, URL or permalink)
+- Capture both positive and negative — negative reviews of THIS business are the highest-value source for FAQ objection-handling copy
+- If a platform's reviews are behind a login wall and unscraperable, note: `Zero verbatim quotes available — [N reviews behind login wall]`
+
+These quotes feed content-writer's `/testimonials` page (real review = real testimonial seed), the FAQ section (negative-review patterns = objection-handling copy), and Section 2 persona work below.
+
+**Second — category-wide review research.**
+- Read reviews on Google, Yelp, TripAdvisor, or relevant platforms for COMPETITORS in this category
+- Look for recurring language in positive AND negative reviews — this is how the audience generally describes their experience in this category
 - Search Reddit and relevant forums for questions about this category
 - Note the exact phrases people use when they are happy, frustrated, or deciding
 
@@ -103,29 +135,33 @@ Write this LAST, after completing all other sections.
 
 ### Section 2 — Target Audience Deep Dive
 
-**Primary persona:** Build a specific person, not a demographic bracket.
-Give them a name and a specific life situation. Age range should be a tight window
-(e.g. 32–44), not a broad one (e.g. 25–55).
+**Primary persona — must include all of:**
+- A first name AND a specific life situation (e.g. "Megan, just bought first house in Andover with HELOC available", not "homeowners considering renovation")
+- A tight age window — 5-12 year span maximum (e.g. 34–44). Never 25–55.
+- An income bracket grounded in regional median income for the verified base city (look up the actual median household income for the city; place the persona's income relative to it)
+- One verbatim quote from a real review of THIS business (pulled in the audience research step above) showing how this audience actually talks
+
+Reject any persona that reads as a demographic bracket ("homeowners 35-65", "ready to invest in themselves"). The whole point is to give content-writer specific language, fears, and triggers — not a category.
 
 **Buying triggers:** These must be specific life events or emotional states — not
 generic ("ready to invest in themselves"). Examples: "just got engaged and has 6 months
 to plan", "therapist recommended it", "friend had a transformation and showed results".
 Find these by reading reviews and forum posts in this category.
 
-**Buying blockers:** Find these in 1-star reviews, Reddit complaints, and FAQ
-objection-handling copy on competitor sites. The real blockers are specific fears,
-not generic price sensitivity.
+**Buying blockers:** Find these in 1-star reviews of THIS business (highest priority — those are the actual blockers Anjo / [client] has hit), then in 1-star reviews of `[DIRECT]` competitors, then in Reddit complaints and FAQ objection-handling copy. The real blockers are specific fears, not generic price sensitivity.
 
-**Audience language:** Quote actual phrases from reviews, forums, or social posts.
-These phrases should be usable as headline copy directly. The goal is to write
-in the customer's words, not the brand's words.
+**Audience language:** Quote actual phrases from reviews of THIS business first (pulled above), then from category reviews / forums / social posts. These phrases should be usable as headline copy directly. The goal is to write in the customer's words, not the brand's words.
 
 ---
 
 ### Section 3 — Competitor Analysis
 
-Analyze 3–6 competitors. At least 2 must come from your own research (not just
-the client's list). Use this exact block structure for each:
+Analyze the three-tier competitor set defined in the Competitor research process above:
+- 3-4 `[DIRECT]` competitors (mandatory)
+- 1-2 `[ADJACENT]` competitors
+- 1 `[BENCHMARK]` national best-in-class site (mandatory)
+
+Tag each competitor block with its tier in the heading (e.g. `### [DIRECT] Skillville Corp`). Use this exact block structure for each:
 
 For the Design Quality score (1–10):
 - 1–3: Broken, outdated, or visually unprofessional
@@ -255,20 +291,24 @@ Describe what you actually see when you open the top 5 competitor sites:
 
 ### Section 9 — Strategic Recommendations
 
-Write 5 "Do" directives, 3 "Avoid" directives, and 3 "Exploit" directives.
-Each must be specific and tied to something in the research above.
+Write 5 "Do" directives, 3 "Avoid" directives, and exactly 3 "Exploit" directives — one in each of the three required exploit categories below. Each directive must cite the specific finding (competitor name, review pattern, query gap) it's grounded in. No floating recommendations.
 
-Good format:
+**Required exploit categories (one each, mandatory):**
+
+1. **Timing exploit** — when does this audience search? When are competitors unavailable? Examples: "Local contractors universally close M-F 9-5; homeowners do their hiring research Sunday evening — text-based after-hours response wins the pre-Monday-decision crowd." Cite the timing pattern (search-trend data, review timestamps, competitor closed-sign hours).
+
+2. **Competitor-specific exploit** — name a specific `[DIRECT]` competitor and cite a specific failure of theirs that this client can directly steal market from. Example: "Skillville Corp's contact form requires 8 fields and has no phone number — buyers giving up at field 4 are the lowest-effort lead Anjo can capture with a one-tap call CTA above the fold." Cite the named competitor + observed failure + how this client closes the gap.
+
+3. **Content / AEO exploit** — a high-intent query nobody answers well that this client can own with one page. Cite the query + which competitors do (or do not) rank for it + what the answer page looks like.
+
+**Other directive examples:**
+
 > **Do:** Show pricing transparently — the market hides it; the one site that
 > shows it will capture all the buyers who are doing comparison research.
 
 > **Avoid:** Generic hero stock photography — every competitor in this category
 > uses similar stock. Real photography of the actual space/person/product is
 > the single fastest signal of authenticity.
-
-> **Exploit:** No competitor has published educational content for first-time
-> buyers. A "what to expect" page or FAQ targeting "is [service] worth it"
-> captures research-phase traffic that currently has nowhere to land.
 
 ---
 
@@ -283,10 +323,24 @@ Then output a research summary:
 MARKET RESEARCH COMPLETE
 ────────────────────────
 Competitors analyzed:      [count + names]
+  [DIRECT]:                [list]
+  [ADJACENT]:              [list]
+  [BENCHMARK]:             [name + URL]
 Sections completed:        9 / 9
 Web searches performed:    [count]
+
+Real reviews quoted:       [count across all platforms]
+  By platform:             [Google: N quotes; FB: N; HomeAdvisor: N; ...]
+Audience verbatim phrases captured: [count usable as headline copy]
+
 Key strategic insight:     [one sentence — the most important finding]
 Critical gap identified:   [one sentence — the biggest opportunity]
+
+Three required exploits:
+  Timing:                  [one-line summary]
+  Competitor-specific:     [named competitor + one-line summary]
+  Content/AEO:             [target query + one-line summary]
+
 Next step: run /prime
 ```
 

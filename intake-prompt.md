@@ -1,6 +1,6 @@
 ---
 name: intake
-description: Structured business data intake — client website URL or raw-notes → initial-business-data.md. Mode A (URL crawl) or Mode B (discovery notes). Flags every unfillable field with ⚠️ NOT FOUND for Phase 2 gap resolution.
+description: Structured business data intake — client website URL or raw-notes → initial-business-data.md. Mode A (URL crawl) or Mode B (discovery notes), plus a mandatory external business grounding sweep across 10 public sources (GBP, FB, Yelp, HomeAdvisor/Angi, BBB, Nextdoor, state business registry, state license database, phone area-code, WHOIS). Goal is autonomy — fill every publicly findable field rather than flagging it for the human.
 effort: high
 ---
 
@@ -68,6 +68,54 @@ When in doubt, flag `⚠️ NOT FOUND — confirm with client`. Over-flagging co
 
 **If no URL was provided (Mode B):**
 Read `raw-notes.md` in full. This is your only source material.
+
+---
+
+## STEP 1.5 — EXTERNAL BUSINESS GROUNDING (autonomous, mandatory in BOTH modes)
+
+The goal is autonomy. Every LLC, contractor, and service business has a public footprint across registries and directories. Find it. Do NOT flag fields as `⚠️ NOT FOUND` until this step has run and produced nothing.
+
+This step runs in BOTH Mode A and Mode B — every business has external grounding regardless of whether they have a website.
+
+### Sources to search (search by exact business name + DBA / common variants if surfaced):
+
+| Source | What to extract |
+|---|---|
+| Google Business Profile / Google Maps | Address, base city, phone, hours, services list, photo count, review count, average star, verified status |
+| Facebook business page | Location, owner-presence signals (recent posts), review count, photo presence |
+| Yelp | Address, services list, review count, average star |
+| HomeAdvisor / Angi (or industry-equivalent — Houzz for design, Avvo for legal, Zocdoc for medical, etc.) | License badges shown, review count, services list, verified address |
+| Better Business Bureau | Accreditation status, registered name, address, complaint history (count + recency) |
+| Nextdoor | Community recommendation presence (count + tone of comments) |
+| State business registry (Secretary of State / state corporation database) | Registered LLC legal name, registered agent, registered address, formation date, status (active/forfeit/dissolved) |
+| State licensing database (niche-conditional — MA HIC, MA CSL, NH state contractor license, state cosmetology, state real estate, state medical board, etc.) | License numbers, license status, expiration, named license holder |
+| Phone area-code lookup | Map area code(s) found in source material to served region — geographic consistency check against everything above |
+| WHOIS for the domain (Mode A only) | Registrant name + address (often privacy-protected; useful when not) |
+
+### Cross-reference logic
+
+- **2+ sources agree → lock it in.** If GBP says Methuen and BBB says Methuen, base city is Methuen. Done.
+- **Sources disagree → flag the discrepancy.** If GBP says Methuen and BBB says Lawrence, write the field as `Methuen, MA (per GBP + state registry); Lawrence, MA (per BBB) — ⚠️ DISCREPANCY` and let it surface in the summary. Never silently pick one.
+- **Phone area-code consistency check.** If the area code's geographic region disagrees with the discovered base city (e.g., 978 area code with claimed location in Salem NH), flag the contradiction explicitly. It's usually a moved-business signal worth surfacing.
+- **No external evidence found.** Field gets the standard `⚠️ NOT FOUND — confirm with client` flag, but only after all 10 sources have been searched. Sources searched + nothing-found notes get logged in the INTAKE COMPLETE summary so Anthony can see effort was made.
+
+### Fields filled by Step 1.5 (overwriting `⚠️ NOT FOUND` from Step 1 wherever external evidence exists)
+
+- **Section 1:** Location, Base city, Service area, Years in operation (use registry formation date if more authoritative than the about page)
+- **Section 2:** Service radius (where stated on directories)
+- **Section 4:** Photography available (real photos on FB / IG / Yelp / GBP — describe what's there + where), Logo (higher-quality logo file if surfaced externally)
+- **Section 5:** Social profiles (every live link found, not just what was on the client site), Existing forms / lead tools (CTAs Yelp / GBP / FB push)
+- **Section 7:** Testimonials (record platform list + count + average star — VERBATIM QUOTE pull is deferred to market-research where it gets mined for voice), Quantifiable results (years operating from registry date, total review count summed across platforms), Certifications (license numbers from state databases — MA HIC #, CSL #, etc., with verified-active flag)
+
+### Fields Step 1.5 does NOT touch
+
+- **Section 3** — Pain points, transformation, hesitation, decision triggers. These come from market-research's audience-psychology mining, not from the business's own footprint.
+- **Section 6** — Goals, revenue targets, launch dates, constraints. Genuinely private; only the human can answer these.
+- **Section 8** — Competitors. Market-research's job.
+
+### Discipline
+
+The bar for surfacing a `⚠️ NOT FOUND — confirm with client` flag on a Section 1, 2, 4, 5, or 7 field is now: "I searched all 10 sources above and found nothing." Over-flagging here is the failure mode — every flag that could have been filled by external research is process waste. Under-flagging (inventing a value not actually found in any source) remains the harder failure: false claim → false-advertising risk. So: search hard, fill what you find, flag the rest with the sources searched documented.
 
 ---
 
@@ -210,8 +258,22 @@ After writing the file, output a completion report:
 INTAKE COMPLETE
 ───────────────
 Sections fully filled:      [count] / 8
-Fields needing client input: [list every ⚠️ field]
+Fields needing client input: [list every ⚠️ field that survived Step 1.5]
 Source: [URL crawled or raw-notes.md]
+
+External grounding sources searched: [list all 10 sources, mark each FOUND / NOT FOUND]
+External grounding fills:
+  • Section 1 Location:       [e.g. "Methuen, MA — filled from GBP + state registry"]
+  • Section 1 Base city:      [e.g. "Methuen, MA — filled from GBP + BBB"]
+  • Section 1 Service area:   [e.g. "Merrimack Valley + southern NH — filled from HomeAdvisor service-area map"]
+  • Section 4 Photography:    [e.g. "12 project photos on Yelp + 8 on FB"]
+  • Section 5 Social profiles:[e.g. "FB, IG, Nextdoor — all linked"]
+  • Section 7 Testimonials:   [e.g. "HomeAdvisor 23 reviews 4.9★, Google 41 reviews 4.8★, BBB A+ accredited"]
+  • Section 7 Certifications: [e.g. "MA HIC #198765 verified active (expires 2027-08), MA CSL #CS-099887 verified"]
+  [List every field that Step 1.5 filled. Empty if nothing was filled externally.]
+
+Discrepancies flagged: [count + brief description, or "none"]
+  [e.g. "1 — GBP shows Methuen MA, BBB shows Lawrence MA. Recorded both, flagged."]
 
 Custom builds flagged:
   [List any features in Sections 2 or 5 that fall outside the Optimus

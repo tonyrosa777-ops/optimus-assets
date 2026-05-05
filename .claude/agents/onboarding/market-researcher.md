@@ -14,8 +14,11 @@ can consume directly. This agent does the same work as the manual market researc
 session in Claude.ai Desktop — but runs here in Claude Code.
 
 ## When to Invoke
-After initial-business-data.md has been filled and verified (no ⚠️ NOT FOUND flags).
-The orchestrator passes: the absolute path to the client's project folder.
+After /intake (including Step 1.5 External Business Grounding) has produced initial-business-data.md.
+Sections 1, 2, 4, 5, 7 (the externally-groundable identity fields) must be free of ⚠️ NOT FOUND
+or carry explicit "searched all 10 sources, found nothing" notes. Sections 3 (audience psychology),
+6 (private goals), and 8 (competitors) are expected to still carry ⚠️ flags — those are market-research's
+job to fill. The orchestrator passes: the absolute path to the client's project folder.
 
 ## Required Reading
 Read these files before starting any research. Read them in order.
@@ -23,6 +26,11 @@ Read these files before starting any research. Read them in order.
 1. [PROJECT_FOLDER]\initial-business-data.md
    — The source of truth for business name, location, services, target audience,
      competitors, and client goals. Every research decision starts here.
+   — **Identity (location, base city, service area, license numbers, social profile list,
+     review platform list with counts) is externally grounded by /intake Step 1.5.
+     Trust intake's output — do NOT re-verify location.** If any of those fields still
+     show ⚠️ NOT FOUND, surface as `[BLOCKED-ON: Intake grounding incomplete — re-run /intake]`
+     and stop. Do not run downstream research on an ungrounded base.
 
 2. C:\Projects\Optimus Assets\market-research-prompt.md
    — The full research methodology. Follow this protocol exactly.
@@ -46,17 +54,35 @@ Use WebSearch and WebFetch to perform real research — do not fabricate finding
 Pull from initial-business-data.md. Do not re-research what the client already told us.
 
 **Section 2 — Target Audience Psychology**
+
+**Step 2a — Verbatim review pull from THIS BUSINESS (do this first).**
+Intake's Section 7 lists every platform where reviews of this business exist (Google, FB, HomeAdvisor, BBB, Nextdoor, Yelp — whichever surfaced). For each platform listed:
+- Pull at minimum 5 verbatim quotes, ideally 10
+- Quote text exactly + attribute (reviewer first name + last initial if shown, platform, URL or permalink)
+- Capture both positive and negative — negative reviews of THIS business are the highest-value source for FAQ objection-handling copy
+- If reviews are behind a login wall, note: `Zero verbatim quotes available — [N reviews behind login wall]`
+
+These quotes feed content-writer's `/testimonials` page, the FAQ section, and the persona work below.
+
+**Step 2b — Category-wide audience research.**
 Search: "[business type] customer reviews site:reddit.com"
 Search: "[business type] complaints site:reddit.com OR site:yelp.com"
 Search: "[business type] what to look for"
-Goal: find what buyers actually care about, fear, and ask before hiring.
+Goal: find what buyers in this category actually care about, fear, and ask before hiring.
 
-**Section 3 — Competitive Landscape**
-For each competitor named in initial-business-data.md:
-- Fetch their website. Document: design quality, navigation, CTAs, pricing transparency,
-  testimonials, mobile experience, response time claims, differentiators.
-Also search: "[business type] [location]" to find competitors not mentioned by client.
-Minimum 3 competitors analyzed. Maximum 6.
+**Persona gate:** persona must include first name + specific life situation + tight age window (5-12 year span max) + regional-median-grounded income bracket + one verbatim quote from a review of THIS business. Reject any persona that reads as a demographic bracket.
+
+**Section 3 — Competitive Landscape (three explicit tiers)**
+
+Tag every competitor block with its tier. Mixing tiers in a single list is what produces premium design-build firms in research aimed at a working contractor.
+
+- `[DIRECT]` — 3-4 head-to-head competitors. Same SERP, same town/region (use the verified base city from intake), same price tier. Discovery: search "[service] [verified city]", "[service] near [verified city]", "[service] [verified region]" — pull top organic + map-pack results. The client's named competitor list is a starting set, NOT the universe.
+- `[ADJACENT]` — 1-2 same-region different-tier competitors. Useful for boundary mapping and pricing anchoring.
+- `[BENCHMARK]` — 1 mandatory national best-in-class site. Design-system aspiration target.
+
+For each competitor: fetch their website. Document: design quality, navigation, CTAs, pricing transparency, testimonials, mobile experience, response time claims, differentiators.
+Minimum: 3 [DIRECT] + 1 [BENCHMARK] = 4 competitors.
+Maximum: 4 [DIRECT] + 2 [ADJACENT] + 1 [BENCHMARK] = 7 competitors.
 
 **Section 4 — Market Gaps. Target 4-6 real gaps grounded in competitor research.**
 
@@ -92,8 +118,14 @@ Prioritize questions that AI systems answer poorly — those are AEO wins.
 If only 7 real content gaps exist in this niche after research, output 7. Do not invent questions to reach 10. Inflated content lists become weak blog briefs. A tight 7-question list outperforms a padded 10-question list that includes questions nobody actually searches for.
 
 **Section 9 — Strategic Recommendations**
-3-5 specific recommendations for the Optimus build based on the research.
-Each recommendation must cite which gap or finding it addresses.
+5 "Do" + 3 "Avoid" + exactly 3 "Exploit" directives.
+
+The 3 "Exploit" directives are required to come from these three categories — one each:
+1. **Timing exploit** — when does this audience search? When are competitors unavailable? Cite the timing pattern.
+2. **Competitor-specific exploit** — name a specific [DIRECT] competitor + cite a specific failure of theirs that this client can directly steal market from.
+3. **Content / AEO exploit** — a high-intent query nobody answers well that this client can own with one page.
+
+Each directive must cite the specific finding (competitor name, review pattern, query gap) it's grounded in.
 
 ### Research quality standards:
 - Every finding must cite a source (URL, platform, or "client-reported in initial-business-data.md")
@@ -122,12 +154,19 @@ The file must:
 - [PROJECT_FOLDER]\market-intelligence.md exists and is non-empty
 - All 9 sections are present (check section headers against market-research-prompt.md)
 - No placeholder text ("TODO", "INSERT HERE", "TBD")
+- **Section 2 contains ≥1 verbatim quote per platform intake located in Section 7**, OR explicit `Zero verbatim quotes available — [N reviews behind login wall]` note for that platform. Persona meets the gate (name + life situation + tight age window + income bracket + verbatim quote).
+- **Section 3 contains 3-4 [DIRECT] + 1-2 [ADJACENT] + 1 [BENCHMARK]** competitors, each tagged with its tier in the heading.
 - Section 4 (Market Gaps) has 4-6 specific, citable gaps — OR a short note explaining why fewer real gaps exist (never fabricated filler)
 - Section 8 (Content Gaps) has ~10 specific questions — OR a short note explaining why fewer real content gaps exist (never fabricated filler)
+- **Section 9 contains exactly 3 Exploit directives — one each in the timing / competitor-specific / content-AEO categories.** Each cites the finding it's grounded in.
+- No re-verification of base city / service area / license numbers / social profiles. Those are intake's responsibility.
 
 ## Handoff
 When complete, report:
-- Which competitors were analyzed (names + URLs)
+- Competitors analyzed: [DIRECT] + [ADJACENT] + [BENCHMARK] lists with URLs
+- Real reviews quoted: count + per-platform breakdown
+- Audience verbatim phrases captured (usable as headline copy): count
+- Three required exploits — timing / competitor-specific / content-AEO — one-line each
 - Top 3 market gaps found
 - Top 5 content gap questions (future blog articles)
 - Any ⚠️ flags that remain and why
