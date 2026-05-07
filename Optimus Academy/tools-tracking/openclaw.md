@@ -6,7 +6,7 @@ maintainer: Peter Steinberger (open-source community)
 repo: https://github.com/openclaw/openclaw
 domain: agents
 created: 2026-05-03
-last-updated: 2026-05-03 09:36
+last-updated: 2026-05-06 21:18
 status: evaluating
 review-by: 2026-08-03
 tags: [#learning/captured, #status/draft]
@@ -37,6 +37,7 @@ The tool gets promoted from `evaluating` to `adopted` only if a spike-test confi
 
 ## Decision log
 - **2026-05-03** — Surfaced via [[../daily/2026-05-03#09:36 — "Your Claw can orchestrate multiple agents, handle Slack threads, and ..." by nate.b.jones]]. Status set to `evaluating`. No spike-test yet. Not blocking any current build.
+- **2026-05-06** — Empirical data update via [[../daily/2026-05-06#21:18 — "FREE Hermes + OpenClaw AI Agents Course: Build & Automate ANYTHING" by Julian Goldie SEO]] (Julian Goldie SEO 5h course). Course's empirical hands-on take from late April 2026 frames OpenClaw as DEGRADED relative to peers: Julian reports config-invalidation breakage requiring workarounds, declining day-to-day reliability vs Hermes Agent (Noose Research), and explicitly states "I'm over OpenClaw" by chapter 29. This does NOT contradict the May 3 framing of OpenClaw as "production-grade" per nate.b.jones — both can be true at different abstraction layers (the architecture remains production-grade; the operator experience has degraded relative to a faster-moving competitor). Net effect on Optimus evaluation: status STAYS `evaluating` but with reduced urgency to spike-test for Tier-3 adoption, because the comparable Hermes runtime is now equally-or-more credible AND has a built-in `hermes claw migrate` cross-tool migration path. Star count claims also shifted: Julian cites 340-345k stars (April 2026) vs the May 3 figure of 310k — flagged as inconsistency to reconcile. Companion entry: see new tools-tracking file [[../tools-tracking/hermes]].
 
 ## Related
 - **OB1 (Open Brain)** — companion memory-layer project by Nate B. Jones (https://github.com/NateBJones-Projects/OB1). Self-hosted persistent memory database for AI agents. Tracked separately when it surfaces in its own capture.
