@@ -1,0 +1,18 @@
+# /learn long-form YouTube capture pipeline — working scratch + archive
+# Working scratch: VTTs, chunk slices, agent notes, status files
+# Archive: post-run preservation of working dirs (audit trail, not committed)
+Optimus Academy/tools/working/
+Optimus Academy/tools/archive/
+
+# Python helper artifacts
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.egg-info/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+*.swp
+*~
