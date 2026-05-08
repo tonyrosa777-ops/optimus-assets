@@ -143,7 +143,7 @@ Read the input fully. Routing depends on the input shape:
 **(d) Extract candidate topics** (NOT atomic concepts yet):
 - A topic is a named, reusable area of knowledge.
 - Sub-patterns of a single topic are NOT separate topics — they live as sub-headings under `## Mechanics` in the parent concept.
-- For each topic, note its applicability to any of the five bridge target zones (see Step 4): an Optimus offering, `knowledge/patterns/`, `knowledge/craft/<area>/`, `Optimus Inc/<area>/`, or `Optimus Academy/tools-tracking/`.
+- For each topic, note its applicability to any of the six bridge target zones (see Step 4): an Optimus offering, `knowledge/patterns/`, `knowledge/craft/<area>/`, `Optimus Inc/<area>/`, `Optimus Academy/tools-tracking/`, or `apply-to-anthony-rosa/<area>/` (Anthony Rosa personal hub: investments/, projects/, skills/).
 
 ### Step 1.5 — Enrichment via web search (when source is shallow)
 
@@ -368,7 +368,7 @@ These fields are the substrate for future Optimus University compilation. They t
 8. Optionally bump `review-by:` to a fresh ~6-months-out date if this update materially refreshes the concept. Otherwise leave it alone.
 9. If Step 1.5 enrichment fired during this APPEND run, also update the concept's `enriched-from:` frontmatter list with the new enrichment URLs (preserve any existing entries; this is additive).
 
-### Step 4 — Bridge note(s): route to one of FIVE target zones (not just offerings)
+### Step 4 — Bridge note(s): route to one of SIX target zones (not just offerings)
 
 Bridges are NOT scoped to the four Optimus offerings only. The captured topic is broader than AI tooling — sales training feeds copy craft, finance content feeds Optimus Inc operations, marketing psychology feeds CRO, tool reviews feed the internal stack. The bridge layer routes to wherever the knowledge would actually integrate.
 
@@ -379,7 +379,7 @@ Bridges are NOT scoped to the four Optimus offerings only. The captured topic is
 
 When in doubt, skip the bridge. The user can add one later by editing the concept's `Updates` section once both target AND value vector become clear. Prefer no bridge over a vague bridge in either dimension.
 
-#### The five bridge target zones
+#### The six bridge target zones
 
 Every captured concept's `applies-to:` wikilink points to one of these zones. A single concept may produce multiple bridges — one per applicable zone:
 
@@ -390,6 +390,7 @@ Every captured concept's `applies-to:` wikilink points to one of these zones. A 
 | `knowledge/craft/<area>/` | Cross-cutting craft: `copywriting`, `psychology`, `sales`, `design` | **Does NOT exist** for any `<area>` — lazy-create on first use |
 | `Optimus Inc/<area>/` | Optimus the company itself: `finance`, `operations`, `brand`, `website`, `market-intelligence`, `social-pipeline`, `ai-agents` | Some exist (`brand`, `website`, `market-intelligence`, `social-pipeline`, `ai-agents/<tier>/`); `finance` and `operations` do NOT exist — lazy-create per-area |
 | `Optimus Academy/tools-tracking/<tool-slug>.md` | Flat file per tool, single-file format (not a subfolder) | Folder exists with `.gitkeep`; first real file populates it |
+| `apply-to-anthony-rosa/<area>/` | Anthony Rosa personal hub: investments/, projects/, skills/ | Folder created per the two-domain restructure plan. |
 
 **Folder creation rule before any bridge write:** verify the parent folder exists via Bash `Test-Path` (PowerShell). If absent, `New-Item -ItemType Directory -Force` (or `mkdir -p`) creates it. Never assume existence. Never preemptively scaffold empty folders.
 
@@ -418,6 +419,15 @@ Use this table to pick `applies-to:` targets. Most rows produce 1-3 bridges, nev
 | **Vault operations / Obsidian workflow / capture process** | `optimus-system-guide.md` (vault root canonical operating manual) | None |
 | **General AI news** (model release, API change, industry trend) | **No bridge — concept note only** unless actionable | If actionable → `optimus-system-guide.md` AND/OR `Offerings/02 AI Agents/0X/lessons/` |
 | **Productivity tools for Anthony's own workflow** | `Optimus Inc/operations/personal-stack.md` (lazy-create, append-only single file) | None |
+| **Crypto / trading / investing / retirement modeling** (AKT, BTC, position thesis, market structure) | `apply-to-anthony-rosa/investments/<slug>.md` → targets `anthony-rosa/investments/<file>` | None — Optimus does not offer investment services; this is personal-domain only |
+| **Personal automated revenue projects** (trading bot R&D, AI influencer personal angle, TikTok Shop personal, Akash supply economics as a personal thesis) | `apply-to-anthony-rosa/projects/<slug>.md` → targets `anthony-rosa/projects/<file>` | If the same skill ALSO ships into an Optimus deliverable, ALSO create a separate `apply-to-optimus/...` bridge — see cross-zone split rule below |
+| **Career-skill progression** (AI engineering pathway, Python production-grade practice, LangChain/FastAPI/Pydantic fluency, Personaplex audio expertise) | `apply-to-anthony-rosa/skills/<slug>.md` → targets `anthony-rosa/skills/<file>` | If the skill is also a productized capability Optimus sells, ALSO create an `apply-to-optimus/` bridge per cross-zone split rule below |
+
+**Cross-zone split rule (single source, two domains).** A single source CAN bridge to BOTH `apply-to-optimus/` AND `apply-to-anthony-rosa/` when the skill applies to both domains. **When this happens, create TWO separate single-zone bridge files — NOT one multi-H2 file.** Each file lives in ONE zone, declares ONE `#owner/*` tag (`#owner/optimus` for the Optimus file, `#owner/anthony-rosa` for the Anthony Rosa file), and links back to the SAME shared concept via `concept::` frontmatter. The shared concept is the unifying point; the two bridges are domain-specific applications.
+
+The `gtm-engineering.md` multi-H2 precedent applies WITHIN a single zone only (multiple H2s, all in `apply-to-optimus/`, for one concept with multiple Optimus applications). Cross-zone applications get separate files — one per zone — never a single multi-H2 file spanning zones.
+
+**Canonical example: AI influencer split.** The AI influencer concept ships value into both domains: Optimus sells AI-influencer-style content creation as a client service AND Anthony runs a personal AI influencer for TikTok Shop revenue. The split lives as two single-zone bridge files — `apply-to-optimus/ai-influencer-client-offering.md` (`#owner/optimus`, applies to the Optimus content deliverable) and `apply-to-anthony-rosa/ai-influencer-personal-revenue.md` (`#owner/anthony-rosa`, applies to `anthony-rosa/projects/ai-influencer.md`). Both files share the same `concept::` link and identical `source-references` arrays (same source taught both applications); concept file is unedited. Use this as the reference shape any time a captured source genuinely applies to both domains.
 
 **Worked examples for the four most common source types:**
 
@@ -519,6 +529,16 @@ last-updated:: YYYY-MM-DD HH:MM
 | `Optimus Inc/operations/` | `#applies-to/optimus-inc/operations` |
 | `Optimus Inc/brand/` | `#applies-to/optimus-inc/brand` |
 | `tools-tracking/<tool>.md` | `#applies-to/tools/<tool-slug>` |
+| `anthony-rosa/investments/<file>` | `#applies-to/anthony-rosa/investments` |
+| `anthony-rosa/projects/<file>` | `#applies-to/anthony-rosa/projects` |
+| `anthony-rosa/skills/<file>` | `#applies-to/anthony-rosa/skills` |
+
+**Owner tag — additive, declared on bridge frontmatter based on target domain.** Every bridge file's file-level `tags:` array gets exactly one `#owner/*` tag indicating the bridge's target domain:
+
+- Bridges targeting any Optimus zone (`Offerings/`, `knowledge/`, `Optimus Inc/`, `Optimus Academy/tools-tracking/`) → add `#owner/optimus`
+- Bridges targeting the Anthony Rosa personal hub (`apply-to-anthony-rosa/...` bridge files, applied to `anthony-rosa/{investments,projects,skills}/`) → add `#owner/anthony-rosa`
+
+When a single source produces TWO bridges per the cross-zone split rule above, the Optimus-zone file declares `#owner/optimus` and the Anthony Rosa-zone file declares `#owner/anthony-rosa` — never both tags on one file. The two-domain architecture is encoded structurally (file location + owner tag), not via multi-tagging.
 
 #### APPEND-NEW-APPLICATION path — bridge file exists, new target zone
 

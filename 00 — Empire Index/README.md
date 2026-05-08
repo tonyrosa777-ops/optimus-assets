@@ -1,17 +1,19 @@
 # Optimus Empire Vault — Start Here
 
-This is the Optimus Business Solutions knowledge vault. Everything Optimus knows, sells, builds, deploys, and learns lives here. The vault is multi-offering — website development is the productized flagship, but it sits alongside three in-development AI products (Chat Assistant, Voice Receptionist, Marketing Team) and the company's own operating layer (Optimus Inc) and personal learning hub (Optimus Academy). If you walked in cold and need to know where something lives, this file points you at the right hub in under 30 seconds.
+This is Anthony Rosa's second-brain vault, holding both the Optimus Business Solutions company layer and Anthony's personal layer. Everything Optimus knows, sells, builds, deploys, and learns lives here, alongside Anthony Rosa's personal investments, automated revenue projects, and career skill progression. The vault has **two domains** that overlap by design — Optimus is the LLC + productized services for SMB clients; Anthony Rosa is the human, the investor, the AI engineer in training. The overlap (e.g., the AI influencer skill that's both a personal revenue stream AND a client content offering) is the leverage point. If you walked in cold and need to know where something lives, this file points you at the right hub in under 30 seconds.
 
-## Top-level map
+## Top-level map — 5 peer hubs (4 Optimus + 1 Anthony Rosa)
 
-| Hub | What lives there | Index |
-|---|---|---|
-| `00 — Empire Index/` | Navigation, schemas, glossary. The hub you're in. | [[MOC — Empire]] |
-| `Offerings/` | What Optimus sells. Website Development (productized core) + four AI agent products (Chat / Voice / Marketing / Tier-4 Autonomous AI Employee). | [[MOC — Offerings]] |
-| `Optimus Inc/` | The company itself — own website, deployed agents, Optimus market intel, social pipeline, brand. | `Optimus Inc/README.md` |
-| `Optimus Academy/` | Daily personal learning — courses, concepts, applied bridges. | [[MOC — Learning]] |
-| `anthony-rosa/` | **Founder layer.** Personal vision, AI engineer roadmap, portfolio standards, wins log, private journal. Read upstream of all build decisions on AI systems and upsells. | [[anthony-rosa/north-star]] |
-| `knowledge/` | Existing 108-file website-dev knowledge base — errors, patterns, retros, sales, onboarding. Untouched by the reorg. | [[knowledge/build-log]] |
+| Hub | Domain | What lives there | Index |
+|---|---|---|---|
+| `00 — Empire Index/` | both | Navigation, schemas, glossary. The hub you're in. | [[MOC — Empire]] |
+| `Offerings/` | Optimus | What Optimus sells. Website Development (productized core) + four AI agent products (Chat / Voice / Marketing / Tier-4 Autonomous AI Employee). | [[MOC — Offerings]] |
+| `Optimus Inc/` | Optimus | The company itself — own website, deployed agents, Optimus market intel, social pipeline, brand. | `Optimus Inc/README.md` |
+| `Optimus Academy/` | both | Daily personal learning — courses, concepts, applied bridges (`apply-to-optimus/` AND `apply-to-anthony-rosa/`). | [[MOC — Learning]] |
+| `anthony-rosa/` | Anthony Rosa | **Personal layer (peer hub).** Career, AI engineer roadmap, portfolio standards, wins log, private journal, **investments/** (crypto thesis, AKT tracker, Bitcoin log), **projects/** (akash-network, ai-influencer, trading-bot — automated personal revenue streams), **skills/** (career skill progression — distinct from Claude Code skills at `.claude/skills/`). | [[anthony-rosa/north-star]] |
+| `knowledge/` | Optimus | Existing 108-file website-dev knowledge base — errors, patterns, retros, sales, onboarding. Untouched by the reorg. | [[knowledge/build-log]] |
+
+**Two-domain overlap.** A single concept can apply to both domains — when it does, two single-zone bridge files are created (one in `apply-to-optimus/`, one in `apply-to-anthony-rosa/`), each tagged with one `#owner/*` value, both linking to the same shared concept file. The shared concept is the unifying point. See `Optimus Academy/apply-to-anthony-rosa/README.md` for the cross-zone split rule and the canonical AI influencer example.
 
 Reference docs: [[tag-schema]], [[glossary]].
 
@@ -29,7 +31,11 @@ Reference docs: [[tag-schema]], [[glossary]].
 | Got asked about a new website feature by a client | Add to `Offerings/01 Website Development/` (feature spec) and cross-reference `knowledge/` for prior patterns | `#offering/website-dev` |
 | Drafted Pydantic schemas / FastAPI endpoint shapes for the Marketing Team Python build | `Offerings/02 AI Agents/03 Marketing Team/python-architecture.md` | `#offering/content-engine` `#status/in-development` |
 | Discovered a cross-product agent pattern (e.g. CRM handoff, memory schema, tool-registry shape) | `Offerings/02 AI Agents/shared-knowledge/<pattern>.md` (use `agent-infrastructure.md` if it touches the four primitives) | `#applies-to/ai-agents` |
-| Wrote or updated personal vision, technical roadmap, portfolio standards, weekly journal entry | `anthony-rosa/<file>.md` | `#layer/optimus-os` `#status/active` |
+| Wrote or updated personal vision, technical roadmap, portfolio standards, weekly journal entry | `anthony-rosa/<file>.md` | `#owner/anthony-rosa` `#layer/optimus-os` `#status/active` |
+| Tracked a crypto position, BTC/AKT decision, or investment thesis | `anthony-rosa/investments/<file>.md` | `#owner/anthony-rosa` `#status/active` |
+| Started or progressed a personal automated revenue project (trading bot, AI influencer personal angle, TikTok Shop personal) | `anthony-rosa/projects/<file>.md` | `#owner/anthony-rosa` `#status/in-development` |
+| Set a career skill progression goal (Python, LangChain, FastAPI, etc.) | `anthony-rosa/skills/<file>.md` | `#owner/anthony-rosa` `#status/active` |
+| Captured learning that applies to a personal investment, project, or skill (not Optimus) | `Optimus Academy/apply-to-anthony-rosa/<concept-slug>.md` | `#learning/applied` `#owner/anthony-rosa` `#applies-to/anthony-rosa/<area>` `#status/active` |
 | Started a custom Tier-4 Autonomous AI Employee build for a paying client | Client-specific repo at `c:\Projects\<client-slug>-employee\` for the implementation; reference spec lives in `Offerings/02 AI Agents/04 Autonomous Employee/` | `#offering/autonomous-employee` `#status/in-development` |
 | Started tracking a new Optimus competitor | `Optimus Inc/market-intelligence/competitors/<name>.md` | `#layer/optimus-os` |
 | Drafted a new Optimus social post or sales asset | `Optimus Inc/social-pipeline/` or `Optimus Inc/brand/` | `#layer/optimus-os` |

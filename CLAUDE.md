@@ -109,13 +109,29 @@ without daily attention. See "The End Goal" in
 deployment thesis.
 
 ## Vault Organization (Multi-Offering)
-The Optimus Assets vault is organized into 4 top-level hubs plus the existing
+The Optimus Assets vault is organized into 5 top-level hubs plus the existing
 website-development workflow files at root. Anyone (human or agent) entering the
 vault should know where things live.
 
-**For end-to-end vault operating procedures, read [`optimus-system-guide.md`](optimus-system-guide.md).** That file is the canonical operating manual — it covers all 4 hubs, the killer chain (source → daily capture → concept synthesis → apply-to-optimus bridge → offering improvement), the 5 main workflows, the autonomy roadmap, and the maintenance protocol. Update the system guide BEFORE making structural changes to the vault. This CLAUDE.md file documents rules; the system guide documents how-to.
+**For end-to-end vault operating procedures, read [`optimus-system-guide.md`](optimus-system-guide.md).** That file is the canonical operating manual — it covers all 5 hubs, the killer chain (source → daily capture → concept synthesis → bridge to applicable hub → improvement in that hub), the 5 main workflows, the autonomy roadmap, and the maintenance protocol. Update the system guide BEFORE making structural changes to the vault. This CLAUDE.md file documents rules; the system guide documents how-to.
 
-**The 4 hubs:**
+**Two-domain model.** The vault expresses two peer domains that intentionally overlap:
+- **Optimus** = the LLC, productized services, and the SMB-client surface. Mission-bounded.
+- **Anthony Rosa** = the personal layer holding career, investments, automated personal
+  revenue projects (trading bot, AI influencer personal angle, TikTok Shop), and skill
+  goals. Peer hub, NOT subordinate to Optimus.
+
+The overlap is the asset — a skill (e.g., AI influencer pipeline) frequently ships value
+into both domains (Anthony's personal TikTok Shop revenue AND Optimus's client content
+deliverable). Cross-domain relationships are mediated by **bridge notes via shared
+concept files**: each domain owns its own bridge file in its own `apply-to-<domain>/`
+zone, both bridges linking to the same shared concept. The `gtm-engineering.md`
+multi-H2 precedent applies WITHIN a single zone only — **cross-zone applications get
+TWO single-zone bridge files**, never one multi-H2 file. Canonical example:
+`apply-to-optimus/ai-influencer-client-offering.md` +
+`apply-to-anthony-rosa/ai-influencer-personal-revenue.md` sharing one concept.
+
+**The 5 hubs:**
 - **`00 — Empire Index/`** — vault navigation. Start here. Contains the master README,
   MOCs (Maps of Content), the canonical tag schema, and the glossary.
 - **`Offerings/`** — what Optimus sells. Per-offering hubs.
@@ -124,11 +140,20 @@ vault should know where things live.
 - **`Optimus Inc/`** — the company itself (drinking own champagne). Optimus's own
   marketing site, deployed agent instances, market intelligence, social pipeline, brand.
   Distinct from Offerings: Offerings = template/IP, Optimus Inc = Optimus's own deployment.
+- **`anthony-rosa/`** — personal layer — career, investments, automated personal revenue
+  projects, skill goals. Overlaps with Optimus via bridge notes. Holds `north-star.md`,
+  `plans/`, `investments/` (crypto thesis, AKT tracker, BTC log), `projects/` (akash
+  research, AI influencer personal angle, trading bot), and `skills/` (career
+  progression goals/roadmaps). `anthony-rosa/skills/` holds Anthony's personal career
+  skill development (Python, LangChain, FastAPI, Personaplex, etc.) — distinct from
+  Claude Code skills at `.claude/skills/` and from Optimus build skill instructions
+  used by Claude tools.
 - **`Optimus Academy/`** — daily personal learning hub. ~90 min/day capture across
   Anthropic courses, NVIDIA classes, YouTube on Claude/agentic concepts, sales training,
   copywriting, marketing psychology, finance, design, productivity tools, tool tracking
-  (NemoClaw, OpenClaw, etc.). The `apply-to-optimus/` subfolder is the bridge that
-  connects learning to operational improvements across the vault.
+  (NemoClaw, OpenClaw, etc.). The `apply-to-optimus/` and `apply-to-anthony-rosa/`
+  subfolders are the bridges that connect learning to operational improvements across
+  the vault.
   - **Input pathways:** `/learn` accepts TikTok/IG/Reels/Shorts/X-video URLs (auto-downloads
     via `yt-dlp` + transcribes via LOCAL `openai-whisper` — no API key, no per-call cost,
     audio never leaves the machine), YouTube long-form URLs, article URLs, and pasted text.
@@ -137,10 +162,11 @@ vault should know where things live.
     No `OPENAI_API_KEY` required.
   - **Topic scope is broad, not AI-only.** `/learn` captures any source whose value applies
     somewhere — sales training, copywriting craft, marketing psychology, finance,
-    productivity tools, design, hiring, ops. Bridges route to one of FIVE zones per the
+    productivity tools, design, hiring, ops. Bridges route to one of SIX zones per the
     bridge-target taxonomy in `Optimus Academy/apply-to-optimus/README.md`:
     `Offerings/`, `knowledge/patterns/`, `knowledge/craft/<area>/` (lazy-create),
-    `Optimus Inc/<area>/` (verify per-area), `Optimus Academy/tools-tracking/`.
+    `Optimus Inc/<area>/` (verify per-area), `Optimus Academy/tools-tracking/`,
+    `apply-to-anthony-rosa/` (personal hub: investments/, projects/, skills/).
   - **Multi-purpose principle:** every bridge declares one or more `value-vector`
     tags from `{productivity, overhead, revenue}` with concrete reasoning. Bridges that
     cannot map to any vector are NOT created — concept note only.
@@ -168,8 +194,11 @@ working without edits. The reorg is additive, not migrational.
 
 **Tag schema** lives at `00 — Empire Index/tag-schema.md` — every NEW note (after
 2026-04-26) uses tags from that schema. Existing files stay untagged and findable
-by their existing wikilinks. Tag families: `#offering/*`, `#layer/*`, `#learning/*`,
-`#applies-to/*`, `#stage/*`, `#status/*`.
+by their existing wikilinks. **8 tag families:** `#offering/*`, `#layer/*`,
+`#learning/*`, `#applies-to/*`, `#value-vector/*`, `#stage/*`, `#status/*`,
+`#owner/*` (where `#owner/optimus` and `#owner/anthony-rosa` mark domain ownership;
+notes spanning both domains carry both tags). Count reconciled this change —
+`#value-vector/*` was previously in the schema but uncounted in CLAUDE.md.
 
 **Where to put new content (quick reference):**
 - New website-dev lesson learned during a build → `knowledge/errors/` or `knowledge/patterns/` (unchanged from before)

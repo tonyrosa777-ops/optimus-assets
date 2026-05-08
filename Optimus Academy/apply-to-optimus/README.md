@@ -9,6 +9,14 @@ tags: [#layer/optimus-os, #status/active]
 
 This folder captures the moments when something learned in Optimus Academy can directly improve an Optimus system, agent, craft, or operations area. **One file per concept** — multiple applications of the same concept live as separate H2 sections inside that one file (mirroring how the daily folder has multiple H2 source-capture sections inside one date-keyed file). Each H2 section explicitly names: the concept (link to the concept note in `[[../concepts/]]`), the source(s) where the concept was learned (daily-anchor wikilinks), the target file/area the application addresses, **the value vector(s) it serves** (productivity / overhead / revenue), and how to apply it. This is where personal daily learning becomes business value.
 
+## Sibling zone — `apply-to-anthony-rosa/`
+
+This folder is the **Optimus-domain** bridge zone. Its sibling, [`../apply-to-anthony-rosa/`](../apply-to-anthony-rosa/README.md), is the **Anthony-Rosa-domain** bridge zone — for personal investments, automated personal revenue projects, and career skill progression. The two zones share the same mechanics (frontmatter format, value-vector tags, dedup rules, H2 contract, promotion path) but route to different domain targets.
+
+Bridge files in this folder declare `#owner/optimus`. Bridge files in the sibling zone declare `#owner/anthony-rosa`. **A bridge file is single-domain — never both tags.**
+
+**Cross-zone split rule (load-bearing):** when a single concept applies to BOTH domains (canonical example: AI influencer is both an Optimus client content offering AND Anthony's personal TikTok Shop revenue stream), create TWO single-zone bridge files — `apply-to-optimus/<slug>-<optimus-angle>.md` and `apply-to-anthony-rosa/<slug>-<personal-angle>.md` — each linking back to the same shared concept via `concept::` frontmatter. The shared concept is the unifying point. The multi-H2 pattern below (e.g., `gtm-engineering.md` with two H2s) is for multiple applications **WITHIN this zone only** — never use multi-H2 to span zones.
+
 ## File model — daily-mirror, one file per concept
 
 The `apply-to-optimus/` folder mirrors the `daily/` folder's structure exactly:

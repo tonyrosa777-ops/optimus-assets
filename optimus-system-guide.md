@@ -14,9 +14,9 @@ If this guide and CLAUDE.md disagree, CLAUDE.md wins on rules. This guide wins o
 - **After that:** section-jump for the workflow you need. Each workflow section is self-contained.
 - **Before any structural change to the vault:** update the relevant section of this guide first. Then change the files. Then add a Changelog entry. See section 13 (Maintenance protocol). A structural change without a guide update is drift, and audits will flag it.
 
-## 3. The 4 hubs + founder layer
+## 3. The 5 hubs
 
-The vault has four top-level hubs plus a founder layer plus the existing website-dev workflow files at root. Hubs are scoped by purpose, not by tooling.
+The vault has five top-level hubs plus the existing website-dev workflow files at root. Hubs are scoped by purpose, not by tooling.
 
 | Hub | One-line purpose | Index |
 |---|---|---|
@@ -24,9 +24,11 @@ The vault has four top-level hubs plus a founder layer plus the existing website
 | `Offerings/` | What Optimus sells. Website Development (productized core) + three in-development AI agent products + Tier-4 Autonomous AI Employee. | [[Offerings/README]] |
 | `Optimus Inc/` | The company itself. Optimus's own marketing site, deployed agent instances, market intelligence, social pipeline, brand. Drink-own-champagne layer. | [[Optimus Inc/README]] |
 | `Optimus Academy/` | Daily personal learning hub (~90 min/day). Capture from courses, videos, books, articles. The bridge from learning to revenue. | [[Optimus Academy/README]] |
-| `anthony-rosa/` | **Founder layer.** Personal vision, technical roadmap, portfolio standards, wins log, private journal. Sits *above* the company layer — read upstream of all build decisions on AI systems and upsells. | [[anthony-rosa/north-star]] |
+| `anthony-rosa/` | **Personal hub.** Career, AI engineering skill goals, investments (AKT, BTC, crypto thesis), automated personal revenue projects (trading bot, AI influencer personal angle), portfolio standards, wins log, private journal, north-star vision. | [[anthony-rosa/north-star]] |
 
-**The founder layer is not a fifth hub — it is the layer above the hubs.** `anthony-rosa/north-star.md` is fed into Claude prime context (referenced from [[CLAUDE]] under `## Founder Vision`) for AI/upsell architectural decisions. `anthony-rosa/journal/` is personal and never auto-fed to Claude. The static docs (north-star, ai-engineer-roadmap, portfolio-standards, wins) constrain *what* gets built across the four hubs; the journal feeds back into them on weekly review.
+**The two-domain model.** `anthony-rosa/` is a peer hub to the four Optimus hubs, not a layer above them. Optimus is the LLC and product/service surface — mission-bounded to bring newest tech to small businesses at affordable prices. Anthony Rosa is the personal layer holding career, investments, and personal automated revenue projects. **Overlap is intentional, not accidental: skills move between domains via bridge notes.** AI influencer skill ships value into both domains — Anthony's TikTok Shop revenue stream AND Optimus's client content-creation deliverable. Same skill, two revenue surfaces. The shared concept file is the unifying point; per-domain bridge files are the application surfaces. This overlap is the strategic asset the two-domain model exists to capture (see [[anthony-rosa/north-star]] for the End Goal framing and the Optimus University horizon).
+
+**Founder-vision routing still applies.** `anthony-rosa/north-star.md` is fed into Claude prime context (referenced from [[CLAUDE]] under `## Founder Vision`) for AI/upsell architectural decisions. `anthony-rosa/journal/` is personal and never auto-fed to Claude. The static founder docs (north-star, ai-engineer-roadmap, portfolio-standards, wins) constrain *what* Optimus builds; the personal-hub subfolders (`investments/`, `projects/`, `skills/`) hold Anthony's parallel personal-revenue and career-progression surfaces.
 
 **Root-level workflow files coexist with the hubs.** The website-dev pipeline ([[CLAUDE]], [[project-prime]], [[website-build-template]], [[build-checklist]], [[intake-prompt]], [[market-research-prompt]], [[end-to-end-workflow]], [[frontend-design]], [[retro]], [[learn-prompt]]) and the entire `knowledge/` folder (errors, patterns, retrospectives, sales, onboarding) all stay where they were before the multi-offering reorg. The hubs were added around the website pipeline. Nothing was migrated. Every existing wikilink and every agent's Required Reading section keeps working without edits.
 
@@ -34,11 +36,13 @@ The vault has four top-level hubs plus a founder layer plus the existing website
 
 The whole system exists to execute one chain:
 
-> **Source consumed → daily capture → concept synthesis → apply-to-optimus bridge → offering improvement → measurable revenue impact.**
+> **Source consumed → daily capture → concept synthesis → bridge to applicable hub(s) → improvement in that hub → measurable revenue impact.**
 
 Every workflow below is a step in this chain. Every folder in the vault is a stage of it. If a workflow does not advance the chain, it does not belong in the vault.
 
-**The founder layer (`anthony-rosa/`) is read upstream of the chain.** Vision, roadmap, standards, and end-goal milestones in `north-star.md` constrain *what offerings get built and which capabilities compound* — they do not enter the chain themselves. A concept that doesn't advance the four-tier upsell ladder toward the End Goal (autonomous AI employees by 2027-Q3 Drink-Own-Champagne, Tier-4 productized destination) is captured but de-prioritized for bridging. See [[anthony-rosa/north-star]].
+**Bridges land in any of the applicable zones.** The bridge target taxonomy spans both domains: Optimus offerings (`apply-to-optimus/<offering>`), Optimus Inc operational areas, Optimus Academy tools-tracking, knowledge patterns and craft folders, OR Anthony Rosa investments / projects / skills (`apply-to-anthony-rosa/`). A single concept can apply to multiple hubs — when it spans both Optimus and Anthony Rosa domains, it gets two single-zone bridge files (one per zone) sharing one concept (see section 6).
+
+**Founder vision is read upstream of the chain.** Vision, roadmap, standards, and end-goal milestones in `north-star.md` constrain *what offerings get built and which capabilities compound* — they do not enter the chain themselves. A concept that doesn't advance the four-tier upsell ladder toward the End Goal (autonomous AI employees by 2027-Q3 Drink-Own-Champagne, Tier-4 productized destination) is captured but de-prioritized for Optimus-side bridging — though it may still bridge to the personal hub if it advances Anthony's career or personal-revenue surfaces. See [[anthony-rosa/north-star]].
 
 A concrete example end to end:
 
@@ -67,7 +71,7 @@ Three traces per session:
 
 1. **Daily file** at `Optimus Academy/daily/YYYY-MM-DD.md` — the COMPREHENSIVE per-source capture. The daily file IS the source capture. There is no separate `sources/` folder. One H2 section per source consumed that day, with H3 sub-sections (Summary / Key Concepts Extracted / Detailed Notes / Code & Examples / Notable Quotes / Action Items / Open Questions). Inline Dataview `key:: value` fields under each H2 make every source queryable.
 2. **Concept file** at `Optimus Academy/concepts/<concept-slug>.md` — the synthesized atomic distillation. ONE concept per TOPIC, not per source. When a new source covers an existing topic, /learn APPENDS an `## Update — date — from [[daily/...]]` section to the existing concept file. The original definition stays stable. New findings stack chronologically under `## Updates`.
-3. **Bridge file** at `Optimus Academy/apply-to-optimus/<concept-slug>-applied-to-<offering-slug>.md` — optional. Only when the concept has a clear application to one of the four Optimus offerings. Pure theory, no bridge.
+3. **Bridge file** at `Optimus Academy/apply-to-optimus/<concept-slug>-applied-to-<offering-slug>.md` OR `Optimus Academy/apply-to-anthony-rosa/<concept-slug>-applied-to-<area>.md` — optional. Only when the concept has a clear application to any of the bridge zones (Optimus offerings, Optimus Inc, Optimus Academy tools, knowledge patterns/craft, OR anthony-rosa investments/projects/skills). Pure theory, no bridge.
 
 ### The rigid identical structure contract
 
@@ -107,25 +111,38 @@ A few of the most useful queries to gut-check learning patterns. The full set li
 - Concepts with 2+ source references (cross-validated topics worth deep work)
 - Bridges in `not-started` status (the actionable backlog)
 
-## 6. Workflow 2 — Promoting concepts to offerings (the apply-to-optimus path)
+## 6. Workflow 2 — Promoting concepts to applicable hubs (the bridge path)
 
-Concepts mature in stages. The bridge note is where a concept stops being learning and starts being a product change.
+Concepts mature in stages. The bridge note is where a concept stops being learning and starts being a product change OR a personal-hub change.
 
 ### Identifying when a concept matures enough to bridge
 
 A concept is bridge-ready when:
 
-- It is concrete enough to point at a specific file path, agent change, or workflow tweak in one of the four offerings.
+- It is concrete enough to point at a specific file path, agent change, or workflow tweak in any applicable hub — an Optimus offering, an Optimus Inc operational area, an Optimus Academy tool, a knowledge pattern/craft folder, OR an Anthony Rosa investments/projects/skills surface.
 - The action is more than "we should think about this." It has a verb and a target.
-- The benefit is measurable in time, money, conversion rate, or capability.
+- The benefit is measurable in time, money, conversion rate, capability, personal revenue, or career progression.
 
-Pure theory does not get a bridge. "Interesting research paper on multi-agent coordination" is concept-only. "Claude Code's `--continue` flag eliminates context resets between subagent runs, applies to the website-build agent loop" is bridge-ready.
+Pure theory does not get a bridge. "Interesting research paper on multi-agent coordination" is concept-only. "Claude Code's `--continue` flag eliminates context resets between subagent runs, applies to the website-build agent loop" is bridge-ready. "Akash Network supply economics support a 10x AKT price target by 2027" is bridge-ready into `apply-to-anthony-rosa/investments/`.
 
 ### Writing a bridge note
 
-Bridge notes live at `Optimus Academy/apply-to-optimus/<concept-slug>-applied-to-<offering-slug>.md`. Cross-link to the source concept and the source daily entry. State why it applies to this specific offering. State how to apply it — file paths, agent changes, workflow tweaks at commit-level granularity.
+Bridge notes live at `Optimus Academy/apply-to-optimus/<concept-slug>-applied-to-<offering-slug>.md` (Optimus-domain) OR `Optimus Academy/apply-to-anthony-rosa/<concept-slug>-applied-to-<area>.md` (personal-domain). Cross-link to the source concept and the source daily entry. State why it applies to this specific target. State how to apply it — file paths, agent changes, workflow tweaks at commit-level granularity. Bridges in the personal hub also carry `value-vector::` (e.g., `revenue` for trading-bot or AI influencer personal angle) the same way Optimus bridges do.
 
 The bridge note documents the discovery. The eventual promoted pattern doc (see below) documents the institutional rule.
+
+### Cross-zone bridge split rule (cross-domain concepts)
+
+When a concept applies to BOTH an Optimus zone (`apply-to-optimus/`) AND the personal zone (`apply-to-anthony-rosa/`), create **two single-zone bridge files** — one per zone — each carrying exactly ONE `#owner/*` tag, both linking to the same shared concept via `concept::` frontmatter. The shared concept is the unifying point. The bridge files are the per-domain application surfaces.
+
+This is structurally different from the multi-application pattern documented in `gtm-engineering.md`: that precedent applies WITHIN a single zone (multiple H2 sections, all in `apply-to-optimus/`, for a single concept that has multiple Optimus applications). Cross-zone applications NEVER use multi-H2 — they always split into separate files. The reasoning: keeping bridges single-domain keeps `#owner/*` Dataview queries clean, and makes the two-domain architecture visible directly in the file tree.
+
+**Canonical example — AI influencer split:**
+
+- `Optimus Academy/apply-to-optimus/ai-influencer-client-offering.md` — `#owner/optimus`. Frames AI-influencer-style content creation as a service Optimus sells to clients. Targets the Offerings content-deliverable area.
+- `Optimus Academy/apply-to-anthony-rosa/ai-influencer-personal-revenue.md` — `#owner/anthony-rosa`. Frames AI influencer as Anthony's TikTok Shop personal revenue stream. Targets `anthony-rosa/projects/ai-influencer.md`.
+
+Both files declare the same `concept::` link to the shared concept in `Optimus Academy/concepts/`. Both share an identical `source-references` array (the same source taught both applications). The concept file gets no edits when a new bridge is added — its `applied-in:` Dataview view simply now shows both bridges.
 
 ### Status progression
 
@@ -232,16 +249,20 @@ Five orchestration rules tightened in [[CLAUDE]] govern how every website-dev se
 
 Reference: [[00 — Empire Index/tag-schema|the master tag schema]]. The full table, controlled `domain:` vocabulary, slug rule, and URL canonical form all live there. Do not duplicate them here.
 
-The 6 tag families:
+The 8 tag families:
 
 | Family | When to apply |
 |---|---|
 | `#offering/*` | Which product line the note belongs to. Most notes carry exactly one. |
 | `#layer/*` | Universality scope: `optimus-os` (universal), `offering` (one product), `client` (one engagement). One per note, most-specific applicable. |
 | `#learning/*` | Where in the personal-learning pipeline: `captured`, `synthesized`, `applied`. On every Academy note. |
-| `#applies-to/*` | Cross-link from Academy notes into offering hubs. Use nested forms (`#applies-to/ai-agents/chat`) for precision. |
+| `#applies-to/*` | Cross-link from Academy notes into offering hubs or the personal hub. Use nested forms (`#applies-to/ai-agents/chat`, `#applies-to/anthony-rosa/investments`) for precision. |
+| `#value-vector/*` | Why this matters in business terms: `productivity`, `overhead`, `revenue`. Required on every bridge — bridges that cannot map to a vector are not created. |
 | `#stage/*` | Project lifecycle stage. Used on per-client notes and retrospectives. |
 | `#status/*` | Maturity: `draft`, `active`, `archived`, `in-development`. One per note. |
+| `#owner/*` | Domain ownership: `#owner/optimus` (LLC, products, client deliverables) or `#owner/anthony-rosa` (personal layer — career, investments, personal revenue projects). Notes spanning both domains carry BOTH tags. Bridges are always single-domain (one `#owner/*` tag); cross-domain concepts split into two single-zone bridges per the cross-zone split rule in section 6. |
+
+**Count reconciliation note:** count reconciled this change to 8 — `#value-vector/*` was previously in the schema but uncounted in this file, and `#owner/*` is the new family added by the two-domain restructure. A broader cross-vault tag-count audit (CLAUDE.md, schema, this guide) remains a separate future change.
 
 Hygiene: tags live in YAML frontmatter arrays only, never as floating inline `#tags` in body text. Inline body tags break Dataview queries that read the YAML field. YAML-only is the contract.
 
@@ -399,7 +420,7 @@ This guide is the canonical record of how the system is supposed to work. The fi
 
 **Update this guide BEFORE making any structural change to the vault.** Examples of structural changes:
 
-- New top-level folder or hub
+- New top-level folder or hub (e.g., the 2026-05-08 elevation of `anthony-rosa/` from subordinate founder layer to 5th peer hub, with the addition of the `apply-to-anthony-rosa/` bridge zone and the `#owner/*` tag family)
 - Renamed convention (e.g. `sources/` collapsed into `daily/`)
 - New workflow or `/slash-command` introduced
 - New autonomy hook added to /learn
