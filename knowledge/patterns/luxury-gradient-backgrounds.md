@@ -250,5 +250,79 @@ Non-negotiable:
 - [[patterns/page-header-ambient-radial-gradient]] — existing interior-page pattern, subset of this rule
 - [[patterns/hero-3-layer-stack-and-5-phase-canvas]] — hero visual contract (the hero has its own motion system; this rule applies to everything NOT the hero)
 
+## Cream-dominant addendum (added 2026-05-08, Ead Financial)
+
+The four motion-vocabulary recipes above were calibrated on dark-dominant builds where the gradient lift is provided by a brand-color blob over a near-black ground. **Cream-dominant builds (light-mode-dominant theme — Pattern #59) require a different calibration recipe** because cream-on-cream gradient lift is perceptually under-threshold at the same percentage values that work on dark.
+
+### When this addendum applies
+
+Builds matching **all four** Pattern #59 conditions:
+1. Competitor scan documents navy + white + gray saturation in market-intelligence.md
+2. Audience makes high-anxiety decisions (threat response per Schmader & Beilock 2012)
+3. Editorial / boutique register fits the audience
+4. Differentiation thesis depends on visual escape from competitor zone
+
+For these builds, the gradient is brass-tinted cream over base cream — both warm pales of similar lightness. The contrast budget is fundamentally smaller than dark-mode builds.
+
+### Calibration recipe for cream-dominant breathing orb
+
+The default cream-dominant breathing orb under hero / page-header / mid-page CTA sections:
+
+```css
+.cream-breathing-orb {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 60% 50% at 50% 52%,
+      color-mix(in oklab, var(--accent) 14%, var(--bg-base)) 0%,
+      color-mix(in oklab, var(--accent) 8%, var(--bg-base)) 35%,
+      var(--bg-base) 78%
+    );
+  will-change: transform, opacity;
+  animation: cream-breathing-orb-drift 20s ease-in-out infinite;
+}
+@keyframes cream-breathing-orb-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.85; }
+  50%      { transform: translate3d(2.5%, -1.5%, 0) scale(1.04); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cream-breathing-orb { animation: none !important; transform: none !important; opacity: 1 !important; }
+}
+```
+
+### What changed from the dark-mode recipe
+
+| Parameter | Dark-mode breathing orb | Cream-dominant breathing orb |
+|---|---|---|
+| Center accent percentage | 6-8% | **14%** |
+| Mid-stop accent percentage | 3-4% | **8%** |
+| Ellipse size | 85% × 70% | **60% × 50%** |
+| Center position | 50% 42% | **50% 52%** (under H1 optical center) |
+
+The non-obvious finding: **percentage and geometry interact non-linearly.** A higher accent percentage in a tighter ellipse reads warmer AND less aggressive than a lower accent percentage in a larger ellipse. The larger blob washes out and reads as "flat / empty"; the tighter blob has a focal point and reads as "warm pool / deliberate."
+
+### Empirical history (Ead Financial pre-flight item 9)
+
+Three calibration attempts, two falsified:
+
+1. `--bg-elevated` (~7-9 RGB delta from `--bg-base`) at 12% lift in `~85% × 70%` ellipse → **invisible at 1440 viewport scale.** Lightness delta ~0% perceptually. Falsified by Playwright pass.
+2. `accent 7% / 4%` in `85% × 70%` ellipse at `50% 42%` → **still invisible** (oklab L delta center→edge ~1%). Theory said 6-8% was the sweet spot to preserve quiet-pole positioning per Pattern #59 Axis 1; production verification falsified this. Geometry was the missing variable.
+3. `accent 14% / 8%` in `60% × 50%` ellipse at `50% 52%` → **at-spec lift.** Lightness delta ~2.5%, b-axis warmth boost makes the warm zone perceptible without reading "yellow stain." This is the working recipe.
+
+See Error #56 + commit 66bc398 for the full pre-flight evidence trail.
+
+### What still applies from the dark-mode recipes above
+
+- **Performance budget:** unchanged. Max 3 active motion layers visible simultaneously, CSS-only, GPU-cheap properties.
+- **Accessibility:** unchanged. `prefers-reduced-motion: reduce` degrades to STATIC gradient, never flat.
+- **Section purpose dedup:** unchanged. No two adjacent sections share purpose.
+- **Mesh drift / aurora sweep / grain shimmer recipes:** the same dark-mode percentages and geometry MAY work on cream-dominant builds, BUT have not been validated. When in doubt, run the cream-dominant breathing orb on cream-dominant builds first; introduce other motion vocabularies only after Playwright-verifying their cream variant.
+
+### Falsifies prior internal guidance
+
+The earlier "6-8% accent mix is the editorial-register sweet spot — below 5% invisible, above 12% reads as yellow stain" guidance (originally documented in Error #56 first-pass) was anchored on theory (Pattern #59 Axis 1 quiet-pole positioning) without empirical verification. The 12% upper bound was correct; the 6-8% sweet-spot floor was wrong at large ellipse sizes. The corrected guidance: **lift % and ellipse size are joint parameters, not independent.** If you tighten the ellipse to ~60%×50%, you can push the lift % up to 14% and still read "warm pool" not "yellow stain." If you keep the ellipse at ~85%×70%, you cannot push the lift % above ~7% before reading "yellow stain" — but at that range the gradient is invisible.
+
 ## Status
-ACTIVE. Applied to every Optimus build from 2026-04-17 onward. Retroactive application to pre-2026-04-17 live builds is not a priority; apply during the next revision pass on each.
+ACTIVE. Applied to every Optimus build from 2026-04-17 onward. Cream-dominant addendum applied from 2026-05-08 onward. Retroactive application to pre-2026-04-17 live builds is not a priority; apply during the next revision pass on each.

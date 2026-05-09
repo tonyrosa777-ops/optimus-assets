@@ -232,14 +232,36 @@ Pass in prompt: PROJECT_FOLDER = [PROJECT_FOLDER]
 Wait for completion (run_in_background: false)
 Verify output:
   - design-system.md exists and is non-empty → BLOCK if missing
-  - design-system.md contains all 11 section headers → BLOCK if any missing
+  - design-system.md contains all 12 section headers → BLOCK if any missing
   - Section 11 (Sections Matrix) has no blank Yes/No fields → BLOCK if any blank
+  - Section 12 (Psychological Foundations) has all 8 subsections + cited 14-row mechanisms map → BLOCK if any subsection missing or any row uncited
 Update progress.md: Phase 1 — design-synthesizer agent complete
 ```
 
-**Stage 1A complete when:** design-system.md exists, all 11 sections filled, Sections Matrix resolved.
-**Human checkpoint:** Review design-system.md Section 2 (palette) and Section 8 (personality axes).
-Confirm before proceeding to Stage 1B.
+**Stage 1A complete when:** design-system.md exists, all 12 sections filled, Sections Matrix resolved, Section 12 cited.
+
+**Human checkpoint — orchestrator runs the Absolute-Rule Cross-Check before approving design-system.md:**
+
+1. Read `C:\Projects\Optimus Assets\00 — Empire Index\absolute-rules-index.md` in full. This is the canonical enumeration of every CLAUDE.md absolute rule with its operational test.
+
+2. Identify every section of the just-produced design-system.md that touches hero composition (Section 5), conversion flow / CTA destinations (Sections 5, 11), page architecture (Section 11), or backdrop / motion treatment (Section 5 + scattered).
+
+3. For each touchpoint, run the matching operational test from the index. Critical tests:
+   - §4 — No photos in the hero, ever. If Section 5 specifies a two-column hero with editorial photo on right (regardless of which competitor pattern is cited — Claro Advisors / Ramsey Solutions / etc.) → REJECT. The "movie-hero" full-bleed cinematic backdrop is the ONLY acceptable photo-adjacent hero treatment.
+   - §5 — Primary CTA = booking, secondary CTA = quiz. Any other destinations → REJECT.
+   - §6 — H1 = tagline + shimmer. Emotional hook in H1 instead of tagline → REJECT.
+   - §3 — No flat solid backgrounds anywhere on any page → REJECT.
+   - §15 — Every interior page gets ambient effects → REJECT if any page is described as "static / clean / minimalist" without ambient motion.
+
+4. Review design-system.md Section 2 (palette) and Section 8 (personality axes) for brand fit per existing rule.
+
+5. **If any absolute-rule test FAILS:** spawn a correction note back to design-synthesizer with the specific failed test cited verbatim from the index. Do NOT approve design-system.md until the correction lands. Reference patterns inform aesthetic + component choices; they cannot override absolute rules.
+
+6. **If all tests PASS:** approve and proceed to Stage 1C scaffold. Log "Absolute-Rule Cross-Check PASS" in progress.md with the timestamp.
+
+This procedure exists because Helen Grondin (Pattern #28) and Ead Financial (Error #55) both shipped photo-on-right hero violations under design-synthesizer outputs that cited reference patterns to justify the deviation. The orchestrator approved at the human checkpoint without running this cross-check. The cost was ~3 hr re-spawn each time. The cross-check is the structural fix — see also Pattern #58 (`knowledge/patterns/claude-md-absolute-rule-cross-check-at-checkpoint.md`).
+
+Confirm before proceeding to Stage 1C.
 
 ---
 

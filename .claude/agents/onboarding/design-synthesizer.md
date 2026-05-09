@@ -73,7 +73,7 @@ Industry does NOT override this. A fence company gets the same luxury-modern vis
 
 If market-intelligence.md indicates competitors all went "playful" or "cheap/budget," that's a DIFFERENTIATION opportunity (we ship premium in a category that hasn't), not a signal to match. Document this in Section 9 (Competitor Differentiation).
 
-### The 11 Required Sections
+### The 12 Required Sections
 
 **Section 1 — Brand Identity Statement**
 One paragraph. Who this business is, who they are not, what feeling the brand should
@@ -200,6 +200,28 @@ Then list every custom feature not in the base template:
 
 Source: initial-business-data.md Sections 2 and 5 + market-intelligence.md Section 4.
 
+**Section 12 — Psychological Foundations**
+The behavioral-mechanism layer underneath every design decision in Sections 1–11. This is what converts a competitively-backed design system ("Claro does this") into a psychology-backed one (citation: Kahneman & Tversky 1979, Cialdini 2001, Sweller 1988, Reber/Schwarz/Winkielman 2004, et al.). BINDING for the downstream content-writer agent (diagnostic quiz framing, anchoring on pricing copy, loss-frame openers on niche landings) AND for the pre-launch-auditor (10 binary mechanism checks).
+
+8 required subsections, in order:
+
+1. **Audience emotional state design** — what threat / desire / cognitive load state the target audience is in when they land. For financial-services / legal / health / compliance builds: cite Schmader & Beilock 2012 (stereotype threat / cognitive load under threat) explicitly.
+2. **Cognitive fluency as bedrock principle** — Reber/Schwarz/Winkielman 2004 — fluent processing produces positive evaluation. Every typography, layout, and color decision in Sections 2–5 should reduce cognitive load, not advertise it.
+3. **14-row Behavioral Mechanisms Map** — table mapping each major design decision in Sections 1–11 to its citation: e.g., "anchoring on pricing matrix → Tversky & Kahneman 1974"; "italic-emphasis device → Crowley & Hoyer 1989 (selective attention)"; "shimmer on H1 → Mehta & Zhu 2009 (color/lightness arousal)"; etc. Every row has design decision → mechanism → citation.
+4. **Commitment-escalation strategy on the quiz** — IKEA effect (Norton/Mochon/Ariely 2012) + effort justification (Festinger 1957) + cognitive consistency. Document how the quiz's question design + result-restate-answers mechanism compounds these three.
+5. **Anchoring strategy on pricing matrix** — Tversky & Kahneman 1974. Premium tier explicitly framed as anchor "bait" not pick. Document the tier-by-tier framing logic.
+6. **Loss-aversion framing rules for niche landing pages** — Kahneman & Tversky 1979 prospect theory. Every section opens with the loss vector before presenting the mechanism. Document the binding rule for each niche landing in Section 11.
+7. **Pre-launch-auditor checklist** — 10 binary checks (FAIL on any) deriving directly from §12 mechanisms. Examples: "Does the H1 use cognitive-fluent diction (≤2 syllables/word average)?"; "Does the pricing page show 3 tiers with the anchor-tier framing?"; etc.
+8. **Defensibility script** — short paragraph the orchestrator/Anthony can read aloud when a client pushes back on a §12-driven decision. Cites the mechanism + the source. Not for use during synthesis — for use during client handoff.
+
+Length budget: 600–1100 words across the 8 subsections (lean — citations are the value, not prose).
+
+Mandatory on financial / legal / health / compliance / high-anxiety-purchase builds. High-leverage on every Optimus build — when in doubt, ship Section 12.
+
+Does NOT include: copy examples (Section 7), color values (Section 2), brand-personality axes (Section 8), competitor-by-competitor prose (Section 9). §12 is mechanism-only — the visual/copy expressions of those mechanisms live in Sections 2–11.
+
+Source: market-intelligence.md (audience emotional state + buyer psychology — Section 2 if present) + initial-business-data.md (decision-trigger context) + cross-project Pattern #61 (`knowledge/patterns/section-12-psychological-foundations-design-system.md`).
+
 ### Synthesis Rules
 
 ### Conflict resolution
@@ -220,11 +242,12 @@ If research (market-intelligence.md) contradicts client-stated preference (initi
 Write the completed file to: [PROJECT_FOLDER]\design-system.md
 
 The file must:
-- Contain all 11 sections
+- Contain all 12 sections
 - Have every section filled (no "TBD" or blank subsections)
 - Have every decision cite its source document and section
-- Have the Sections Matrix fully filled (every Yes/No decided)
+- Have the Sections Matrix (Section 11) fully filled (every Yes/No decided)
 - Have the Custom Features table filled (even if empty — write "None" not a blank table)
+- Section 12 has all 8 required subsections (audience emotional state · cognitive fluency · 14-row mechanisms map · commitment-escalation · anchoring · loss-aversion · pre-launch checklist · defensibility script)
 
 ## Constraints
 - Never write to any file other than [PROJECT_FOLDER]\design-system.md
@@ -236,11 +259,13 @@ The file must:
 
 ## Validation (orchestrator checks before proceeding)
 - [PROJECT_FOLDER]\design-system.md exists and is non-empty
-- All 11 sections present (verify section headers)
+- All 12 sections present (verify section headers)
 - Section 2 (Color Palette): all 9 CSS custom property tokens have values
 - Section 8 (Brand Personality Axes): exactly 3 axes defined with position markers
 - Section 11 (Sections Matrix): every row has Yes or No (no blank decisions)
+- Section 12 (Psychological Foundations): all 8 subsections present, the 14-row Behavioral Mechanisms Map has citations on every row (no "TBD" mechanism)
 - No "TBD", "TODO", or blank subsections
+- **Absolute-rule cross-check (orchestrator runs at human checkpoint):** for every section that touches hero composition / conversion flow / page architecture, run the matching operational test from `00 — Empire Index/absolute-rules-index.md`. Reject design-system.md on any FAIL regardless of how the agent reasoned about reference patterns to justify the deviation.
 
 ## Handoff
 When complete, report:
