@@ -82,3 +82,54 @@ Second round of client feedback from Angela (post-launch). Five fixes shipped th
 - `website-build-template.md` hero scaffold should default to `pointer-events-none` on decorative bg image + `relative z-10` on content wrapper.
 - `globals.css` scaffold should include `scroll-padding-top` breakpoints for the project's actual header height.
 - Pre-launch auditor checklist should include: "Click every in-page CTA (hash anchors and route links). Verify destination heading is fully visible."
+
+---
+
+## Session 15 + 16 Addendum — 2026-05-13 Angela Revisions Pass
+
+Third major round. Angela emailed a 6-page revision document covering homepage, About, Hot Tub Escapes, Stays, Proposals, Madison Guide, navigation, SEO, and analytics. 41 atomic commits shipped across Session 15 (planning + execution Phases A–K) and Session 16 (Playwright verification + 10 bugs caught + Pattern #51 systemic rollout). The full Angela revisions doc + verification report + changelog email are all logged in `progress.md` Sessions 15-16.
+
+### What shipped
+- **Phases A–L of a 12-phase execution plan** — every line item in Angela's revision doc shipped. Highlights: new SEO H1 + subheadline, sticky "Check Availability" CTA, Acuity gift certificate link in nav, double-pick friction removed on /date-night, About "What we believe" rewritten in Angela's voice, Cincinnati 75→60 min corrected sitewide, Google Analytics 4 installed, tent site SEO sweep, photographer FAQ rewrite, "Chandler Hotel" competitor mention removed.
+- **The Starlit Buck shipped as a 5th property** with full fal.ai-generated photo set (warm-twilight Velvet Buck + deep-night Starlit Buck = distinct visual identities, ~$0.30 on flux/dev).
+- **Per-property photo carousel** built on `/stays/[slug]` with `embla-carousel-react` + in-house Framer-Motion lightbox. Replaced the static hero image (redundancy with carousel below). Switched thumbnail to `object-contain` so portrait phone photos aren't cropped.
+- **Pattern #51 luxury-gradient backgrounds applied site-wide** via one globals.css edit (Pattern #70). Site-wide audit found 11 pages with consecutive same-tone section runs (worst: /about with 6-cream-in-a-row). Single `::before` attribute-selector overlay with brass-tinted breathing orbs + 3 cream + 3 dark variants cycled through `:nth-of-type` modulo selectors — no per-section refactor.
+- **VIP page luxury rebuild** — plain cream form replaced with dark hero + Fireflies/GodRays/Embers + glass-blur perk cards with brass-outlined ✦ medallions + glass-blur form with brass focus state + ShimmerText success state.
+- **Orphan-cell grid bug class fixed** — /vip 3-perks-in-2-col (2+1 orphan) → vertical stack; /stays 5-stays-in-3-col (3+2 orphan) → featured (Cottage) + 2x2 grid of the rest. Codified as Pattern #71.
+- **Photo source-filename remap** per Angela's stay-by-stay assignment rules (EC → Cottage, Glamping → Bell Tent + Campsite, Enhanced bedroom → Velvet Buck, Outdoor Movie → Cottage carousel). 26 source photos integrated; 2 previously orphaned files (Swing, Entrance, Outdoor Movie Bed) added to galleries. Photo source-filename rename pass deferred to a planned 15-min photo call with Angela.
+
+### New errors logged (#59 – #63)
+- **#59** Hero top padding insufficient for fixed header on `lg` — every page hero used static `pt-32` (128px) but SiteHeader is `h-28` (112px) on `lg` = 16px gap perceptually flush with the nav. Bulk fix: `pt-32 pb-` → `pt-32 sm:pt-36 lg:pt-40 pb-` across 15 hero sections. Class-of-bug pair with Error #49 (anchor behind fixed header) — both come from forgetting to budget for header height.
+- **#60** H1 `clamp()` scale not retuned after headline content rewrite — Angela's 95-char SEO H1 rendered at 117px in the old `clamp(56, 140)` (sized for 28-char "Where Romance Meets the Wild"). CTAs pushed below the 900px fold. Retuned to `clamp(30, 60)`, then later `clamp(30, 100)` on wide desktops so the H1 fills the viewport meaningfully.
+- **#61** Section alternation regression on revision-pass insertion — the new tagline section landed between cream trust strip and cream stays grid using default `bg-elevated`, creating 4 consecutive cream sections (violates Pattern #8 + Pattern #51). Fix: flip the inserted section to `bg-dark` + Fireflies. Class-of-bug: alternation rule existed but wasn't auto-checked when revisions insert into existing layouts.
+- **#62** Sharp webp conversion silently drops EXIF Orientation tag — phone photos rendered sideways. Fix: add `.rotate()` to the sharp pipeline before resize/encode.
+- **#63** Orphan-cell grid layouts — n items in `grid-cols-X` where `n % X !== 0` leaves the last row partially filled. User: *"we need to assume our viewer has OCD."*
+
+### New patterns logged (#70 – #73)
+- **#70** Auto-applied Pattern #51 gradients via CSS attribute selectors — `section[style*="var(--bg-*)"]::before` adds the gradient + breathing orb to every section that declares its bg via inline style. Zero per-section refactor. Saved an estimated 30+ commits.
+- **#71** Never ship orphan-cell grids — decision matrix per item count (2 through 12+), featured-card recipe for odd counts ≥ 5, vertical stack alternative for 3-item sets, auto-fill minmax for dynamic counts. Pre-launch-auditor sweep: `grep -rnE "grid-cols-[2-5]"`.
+- **#72** fal.ai parallel-property visual differentiation — when 2+ similar offerings exist, generate distinct fal.ai prompt aesthetics so they read as separate brand identities. Same scene types + identical style prefix + distinct style suffix per offering. Velvet Buck (warm twilight) vs Starlit Buck (deep-night Milky Way) shipped as the canonical example.
+- **#73** Stay-prefix photo source-filename convention — every source photo named `[stay-slug]-[scene].ext` so integrate-photos.mjs mappings are unambiguous. Pre-launch 15-min rename pass with client; subfolder per category in `source-photos/`; ledger at project root tracking source → destination → photographer credit. Mandatory on every Optimus build with 2+ accommodations.
+
+### Key lessons this session
+1. **Live Playwright verification catches bugs typecheck doesn't.** All 10 bugs in Session 16's appendix were typecheck-clean and console-clean. The visual issues (orphan grids, oversized H1, section monotony, sideways photos, double-pick friction) only surface in a real browser at multiple viewports. Pattern #33 (multi-breakpoint browser audit) earned its place again.
+2. **User reinforcement matters — codify the rule, don't just fix the instance.** Three times this session Angela / Anthony caught a class-of-bug, not a single instance: orphan grids, dark/cream alternation, sideways photos. Each became an Error + Pattern entry rather than a one-off fix. Pre-launch-auditor gets stronger every time.
+3. **Photo source filenames are a workflow input, not a content output.** Angela's mixed-prefix filenames caused 3 mid-build re-mappings (Glamping → BT, Enhanced bedroom → VB, Outdoor Movie → Cottage). Documenting Pattern #73 + adding the question to `intake-prompt.md` Section 5 prevents this in every future build.
+4. **Workflow rule reinforcement is content too.** User re-emphasized "always push and update progress.md" mid-session. Saved as durable feedback memory. Treat workflow rule reinforcement the same as a content rule reinforcement — it's a project decision that affects future agent behavior.
+
+### Gaps flagged for toolkit (Phase 6)
+- `website-build-template.md` — when adding a per-property photo carousel to an existing stay/listing template, the previous static hero image MUST be removed. Two large image surfaces back-to-back is redundancy (caught on Enchanted Madison cottage page).
+- `project-prime.md` Phase 1 scaffold — `integrate-*-photos.mjs` template must include `.rotate()` before resize/encode (Error #62) and must read sources from `source-photos/<category>/` subfolders (Pattern #73).
+- `pre-launch-auditor.md` — add 4 new checks:
+  - Grep `grid-cols-[2-5]` and count items per match (Pattern #71)
+  - Walk every page section flow for `>=3 same-tone in a row` (Error #61)
+  - Hero header→eyebrow gap `>= 32px` at lg breakpoint via Playwright `getBoundingClientRect` (Error #59)
+  - H1 height as % of viewport at 1440x900 + primary CTA above-fold check (Error #60)
+- `intake-prompt.md` Section 5 — add: "Do your existing source photos use a stay-prefix convention (`cottage-bedroom.jpg`, `bell-tent-bathroom.png`)? If not, we'll do a 15-min rename pass before integration." (Pattern #73)
+- `CLAUDE.md` — "Progress Tracking Rule" already covers per-subtask progress.md updates; user reinforcement this session confirms it's non-negotiable. No code change needed.
+
+### Approximate cost + timing this round
+- **fal.ai cost:** ~$0.30 for Velvet Buck + Starlit Buck galleries (12 images @ $0.025 on flux/dev)
+- **Session 15 commits:** 26 atomic commits (revisions execution Phases A–K + Phase L deploy + changelog)
+- **Session 16 commits:** 15 atomic commits (Playwright verification + 10 bug fixes + Pattern #51 systemic rollout + email refinement + photo placement)
+- **Total session 15+16:** 41 commits, 5 new Errors, 4 new Patterns, 1 retrospective addendum (this section), zero TypeScript errors at every checkpoint.
