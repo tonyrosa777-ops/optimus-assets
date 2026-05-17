@@ -9,7 +9,7 @@
 
 ## Why this pattern exists
 
-Optimus builds ship to demo before clients have signed up for the third-party services the build depends on. Calendly, Resend, Stripe, Printful, fal.ai, OpenAI — every one of them has a "no-key state" that, if not handled, makes the demo break. A broken demo loses the sale. A demo that needs the salesperson to say "this part will work after you sign up" loses the sale slower but loses it the same way.
+Optimus builds ship to demo before clients have signed up for the third-party services the build depends on. Calendly, Resend, Stripe, Printful, Higgsfield, OpenAI — every one of them has a "no-key state" that, if not handled, makes the demo break. A broken demo loses the sale. A demo that needs the salesperson to say "this part will work after you sign up" loses the sale slower but loses it the same way. (Higgsfield image gen is account-scoped on the Optimus Plus tier — not a per-client key — but if the MCP is unavailable at build time, the same demo-mode discipline applies: ship a static fallback rather than break.)
 
 Every third-party integration has THREE failure modes that Pattern #69 addresses:
 1. **No API key configured yet** (most common during build → demo phase)
@@ -263,7 +263,7 @@ Test with a known DST-transition date to confirm. EDT/EST transitions are the mo
   - **Calendly** — booking (Step 6)
   - **Resend** — contact form transactional email (Step 3)
   - **Stripe + Printful** — shop (Step 9 — pending, but the pattern applies: seeded products + seeded checkout response)
-  - **fal.ai** — blog images (Stage 1G — different pattern actually since fal.ai is build-time, but the seeded-fallback discipline applies when generation fails)
+  - **Higgsfield** — blog images via Flux 2 + hero video via Cinema Studio V2 (Stage 1G — different pattern since Higgsfield is build-time, but the seeded-fallback discipline applies when generation fails or MCP is unavailable: ship static placeholder rather than blank UI)
   - **OpenAI / Anthropic** — Tier-2/3/4 agent products — both have "no-key" demo modes that should follow this pattern
 
 ---

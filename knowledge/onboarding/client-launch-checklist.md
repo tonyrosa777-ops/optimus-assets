@@ -149,7 +149,7 @@ NEXT_PUBLIC_SHOW_PRICING_TOOLS=true
 - [ ] Stripe webhook registered at canonical URL (see Phase 5)
 - [ ] Dev-only components removed: ROI calculator, pricing tools (`NEXT_PUBLIC_SHOW_PRICING_TOOLS=false`)
 - [ ] All console.log statements removed
-- [ ] Real photos in place (no fal.ai placeholders if client has photography)
+- [ ] Real photos in place (no AI-generated placeholders if client has photography)
 - [ ] No `PhotoPlaceholder` components remain — replace with `next/image` once real assets are confirmed (scaffold `onError` can fire on production even when image exists)
 - [ ] `NEXT_PUBLIC_SITE_URL` includes `https://` protocol (missing protocol breaks OG tags and JSON-LD structured data)
 - [ ] All copy reviewed by client

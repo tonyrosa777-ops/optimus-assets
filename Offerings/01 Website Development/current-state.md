@@ -12,7 +12,7 @@ The Always-Built Features Rule in [[CLAUDE]] is enforced by the pre-launch-audit
 | Lead-Capture Quiz | 8-question max, 4 archetypes named per client audience, scored result with inline `<BookingCalendar />` on the result screen. Two-layer architecture: pure data layer in `src/data/quiz.ts`, UI in `src/app/quiz/QuizClient.tsx`. |
 | Automated Booking Calendar | Custom-branded `<BookingCalendar />` component. Calendly API backend. Demo-mode seeded fallback if `CALENDLY_API_KEY` is unset. Lives at `/booking` and as a homepage teaser section. Never an iframe. |
 | Testimonials Page | 36 testimonials, paginated 9 per page across 4 pages. 3×3 grid. Zero em dashes. Written by the content-writer agent in target-audience voice. |
-| Professional Blog | 9-10 articles minimum, full SEO/AEO foundation, card image + header image per article via fal.ai. |
+| Professional Blog | 9-10 articles minimum, full SEO/AEO foundation, card image + header image per article via Higgsfield Flux 2 (unlimited on Plus tier — 0 cr/image). |
 | Shop scaffold | CartProvider, CartDrawer, Printful client + API routes, Stripe checkout + webhook routes, seeded products fallback. Wired into `layout.tsx` on every build. Decision gate runs after scaffold: Premium → wire keys; not Premium → delete. |
 | 3-layer Hero | HeroParticles + brand-named Canvas + Framer Motion stagger text on every homepage. Brand canvas selected via 10-concept brainstorm → critic agent → single winner (no mid-build pivots). |
 | Visual QA gate | Playwright multi-breakpoint browser audit (1440 / 390 / 375 / 428 + nav drawer) before any build is marked complete. |
@@ -40,7 +40,8 @@ The full stack reference lives in [[website-build-template]]. Quick reference:
 | Payments | Stripe (Premium tier only) |
 | Print-on-demand | Printful (Premium tier only) |
 | CMS (blog) | Sanity |
-| Image generation | fal.ai |
+| Image generation | Higgsfield AI MCP (FLUX.2 Pro unlimited, Nano Banana unlimited, Soul / Marketing Studio for premium use cases) |
+| Video generation | Higgsfield Cinema Studio V2 (Architecture B hero, 25-45 cr/gen) + Marketing Studio Video (ad creative) |
 | Deploy | Vercel |
 | Icons | Native emoji only — no Lucide, no Heroicons, no react-icons |
 

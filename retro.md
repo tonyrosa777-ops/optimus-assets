@@ -78,7 +78,7 @@ Then add a row to the Error Encyclopedia table in `build-log.md` for each new en
 
 From progress.md, identify reusable patterns that emerged in this build. Candidates:
 - New component architectures that weren't in website-build-template.md
-- New integration patterns (Sanity role, GHL hook, Resend config, fal.ai prompt approach)
+- New integration patterns (Sanity role, GHL hook, Resend config, Higgsfield prompt approach)
 - New animation/interaction patterns
 - New content-writing or tone discoveries
 - New workflow adjustments Anthony made mid-project

@@ -19,7 +19,7 @@ scripts/
   posts/
     <slug>.json              ← post content in legacy block format
   prompts/
-    <slug>.txt               ← fal.ai prompt
+    <slug>.txt               ← Higgsfield prompt
   generate-blog-image.mjs    ← companion image generator
   publish-blog-post.mjs      ← this script
 public/images/blog/

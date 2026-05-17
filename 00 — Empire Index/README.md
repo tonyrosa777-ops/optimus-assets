@@ -47,7 +47,7 @@ If a slot doesn't exist yet, create it. The structure should grow with the work.
 
 - **Client project repos.** Actual client builds live at `c:\Projects\<client-slug>\` as their own Next.js codebases. This vault holds the templates and the lessons, not the deliverables.
 - **Per-client lessons during the build.** Capture them in the client repo's session notes as you go. After launch, run `/retro` to extract the durable findings into `knowledge/retrospectives/<client-slug>.md` here.
-- **Generated assets.** fal.ai outputs, deployment artifacts, and screenshots live in their respective client repos under `/public` — never here.
+- **Generated assets.** AI-generated assets (Higgsfield outputs, historical fal.ai outputs from pre-2026-05-17 client builds), deployment artifacts, and screenshots live in their respective client repos under `/public` — never here.
 - **Secrets.** No API keys, no env files. Ever.
 
 ## The website-dev workflow is unchanged

@@ -323,7 +323,7 @@ Before spawning ANY agent or starting ANY substantive task, the orchestrator MUS
 2. Grep `C:\Projects\Optimus Assets\knowledge\build-log.md` for keywords from the
    task (component name, integration name, error type). If a row matches, read
    the linked file in `knowledge/errors/` or `knowledge/patterns/` BEFORE spawning.
-3. If the task touches a known integration (Calendly, Stripe, Printful, fal.ai,
+3. If the task touches a known integration (Calendly, Stripe, Printful, Higgsfield,
    Sanity, Resend), explicitly cite the matching pattern from build-log.md in
    the spawn brief.
 
@@ -469,13 +469,25 @@ ritual before moving to the next task:
 Skip steps 3-5 only when there was nothing surprising. State "no surprises
 captured" explicitly so the silence confirms the ritual ran.
 
-## Image Generation Rule (fal.ai)
-fal.ai image generation is NEVER optional and NEVER deferred. Every blog article ships
+## Image Generation Rule (Higgsfield)
+Higgsfield image generation is NEVER optional and NEVER deferred. Every blog article ships
 with both a card image and a header image. Every trade business ships with a gallery of
 12-16 images. These are generated during the sweep, not "later."
 
+**Tool:** `mcp__higgsfield__generate_image` with `model: flux_2` (FLUX.2 Pro) as the default
+for blog cards, article headers, and trade gallery images. Use `model: nano_banana_pro`
+for stills that contain text or need higher composition quality (signage mockups, social
+tiles with logo + headline). Both models are 0 credits — **unlimited on Plus tier (365-day
+auto-renewing)**. No FAL_KEY env var needed. No fal.ai script. No balance check or
+confirmation gate for image generation — only the cost-approval gate Step 0 (active-skill
+confirmation per `knowledge/patterns/higgsfield-cost-approval-gate.md`) applies.
+
+**fal.ai retired 2026-05-17** — Higgsfield Plus tier ships 6 permanent unlimited image
+models, removing fal.ai's cost-per-image advantage. Do not add FAL_KEY references to any
+client project's `.env.local` or Vercel env vars. Do not run any fal.ai script.
+
 **Prompt quality gate — non-negotiable:**
-Before running ANY fal.ai generation batch, write ALL prompts first and review them as a set.
+Before running ANY image generation batch, write ALL prompts first and review them as a set.
 Every prompt must be:
 - Truly distinct from every other prompt in the batch (no two prompts that would produce
   visually similar images)
@@ -488,13 +500,14 @@ Right: Each prompt tells a different visual story — different angle, different
 different emotional beat, different subject within the business's domain.
 
 If a prompt batch has two prompts that would produce near-identical results, rewrite
-before generating. The cost of re-running fal.ai is higher than the cost of writing
-better prompts. First-time quality is the goal.
+before generating. Image gen is unlimited on Plus tier — retakes are free — but writing
+better prompts the first time is still faster than visual-reviewing and regenerating.
 
 **Never request readable text in image prompts.** AI image models cannot render legible
 text — they produce garbled characters (e.g., "REJUPED" instead of "REJECTED"). Rewrite
 any prompt that describes text on a sign, logo, label, or screen to describe the scene
-visually without requiring readable text.
+visually without requiring readable text. Same rule applies across Flux 2, Nano Banana
+Pro, Soul, Cinema Studio — every diffusion model.
 
 **Visual review before commit — non-negotiable.** After generating, visually inspect every
 image before committing. Common artifacts that require regeneration with a revised prompt:
@@ -502,10 +515,17 @@ image before committing. Common artifacts that require regeneration with a revis
 - Deformed subjects (extra limbs, merged objects, distorted faces)
 - Duplicate elements that shouldn't repeat
 - Composition that doesn't match the prompt intent
-If any image fails visual review, revise the prompt and regenerate. Do not commit artifacts.
+If any image fails visual review, revise the prompt and regenerate immediately (no credit
+cost on unlimited models). Do not commit artifacts.
 
 **Enforcement:** If the sweep completes without blog card images + header images for
 every article, that is a build failure. The pre-launch auditor checks for these files.
+
+**Video generation discipline (separate gate):** for any `mcp__higgsfield__generate_video`
+call (Architecture B hero, ad creative, Soul-character video), the cost-approval gate
+applies fully — balance check, simulation step, and high-cost confirmation per
+`knowledge/patterns/higgsfield-cost-approval-gate.md`. Video models cost credits;
+images on the 6 unlimited models do not.
 
 ## Higgsfield Credit-Spend Gate Rule
 
@@ -522,25 +542,24 @@ The Higgsfield skill suite encodes the corrected approach learned from Goddu Imp
 **The four supporting pattern docs (`knowledge/patterns/`):**
 - `higgsfield-mcsla-prompt-mastery.md` (Pattern #81) — MCSLA structure + 10 named prompt patterns + 12 brand registers + Soul ID Identity-vs-Motion separation rule
 - `higgsfield-camera-vocabulary.md` (Pattern #82) — 70+ camera preset catalog + reliability hierarchy + per-use-case matrix
-- `higgsfield-model-selection-matrix.md` (Pattern #83) — model decision tree + cost matrix + Seedance-draft-then-Kling-final workflow
+- `higgsfield-model-selection-matrix.md` (Pattern #83) — model decision tree + cost matrix (Cinema Studio V2 permanent video default; 6 permanent unlimited image models on Plus tier)
+- `higgsfield-cost-approval-gate.md` (Pattern #85) — Step 0/1/2 pre-spend gate + zero-credit SIMULATION step + 3-5-attempt escalation (binding on every Higgsfield generate call)
 - `ai-video-slop-avoidance-checklist.md` (Pattern #84) — 15-point platform-agnostic anti-pattern checklist
 
 **Defense-in-depth enforcement:**
 
 1. This CLAUDE.md rule (discipline) — read by orchestrators at session start per Mandatory Pre-Read Protocol.
 2. `/optimus-higgsfield-route` meta-skill (optional aid) — invoke when unsure which skill is right.
-3. PreToolUse hook in `~/.claude/settings.json` (hard gate) — fires `higgsfield-credit-gate.sh` before any `mcp__higgsfield__generate_image` or `mcp__higgsfield__generate_video` call. Injects a 5-point checklist Claude must address before proceeding. Non-blocking (exits 0) but forces explicit acknowledgment.
+3. PreToolUse hook in `~/.claude/settings.json` (soft gate, updated 2026-05-17) — fires `higgsfield-credit-gate.sh` before any `mcp__higgsfield__generate_image` or `mcp__higgsfield__generate_video` call. Injects the 3-point checklist below Claude must address before proceeding. Non-blocking (exits 0) but forces explicit acknowledgment.
 
-**Five-point gate the hook surfaces:**
-1. Skill workflow engaged? (one of the four `/optimus-higgsfield-*` skills)
-2. Pattern docs read? (the matching pattern doc for this use case)
-3. Pipeline gates run? (for hero: 5-composition brainstorm + harsh critic with 6-criterion rubric)
-4. Credit efficiency considered? (Seedance 2.0 Fast draft validation before Kling/Cinema Studio final — saves 50-70% per Pattern #83)
-5. Prompt quality check? (MCSLA structure + brand register named + AI slop avoidance checklist applied)
+**Three-point gate the hook surfaces (aligned to Pattern #85):**
+1. Active Higgsfield skill read in full this session? (Step 0 — all generate calls)
+2. SIMULATION step completed and passed for this generate_video call? (the zero-credit text simulation that replaces draft-model routing; image gen on unlimited models exempt)
+3. Balance + high-cost check addressed? (Step 1 + Step 2 — balance ≥100 cr for video; high-cost confirmation for single calls or batch totals >50 cr; Cinema Studio V2 at 25-45 cr EXEMPT as the expected default)
 
 **Skip-gate exemptions:** personal experiments outside client deliverables (Anthony's personal Soul Character training, exploration of new Higgsfield features). Even then, recommend reading the pattern docs first — the lessons are paid-for and free to consult.
 
-**Provider abstraction note:** Higgsfield has documented business continuity risk (X account suspended early 2026, refund/billing complaints, "unlimited" plan throttling per community reporting). The pattern docs maintain documented fallback paths: fal.ai (`flux-pro/v1.1`) for stills + Kling AI (web UI) for video animation. Don't lock client deliverables to Higgsfield-only features when alternatives exist. Tier 3 Marketing Team AI Spokesperson is the one Higgsfield-unique feature with no direct fallback — plan client contract milestones accordingly.
+**Provider abstraction note:** Higgsfield has documented business continuity risk (X account suspended early 2026, refund/billing complaints per community reporting). fal.ai retired 2026-05-17 — Plus tier ships 6 permanent unlimited image models, removing fal.ai's cost advantage. The pattern docs maintain documented fallback paths: any text-to-image generator with same prompt for stills, Kling AI (web UI) for video animation as last-resort manual flow per `knowledge/patterns/kling-video-hero.md`. Don't lock client deliverables to Higgsfield-only features when alternatives exist. Tier 3 Marketing Team AI Spokesperson (Soul ID) is the one Higgsfield-unique feature with no direct fallback — plan client contract milestones accordingly.
 
 ## Copy Writing Rule
 **Voice: human phone review, not press quote.**

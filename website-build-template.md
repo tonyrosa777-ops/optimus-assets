@@ -1590,34 +1590,40 @@ All project media must live inside `/public`. Never commit assets to the repo ro
 Service cards, about page, and OG images use real client photos when provided.
 If not provided, build sections that work without photo content until photos arrive.
 
-### Blog Card Images — fal.ai
+### Blog Card Images — Higgsfield Flux 2
 
-Used for blog post card thumbnails only. Requires `FAL_KEY` in `.env.local`.
+Used for blog post card thumbnails, article header images, and trade gallery images. **No `FAL_KEY` needed.** Higgsfield MCP is account-scoped via `mcp__higgsfield__*` tools; the 6 permanent unlimited image models on Plus tier ship 0-credit image generation.
 
 Prompt source: `design-system.md` → Section 6 (Photography & Media Direction)
 Output: `/public/images/blog/` — commit immediately after generation
 
 ```ts
-// scripts/generate-blog-images.ts
-import * as fal from "@fal-ai/serverless-client";
-
-fal.config({ credentials: process.env.FAL_KEY });
-
-// Pull mood, setting, and prohibited content from design-system.md Section 6
-// Generate one card image per blog article
-// Save to /public/images/blog/ with slug-matching filenames
-// Commit all outputs in the same commit as the script run
+// Pseudo-flow (executed by orchestrator, not a standalone script):
+// For each blog article in /data/site.ts:
+//   prompt = build_prompt_from_design_system_section_6(article)
+//   image = await mcp__higgsfield__generate_image({
+//     model: "flux_2",           // unlimited on Plus tier — default workhorse
+//     prompt: prompt,
+//     aspect_ratio: "16:9",      // header — use "1:1" for cards
+//   })
+//   save_to(`/public/images/blog/${article.slug}-header.jpg`, image)
+//   visual_review(image)         // free retake on unlimited model — regenerate if slop
+//
+// For text-rendering stills (signage, packaging, social tile with logo):
+//   model: "nano_banana_pro"     // also unlimited on Plus, best text rendering
+//
+// No balance check, no high-cost confirmation, no FAL_KEY.
+// Per cost-approval-gate.md: unlimited image models skip gate Steps 1+2.
 ```
 
-See: `knowledge/patterns/fal-ai-image-generation.md` for full implementation.
+See: `knowledge/patterns/higgsfield-blog-image-generation.md` for full implementation (formerly `fal-ai-image-generation.md`; renamed 2026-05-17 when fal.ai retired). See `knowledge/patterns/higgsfield-model-selection-matrix.md` Use Case D for the full image-model decision tree.
 
 ### Architecture B Hero — Higgsfield AI Movie-Hero Pipeline (default 2026-05-17)
 
 Default pipeline for Architecture B builds. Single programmatic call chain
 generates still + animation via Higgsfield's official MCP at
 `https://mcp.higgsfield.ai/mcp` (Plus tier $39/mo recommended for Cinema Studio
-access). Cost: ~$1-2 per pilot. Wall time: ~15-25 min end-to-end vs. ~45-60 min
-for the manual fal.ai + Kling pipeline.
+access). Cost: ~$1-2 per pilot. Wall time: ~15-25 min end-to-end.
 
 Flow:
 1. **Composition selection** — brainstorm 5 conceptually-distinct compositions
@@ -1640,9 +1646,10 @@ Flow:
 
 Full playbook + canonical Goddu Imprint trace: `knowledge/patterns/higgsfield-movie-hero-pipeline.md`.
 
-**Fallback if Higgsfield MCP unavailable:** fal.ai (`flux-pro/v1.1`) for still +
-Kling AI (kling.ai web app — not API-automatable) for animation. Manual two-tool
-pipeline. See `knowledge/patterns/kling-video-hero.md` for the legacy manual flow.
+**Fallback if Higgsfield MCP unavailable:** any text-to-image generator with the
+same prompt for the still + Kling AI (kling.ai web app — not API-automatable) for
+animation. Manual two-tool pipeline. See `knowledge/patterns/kling-video-hero.md`
+for the last-resort manual flow.
 
 ---
 

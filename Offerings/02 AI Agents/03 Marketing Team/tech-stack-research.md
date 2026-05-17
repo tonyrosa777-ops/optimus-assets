@@ -107,7 +107,7 @@ Productization blocker — clients won't manually export performance data weekly
 Strategy-only is the first build. Direct posting (engine outputs strategy → drafts → human approves → engine posts) is a later expansion, requiring:
 - Approval UI (likely a custom Optimus admin dashboard built on the same FastAPI service)
 - Same platform APIs as ingestion, write-side
-- Image/video asset pipeline (likely fal.ai for stills; TBD for short-form video)
+- Image/video asset pipeline (Higgsfield Flux 2 / Nano Banana Pro for stills, unlimited on Plus tier; Higgsfield Marketing Studio Video for short-form ad creative — see `optimus-higgsfield-ad-creative` skill)
 
 When direct posting ships, the **Approval primitive** in [`../shared-knowledge/agent-infrastructure.md`](../shared-knowledge/agent-infrastructure.md) § 4 governs every post. No silent autonomous posting — high-stakes (external-facing) actions stay approval-gated indefinitely.
 

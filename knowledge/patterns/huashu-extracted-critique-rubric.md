@@ -42,7 +42,7 @@ Scoring threshold added: winner needs ≥22 of 30 total AND no single dimension 
 
 Two new file-level gates added between Section 3 (Images and Media) and Section 4 (Forms and Conversion Flows):
 
-- **No figurative SVG illustrations** — FAIL if any inline `<svg>` block depicts people, faces, scenes, or photo-like subjects. Reasoning: hand-drawn AI SVG of people is a flagged AI aesthetic. People belong in real photography or fal.ai output (per Image Generation Rule). Decorative SVG is fine for shapes, dividers, icons, brand marks.
+- **No figurative SVG illustrations** — FAIL if any inline `<svg>` block depicts people, faces, scenes, or photo-like subjects. Reasoning: hand-drawn AI SVG of people is a flagged AI aesthetic. People belong in real photography or AI-generated images (Higgsfield Flux 2 / Nano Banana, per CLAUDE.md Image Generation Rule). Decorative SVG is fine for shapes, dividers, icons, brand marks.
 - **No AI-signature left-accent-border card pattern** — WARN if more than 2 components use a left-side accent border (≥3px or `border-l-{N}` Tailwind utility) on rounded cards. Use border-on-all-sides + background tone for emphasis instead.
 
 ## How to apply going forward

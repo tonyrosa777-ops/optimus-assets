@@ -83,8 +83,8 @@ Mandatory on every Optimus build with 2+ accommodations / units / locations / va
 
 ## Related
 
-- Pattern #4 (build-log) — fal.ai image generation (sibling: pattern for AI-generated photos; this is the source-photo organization pattern)
-- Pattern #72 — fal.ai parallel-property visual differentiation (companion: filename convention applies to fal.ai outputs too)
+- Pattern #4 (build-log) — Higgsfield blog image generation (sibling: pattern for AI-generated photos; this is the source-photo organization pattern). See [[higgsfield-blog-image-generation]].
+- Pattern #72 — parallel-property visual differentiation (companion: filename convention applies to AI-generated outputs too). See [[parallel-property-visual-differentiation]].
 - Error #62 — Sharp webp conversion drops EXIF orientation (also addresses photo integration script reliability; this pattern + .rotate() fix are the two pillars of a robust integrate-photos.mjs)
 
 ## Anti-pattern (what to avoid)

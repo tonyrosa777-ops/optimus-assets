@@ -117,22 +117,26 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
           → Hero animation — approve or request correction
           → Any [MISSING:] flags in site.ts — fill the gap, then continue
 
-[ ] 13. Assets (generate when pages need them — NEVER skip fal.ai step):
-          ⛔ HUMAN PAUSE before generating: Orchestrator checks .env.local for FAL_KEY.
-          If blank → STOP, display message asking user to add fal.ai key, WAIT for GO.
-          Do NOT auto-continue. Do NOT skip. Missing images = build failure.
-          Hero: animated canvas/JS (logo-based default) — never a photo, never fal.ai.
-          Blog post card images + article header images → fal.ai (one card + one header per article)
+[ ] 13. Assets (generate when pages need them — NEVER skip image step):
+          ⛔ HUMAN PAUSE before generating: Orchestrator confirms Higgsfield MCP available
+          (ToolSearch) + balance ≥100 cr (`mcp__higgsfield__balance`). If <100: warn +
+          confirm per `knowledge/patterns/higgsfield-cost-approval-gate.md` Step 1.
+          Note: image generation on Flux 2 / Nano Banana Pro is unlimited on Plus tier —
+          the balance check covers video work in this stage (Architecture B hero if applicable).
+          Do NOT auto-continue past a low-balance warning. Missing images = build failure.
+          Hero (Architecture A canvas) OR Higgsfield Movie-Hero (Architecture B per Pattern #80) — never a plain photo backdrop.
+          Blog post card images + article header images → `mcp__higgsfield__generate_image` with `model: flux_2` (one card + one header per article). No FAL_KEY needed. Unlimited on Plus tier — no balance check or confirmation for image generation.
             ⚠️ PROMPT QUALITY GATE: Write ALL prompts first, review as a set.
             Every prompt must be truly distinct and creative — no two should produce
             visually similar images. Describe lighting, composition, mood, specific details.
-            If any two prompts overlap, rewrite before generating. First-time quality is the goal.
+            If any two prompts overlap, rewrite before generating. Retakes are free on unlimited models — write well, ship clean.
           Gallery (trade businesses only — contractors, painters, fencers, electricians, landscapers,
           cleaners, builders, and any hands-on service business):
-            → Build /gallery page. Generate 12-16 job site images via fal.ai.
+            → Build /gallery page. Generate 12-16 job site images via `mcp__higgsfield__generate_image` with `model: flux_2` in a single batch.
             → Same prompt quality gate applies — each image a distinct visual story.
+            → No approval gate, no balance check for the batch (Flux 2 unlimited on Plus tier).
             → Wire to nav + sitemap.ts in same commit.
-          Replace any fal.ai image with real client photo when provided.
+          Replace any AI-generated image with real client photo when provided.
           Each asset committed with the page that uses it.
           **If sweep completes without blog card + header images, it is a build failure.**
 
@@ -210,8 +214,8 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
         Always: OWNER_EMAIL (business owner's real inbox — single source for all Resend replyTo + notification recipient),
                 RESEND_FROM_EMAIL (branded sending address — must match Resend verified domain),
                 NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_SHOW_PRICING_TOOLS=false,
-                NEXT_PUBLIC_CALENDLY_URL, SANITY_PROJECT_ID, SANITY_DATASET,
-                FAL_KEY (same key used during build — images already generated, key kept for future updates)
+                NEXT_PUBLIC_CALENDLY_URL, SANITY_PROJECT_ID, SANITY_DATASET
+                (Higgsfield needs NO per-project env var — MCP is account-scoped)
         Shop only: STRIPE_SECRET_KEY (live), STRIPE_WEBHOOK_SECRET, PRINTFUL_API_KEY,
                    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 

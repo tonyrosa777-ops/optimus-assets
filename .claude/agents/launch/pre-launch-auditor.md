@@ -133,9 +133,10 @@ If content-writer emitted a banner comment at the top of site.ts (`// ⚠️ DEM
     Search: [PROJECT_FOLDER]/src for <img or <Image without alt prop
     FAIL if: any image element missing alt attribute
 
-[ ] No fal.ai placeholder URLs in production
-    Search: [PROJECT_FOLDER]/src for fal.ai, fal-cdn
-    WARN if: any fal.ai URLs found — these should be replaced with real photos or kept as intentional AI art
+[ ] No AI-generated placeholder URLs in production
+    Search: [PROJECT_FOLDER]/src for fal.ai, fal-cdn, higgsfield-cdn, higgsfield URLs
+    WARN if: any AI-generated URLs found — these should be replaced with real photos or kept as intentional AI art
+    (fal.ai retired 2026-05-17 — Higgsfield is the active image provider; both URL patterns still relevant for historical client repos)
 
 ### SECTION 3B — Anti-AI-Slop Visual Patterns (file-level)
 
@@ -150,7 +151,7 @@ because they're component-implementation choices, not brand-direction choices. B
     or photo-like subject in vector form?
     FAIL if: any inline SVG illustrates people, faces, scenes, or "photo-like" subjects.
     Why: hand-drawn AI SVG of people is a signature low-effort AI aesthetic. People belong
-    in real photography or fal.ai-generated images (per CLAUDE.md Image Generation Rule).
+    in real photography or AI-generated images (Higgsfield Flux 2 / Nano Banana, per CLAUDE.md Image Generation Rule).
     Decorative SVG is fine for shapes, dividers, icons, brand marks, geometric patterns —
     not for figurative scenes.
 

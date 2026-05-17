@@ -42,7 +42,7 @@ Optimus builds high-performance, intelligence-driven websites for local service 
 | **Phase 1** — Agent sweep | Parallel Claude Code agents build the entire site — design synthesizer, content writer, animation specialist, frontend, blog, shop, quiz, booking, testimonials, retro, pre-launch audit. |
 | **Phase 2** — Launch | DNS, Vercel, Resend, client handoff. Then `/retro` extracts the durable findings into `knowledge/`. |
 
-**Website stack:** Next.js (App Router) · Tailwind CSS 4 · Framer Motion · Three.js · Sanity CMS · Resend · Stripe · Printful · Vercel · GoDaddy · fal.ai. Every hero ships with three layers: HeroParticles + brand-specific canvas + Framer Motion staggered text.
+**Website stack:** Next.js (App Router) · Tailwind CSS 4 · Framer Motion · Three.js · Sanity CMS · Resend · Stripe · Printful · Vercel · GoDaddy · Higgsfield AI MCP (Flux 2 / Nano Banana / Cinema Studio V2). Every hero ships with three layers: HeroParticles + brand-specific canvas + Framer Motion staggered text (Architecture A) — or full-bleed Higgsfield Cinema Studio video backdrop (Architecture B).
 
 The website is the entry point. **The AI systems are the career.**
 

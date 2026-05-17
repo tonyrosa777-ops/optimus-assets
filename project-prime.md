@@ -324,9 +324,11 @@ NEXT_PUBLIC_SHOW_PRICING_TOOLS=true
 CALENDLY_API_KEY=
 NEXT_PUBLIC_CALENDLY_EVENT_TYPE_URI=
 
-# fal.ai — image generation for blog cards, article headers, gallery
-# Get key at: fal.ai/dashboard → API Keys
-FAL_KEY=
+# Higgsfield AI — image + video generation (Plus tier subscription, MCP endpoint)
+# No per-project key needed — Higgsfield MCP is account-scoped via the global
+# `mcp__higgsfield__*` tools. Plus tier ($39/mo) ships 6 permanent unlimited image
+# models (Flux 2, Nano Banana, GPT Image, Seedream 4.5, Seedream V5 Lite, Kling
+# O1 Image) at 0 cr each, plus Cinema Studio V2 for video at 25-45 cr/gen.
 
 # Resend — transactional email (contact forms, quiz submissions)
 RESEND_API_KEY=
@@ -344,8 +346,11 @@ STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 ```
 
-   ⚠️ FAL_KEY is blank at scaffold. Add the key before Stage 1G runs.
-   Without FAL_KEY set, fal.ai calls will fail and blog images won't generate.
+   ⚠️ Higgsfield image generation requires no per-project key — Higgsfield MCP
+   is account-scoped via the global `mcp__higgsfield__*` tools. Image gen on
+   Flux 2 / Nano Banana / etc. is unlimited on Plus tier. Verify Higgsfield MCP
+   is available and balance ≥100 cr before Stage 1G runs (per the cost-approval
+   gate Step 1 in `knowledge/patterns/higgsfield-cost-approval-gate.md`).
    NEXT_PUBLIC_CALENDLY_URL defaults to the Calendly demo URL so the booking
    widget renders during the build without waiting for the client's real URL.
 
@@ -697,7 +702,7 @@ Read that file before building. Adapt the structure — NOT the Xpertise-specifi
     - "Professional Blog" — NOT "blog architecture" or "Sanity blog"
     - "Branded Merch Shop" — NOT "shop scaffold" or "Printful integration"
     - "Testimonials Showcase" — NOT "testimonials page" or "36 testimonials"
-    - "Photo Gallery" — NOT "gallery page" or "fal.ai gallery"
+    - "Photo Gallery" — NOT "gallery page" or "AI-generated gallery"
     Technical names describe what WE build. Client-facing names describe what THEY get.
 
     Section B — ROI Calculator (ROICalculator component in same file):
@@ -842,60 +847,44 @@ Update progress.md: Stage 1F complete.
 
 ⛔ **HUMAN PAUSE — MANDATORY.** Do NOT proceed silently. Do NOT skip this gate.
 
-Before generating a single image, the orchestrator MUST:
-1. Read .env.local and check whether FAL_KEY has a value
-2. If FAL_KEY is blank or missing, **STOP and display this message to the user:**
+Before generating a single image or video, the orchestrator MUST:
 
-```
-⛔ FAL.AI KEY REQUIRED — STAGE 1G BLOCKED
-──────────────────────────────────────────
-Blog article images (card + header for every article) and gallery images
-are generated now. Without FAL_KEY, all image generation will fail silently
-and the build ships with missing images — which is a build failure.
+1. **Confirm Higgsfield MCP availability** via `ToolSearch` for `mcp__higgsfield__balance`, `mcp__higgsfield__generate_image`, `mcp__higgsfield__generate_video`, `mcp__higgsfield__job_status`. If unavailable: HALT and ask user to confirm MCP connection at `https://mcp.higgsfield.ai/mcp` (scope: user).
 
-ACTION NEEDED:
-  1. Go to fal.ai/dashboard → API Keys → Create Key
-  2. Add to .env.local:  FAL_KEY=your_key_here
-  3. Type GO when the key is set
+2. **Balance check per cost-approval-gate Step 1:** call `mcp__higgsfield__balance()`. If balance <100 credits: WARN user `⚠️ Credits low ([X] remaining). Confirm before proceeding (y/n).` and WAIT for explicit confirmation. See `knowledge/patterns/higgsfield-cost-approval-gate.md`. Image generation on the 6 permanent unlimited Plus-tier models does not consume balance — but Stage 1G's video work (Architecture B hero, if applicable) does. Run the balance check regardless so the orchestrator surfaces low-balance state upfront.
 
-I will not proceed until the key is confirmed.
-```
-
-3. **Wait for the user to type GO.** Do not auto-continue. Do not assume the key is set.
-4. After GO, re-read .env.local and confirm FAL_KEY is non-empty. If still blank, repeat the message.
-
-If FAL_KEY was already set: announce "FAL_KEY confirmed — proceeding with image generation" and continue.
+3. **Confirm active skill read.** Per gate Step 0, the orchestrator confirms it has read `~/.claude/skills/optimus-higgsfield-hero-video/SKILL.md` if Architecture B, and `~/.claude/skills/optimus-higgsfield-soul-character/SKILL.md` if any Soul-character work is in scope. Image-only generation uses the patterns in `knowledge/patterns/higgsfield-blog-image-generation.md` (read at session start per the pre-read).
 
 Also check:
   - CALENDLY_API_KEY is set → WARN if blank; BookingCalendar will use seeded demo mode
 
-**fal.ai image generation is NEVER optional and NEVER deferred.**
+**Higgsfield image generation is NEVER optional and NEVER deferred.**
 If this stage completes without card + header images for every blog article, it is a build failure.
 
 Generate as needed. Each asset commits with the page that uses it.
 
 1. Hero asset — selection depends on design-synthesizer's Stage 1B Architecture choice per the revised Hero Architecture Rule (CLAUDE.md, 2026-05-17):
    - **Architecture A (3-layer particle system)**: HeroParticles + BrandCanvas + Framer text. Generated programmatically by animation-specialist agent in Stage 1D. No image / video asset needed.
-   - **Architecture B (Movie header MP4)**: Full-bleed cinematic video backdrop. Default pipeline is **Higgsfield AI via official MCP** (`https://mcp.higgsfield.ai/mcp`) — single programmatic call chain: marketing_studio_image → cinematic_studio_video_v2 (genre matching brand-axes, mode=pro, 10s, 16:9). Output handling: download mp4 + ffmpeg encode to webm + slim mp4 + webp poster. Full playbook in [knowledge/patterns/higgsfield-movie-hero-pipeline.md](knowledge/patterns/higgsfield-movie-hero-pipeline.md). Cost ~$1-2 per pilot at Plus tier. Fallback if Higgsfield MCP unavailable: fal.ai (flux-pro/v1.1) still + Kling AI (web UI) animation, manual two-tool pipeline.
-2. Blog post card images + article header images: fal.ai (@fal-ai/client, model: fal-ai/flux-pro/v1.1)
-   One card image + one header image per article. 9-10 articles = 18-20 images total.
+   - **Architecture B (Movie header MP4)**: Full-bleed cinematic video backdrop. Default pipeline is **Higgsfield AI via official MCP** (`https://mcp.higgsfield.ai/mcp`) per the `/optimus-higgsfield-hero-video` skill — Cinema Studio V2 is the permanent default video model (25-45 cr/gen, exempt from gate Step 2 high-cost alert). Output handling: download mp4 + ffmpeg encode to webm + slim mp4 + webp poster. Full playbook in [knowledge/patterns/higgsfield-movie-hero-pipeline.md](knowledge/patterns/higgsfield-movie-hero-pipeline.md). Cost ~$1-2 per pilot at Plus tier. Run the SIMULATION step (zero-credit text validation) before any generate_video call per `knowledge/patterns/higgsfield-cost-approval-gate.md`. Last-resort fallback if Higgsfield MCP unavailable: any text-to-image generator for stills + Kling AI web UI for animation, manual two-tool pipeline per `knowledge/patterns/kling-video-hero.md`.
+2. Blog post card images + article header images: **Higgsfield Flux 2 via `mcp__higgsfield__generate_image` with `model: flux_2`** (or `model: nano_banana_pro` for stills with text rendering). 0 credits — unlimited on Plus tier. No balance check or confirmation needed for image generation. No FAL_KEY. No fal.ai script.
+   One card image + one header image per article. 9-10 articles = 18-20 generations total.
 
-   ⚠️ PROMPT QUALITY GATE — before running ANY generation:
+   ⚠️ PROMPT QUALITY GATE — before running ANY generation batch:
    Write ALL prompts first. Review as a set. Every prompt must be:
    - Truly distinct from every other prompt (no two should produce visually similar images)
    - Specific to the article topic (not generic stock-photo descriptions)
    - Grounded in design-system.md Section 6 (photography style + mood)
    - Creative: describe lighting, composition, mood, angle, specific visual details
    If any two prompts would produce near-identical results, rewrite before generating.
-   First-time quality is the goal — re-running fal.ai wastes time and money.
+   Image gen is unlimited — retakes cost nothing — but writing better prompts first is still faster than visual-reviewing and regenerating.
 
    **Never request readable text in prompts.** AI models produce garbled characters.
    Rewrite any prompt that describes text on signs, logos, or labels — describe the
-   scene visually without requiring readable text.
+   scene visually without requiring readable text. Applies to Flux 2 / Nano Banana / all diffusion models.
 
    **Visual review before commit:** After generating, visually inspect every image.
-   Regenerate with revised prompt if you see: garbled text, extra limbs, merged objects,
-   distorted faces, or composition that doesn't match intent. Do not commit artifacts.
+   If image fails the slop avoidance checklist on visual review, regenerate immediately —
+   no confirmation needed, no credit impact. Do not commit artifacts.
 
    Save to /public/images/blog/[article-slug]-card.jpg and [article-slug]-header.jpg
    Commit each batch of images with the article that uses them.
@@ -903,11 +892,12 @@ Generate as needed. Each asset commits with the page that uses it.
    Check BUSINESS_TYPE in CLAUDE.md. If the business is a trade (contractor, painter,
    fencer, electrician, landscaper, cleaner, builder, or any hands-on service):
    - Build a /gallery page
-   - Generate 12-16 job site images via fal.ai — finished work, in-progress shots,
+   - Generate 12-16 job site images via `mcp__higgsfield__generate_image` with `model: flux_2` — finished work, in-progress shots,
      before/after style. Prompts show the actual trade work, not generic stock.
+   - Generate the full batch in one pass — no approval gate, no balance check (Flux 2 unlimited on Plus tier).
    - Wire /gallery to nav + sitemap.ts in the same commit
    If not a trade business: skip gallery entirely.
-5. Replace any fal.ai image with a real client photo when the client provides one.
+5. Replace any AI-generated image with a real client photo when the client provides one.
 
 Update progress.md: Stage 1G complete — [N] assets generated.
 
