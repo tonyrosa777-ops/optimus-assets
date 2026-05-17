@@ -507,6 +507,41 @@ If any image fails visual review, revise the prompt and regenerate. Do not commi
 **Enforcement:** If the sweep completes without blog card images + header images for
 every article, that is a build failure. The pre-launch auditor checks for these files.
 
+## Higgsfield Credit-Spend Gate Rule
+
+**No `mcp__higgsfield__generate_image` or `mcp__higgsfield__generate_video` call may fire until the orchestrator has either invoked the matching `/optimus-higgsfield-*` skill OR explicitly cited the relevant skill / pattern doc in a message.**
+
+The Higgsfield skill suite encodes the corrected approach learned from Goddu Imprint v1+v2 failures. Bypassing it means re-learning lessons that have already been paid for in burnt credits.
+
+**The four Higgsfield skills (registered at `~/.claude/skills/`):**
+- `/optimus-higgsfield-route` — routing meta-skill, takes intent ("hero" / "ad" / "spokesperson" / "blog-image" / "audit"), returns correct skill + pattern docs + cost estimate + failure modes. Use when unsure.
+- `/optimus-higgsfield-hero-video` — Architecture B website hero generation.
+- `/optimus-higgsfield-ad-creative` — Marketing Studio ad creative (Tier 3 Marketing Team upsell).
+- `/optimus-higgsfield-soul-character` — Soul ID training + character management (AI Spokesperson / AI Influencer pipelines).
+
+**The four supporting pattern docs (`knowledge/patterns/`):**
+- `higgsfield-mcsla-prompt-mastery.md` (Pattern #81) — MCSLA structure + 10 named prompt patterns + 12 brand registers + Soul ID Identity-vs-Motion separation rule
+- `higgsfield-camera-vocabulary.md` (Pattern #82) — 70+ camera preset catalog + reliability hierarchy + per-use-case matrix
+- `higgsfield-model-selection-matrix.md` (Pattern #83) — model decision tree + cost matrix + Seedance-draft-then-Kling-final workflow
+- `ai-video-slop-avoidance-checklist.md` (Pattern #84) — 15-point platform-agnostic anti-pattern checklist
+
+**Defense-in-depth enforcement:**
+
+1. This CLAUDE.md rule (discipline) — read by orchestrators at session start per Mandatory Pre-Read Protocol.
+2. `/optimus-higgsfield-route` meta-skill (optional aid) — invoke when unsure which skill is right.
+3. PreToolUse hook in `~/.claude/settings.json` (hard gate) — fires `higgsfield-credit-gate.sh` before any `mcp__higgsfield__generate_image` or `mcp__higgsfield__generate_video` call. Injects a 5-point checklist Claude must address before proceeding. Non-blocking (exits 0) but forces explicit acknowledgment.
+
+**Five-point gate the hook surfaces:**
+1. Skill workflow engaged? (one of the four `/optimus-higgsfield-*` skills)
+2. Pattern docs read? (the matching pattern doc for this use case)
+3. Pipeline gates run? (for hero: 5-composition brainstorm + harsh critic with 6-criterion rubric)
+4. Credit efficiency considered? (Seedance 2.0 Fast draft validation before Kling/Cinema Studio final — saves 50-70% per Pattern #83)
+5. Prompt quality check? (MCSLA structure + brand register named + AI slop avoidance checklist applied)
+
+**Skip-gate exemptions:** personal experiments outside client deliverables (Anthony's personal Soul Character training, exploration of new Higgsfield features). Even then, recommend reading the pattern docs first — the lessons are paid-for and free to consult.
+
+**Provider abstraction note:** Higgsfield has documented business continuity risk (X account suspended early 2026, refund/billing complaints, "unlimited" plan throttling per community reporting). The pattern docs maintain documented fallback paths: fal.ai (`flux-pro/v1.1`) for stills + Kling AI (web UI) for video animation. Don't lock client deliverables to Higgsfield-only features when alternatives exist. Tier 3 Marketing Team AI Spokesperson is the one Higgsfield-unique feature with no direct fallback — plan client contract milestones accordingly.
+
 ## Copy Writing Rule
 **Voice: human phone review, not press quote.**
 - Testimonials must read like a real human typed them on a phone. Never use the em dash (—). Humans use commas, periods, and ellipses. Em dashes are a copywriter/AI tell.
