@@ -1583,9 +1583,9 @@ All project media must live inside `/public`. Never commit assets to the repo ro
 
 ## AI Asset Generation
 
-**Hero sections always use animated SVG — never a photo, never fal.ai.**
-fal.ai is strictly for blog post card thumbnail images. Do not use it for heroes,
-about pages, service cards, or OG images.
+**Hero asset pipeline depends on which architecture design-synthesizer picks at Stage 1B** per the revised Hero Architecture Rule (CLAUDE.md, 2026-05-17):
+- **Architecture A (3-layer particle system)**: HeroParticles + BrandCanvas + Framer text. No AI image / video asset needed — animation-specialist generates programmatically in Stage 1D.
+- **Architecture B (Movie header MP4)**: Full-bleed cinematic video backdrop generated via Higgsfield AI MCP. See "Higgsfield Movie-Hero Pipeline" below.
 
 Service cards, about page, and OG images use real client photos when provided.
 If not provided, build sections that work without photo content until photos arrive.
@@ -1611,22 +1611,38 @@ fal.config({ credentials: process.env.FAL_KEY });
 
 See: `knowledge/patterns/fal-ai-image-generation.md` for full implementation.
 
-### Videos — Kling (manual step)
+### Architecture B Hero — Higgsfield AI Movie-Hero Pipeline (default 2026-05-17)
 
-Kling (kling.ai) is a web app — not automatable via API.
+Default pipeline for Architecture B builds. Single programmatic call chain
+generates still + animation via Higgsfield's official MCP at
+`https://mcp.higgsfield.ai/mcp` (Plus tier $39/mo recommended for Cinema Studio
+access). Cost: ~$1-2 per pilot. Wall time: ~15-25 min end-to-end vs. ~45-60 min
+for the manual fal.ai + Kling pipeline.
 
-1. Write scene prompt from `design-system.md` brand identity + photography direction
-2. Generate in Kling → download as MP4
-3. Place in `/public/videos/hero-[descriptor].mp4`
-4. Implement:
+Flow:
+1. **Composition selection** — brainstorm 5 conceptually-distinct compositions
+   per Architecture B selection process; harsh critic agent (Pattern #56) scores
+   on niche relevance, visual impact, originality vs. prior Optimus builds,
+   brand-axes fit, looping ergonomics; picks winner ≥18/25.
+2. **Still generation** — `mcp__higgsfield__generate_image` with
+   `marketing_studio_image` model, `aspect_ratio: 16:9`. Visual review per
+   CLAUDE.md Image Generation Rule.
+3. **Video animation** — `mcp__higgsfield__generate_video` with
+   `cinematic_studio_video_v2`, `genre: intimate` (or match brand-axes),
+   `mode: pro`, `duration: 10`, still passed as `medias[].role: start_image`.
+   Frame extraction at 0s/5s/9s for visual review.
+4. **Encoding** — ffmpeg encode to slim mp4 (libx264 crf 28 preset slow + no
+   audio) + webm (libvpx-vp9 crf 33 + no audio) + webp poster. Typical
+   compression: 6.9MB raw → 524KB mp4 + 321KB webm + 52KB poster.
+5. **Wire** — full-bleed `<video autoPlay muted loop playsInline preload="metadata">`
+   with webm + mp4 sources + webp poster + dual-axis gradient overlay for
+   4.5:1 text contrast + `<img motion-reduce:block>` fallback for reduced-motion.
 
-```tsx
-<video autoPlay muted loop playsInline poster="/images/hero-fallback.jpg">
-  <source src="/videos/hero-[descriptor].mp4" type="video/mp4" />
-</video>
-```
+Full playbook + canonical Goddu Imprint trace: `knowledge/patterns/higgsfield-movie-hero-pipeline.md`.
 
-See: `knowledge/patterns/kling-video-hero.md` for full implementation.
+**Fallback if Higgsfield MCP unavailable:** fal.ai (`flux-pro/v1.1`) for still +
+Kling AI (kling.ai web app — not API-automatable) for animation. Manual two-tool
+pipeline. See `knowledge/patterns/kling-video-hero.md` for the legacy manual flow.
 
 ---
 

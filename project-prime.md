@@ -874,9 +874,9 @@ If this stage completes without card + header images for every blog article, it 
 
 Generate as needed. Each asset commits with the page that uses it.
 
-1. Hero video (cinematic brands): Kling AI — prompt from design-system.md Section 6
-   Hero sections use animated SVG or custom canvas/JS — never a photo, never fal.ai.
-   Animation selection is handled in Stage 1D by the animation-specialist agent.
+1. Hero asset — selection depends on design-synthesizer's Stage 1B Architecture choice per the revised Hero Architecture Rule (CLAUDE.md, 2026-05-17):
+   - **Architecture A (3-layer particle system)**: HeroParticles + BrandCanvas + Framer text. Generated programmatically by animation-specialist agent in Stage 1D. No image / video asset needed.
+   - **Architecture B (Movie header MP4)**: Full-bleed cinematic video backdrop. Default pipeline is **Higgsfield AI via official MCP** (`https://mcp.higgsfield.ai/mcp`) — single programmatic call chain: marketing_studio_image → cinematic_studio_video_v2 (genre matching brand-axes, mode=pro, 10s, 16:9). Output handling: download mp4 + ffmpeg encode to webm + slim mp4 + webp poster. Full playbook in [knowledge/patterns/higgsfield-movie-hero-pipeline.md](knowledge/patterns/higgsfield-movie-hero-pipeline.md). Cost ~$1-2 per pilot at Plus tier. Fallback if Higgsfield MCP unavailable: fal.ai (flux-pro/v1.1) still + Kling AI (web UI) animation, manual two-tool pipeline.
 2. Blog post card images + article header images: fal.ai (@fal-ai/client, model: fal-ai/flux-pro/v1.1)
    One card image + one header image per article. 9-10 articles = 18-20 images total.
 

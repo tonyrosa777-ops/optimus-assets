@@ -20,6 +20,18 @@ Do NOT invoke before the hero layout is confirmed — animation wraps the layout
 it doesn't define it. The orchestrator passes: the absolute path to the client's
 project folder.
 
+## Architecture branch (FIRST DECISION — revised 2026-05-17)
+
+Per the revised CLAUDE.md Hero Architecture Rule, two hero architectures exist:
+
+**Architecture A — 3-layer particle system (canvas hero).** HeroParticles + BrandCanvas + Framer text. This agent's primary scope — the canvas selection process below applies. Originality Rule §19 binding: NOT a re-skin of any prior Optimus canvas (no Pattern #28 5-phase clone, no Pattern #31 LogoParticles clone, no Pattern #36 chaos→converge→explode clone). Original visual metaphor tied to this client's niche.
+
+**Architecture B — Movie header (MP4 cinematic backdrop).** Generated via Higgsfield AI MCP, NOT a canvas. This agent's responsibility shifts: instead of writing canvas math, you execute the Higgsfield pipeline per `C:\Projects\Optimus Assets\knowledge\patterns\higgsfield-movie-hero-pipeline.md` (Pattern #80). Brainstorm 5 conceptually-distinct cinematic compositions tied to the client's product/environment, spawn the harsh critic agent to score and pick the winner per Pattern #56 huashu-extracted-critique-rubric, generate still (`mcp__higgsfield__generate_image` with `marketing_studio_image`) + animation (`mcp__higgsfield__generate_video` with `cinematic_studio_video_v2`, genre matching brand axes, mode=pro, 10s), encode via ffmpeg to webm + slim mp4 + webp poster, wire into Hero.tsx as full-bleed video backdrop with dual-axis gradient overlay + Framer text overlay.
+
+**How to determine which architecture is in scope:** read design-system.md §6 (Hero photography & media direction). If §6 specifies a particle/canvas hero, Architecture A. If §6 specifies a movie-hero / cinematic video backdrop, Architecture B. design-synthesizer's Stage 1B output is the canonical decision; do not re-litigate at Stage 1D.
+
+The Selection Process, Animation Selection Matrix, and canvas-specific guidance below apply to Architecture A only. For Architecture B, skip to "Step 5 — Wire Hero.tsx" below (full-bleed movie-hero pattern in Pattern #80) and use the rest of this file for the Framer Motion text overlay timing only.
+
 ## Required Reading
 Read these files in order before selecting any animation.
 
