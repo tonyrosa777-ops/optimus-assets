@@ -55,14 +55,15 @@ A rule that fails an operational test is a build failure. Not a discussion, not 
 
 ---
 
-## §4 — Hero Architecture Rule — No photos in the hero, ever
+## §4 — Hero Architecture Rule — No owner headshots; 2 valid architectures only
 
 | Field | Value |
 |---|---|
-| Verbatim | *"Every hero ships with exactly 3 layers. No exceptions. No photos in the hero, ever — a photo placeholder in the hero is a build failure. The client photo belongs in the About section."* |
+| Verbatim | *"No owner/founder biographical headshots in the hero. Owner photos belong exclusively in the About section. A two-column 'editorial portrait of the owner on the right' hero is a build failure regardless of how well-shot the portrait is."* + *"Two and only two valid hero architectures: (A) 3-layer particle system, or (B) Movie header (MP4 cinematic backdrop)."* |
 | Anchor | CLAUDE.md §"Hero Architecture Rule" (line ~545) |
-| Operational test | Open the hero at 1440 and 390. Does any `<img>` / `<Image>` / photo container render anywhere inside the hero `<section>`? If yes = FAIL. |
-| Common violation | design-synthesizer cites a competitor pattern (e.g., Claro Advisors single-subject lifestyle) to justify a two-column hero with a photo on the right. Built once on Helen Grondin (Pattern #28); rebuilt on Ead Financial (Error #55). The "movie-hero" full-bleed cinematic backdrop is OK; the "box with a photo in the header" two-column is NEVER OK regardless of which reference site is cited. |
+| Operational test | Two tests, both must pass: **(1)** Open Hero.tsx + the live hero at 1440 and 390. Does any `<img>` / `<Image>` render an *owner biographical headshot* anywhere inside the hero `<section>`? If yes = FAIL. **(2)** Identify which architecture the hero uses. If A: verify all 3 layers exist (HeroParticles + BrandCanvas + Framer text). If B: verify `<video>` is full-bleed (not a contained pane) + gradient overlay achieves 4.5:1 text contrast + Framer text overlays. Hybrid (e.g., particle system + photo on right) = FAIL. |
+| Common violation | (a) design-synthesizer cites a competitor pattern (e.g., Claro Advisors single-subject lifestyle) to justify a two-column hero with a photo of the owner on the right — Built once on Helen Grondin (Pattern #28); rebuilt on Ead Financial (Error #55). Still a build failure: the "box with a portrait in the header" two-column violates §4. (b) Architecture A's BrandCanvas is a re-implementation of Pattern #28 / #31 / #36 with different colors — that violates the Originality Rule (§19), not §4 directly, but the cross-check catches it at Stage 1B. |
+| Revised | 2026-05-17 — clarified from "no photos ever" to "no owner headshots; movie-hero with editorial cinematic photography or video IS valid." Editorial product/environmental shots in a full-bleed cinematic backdrop are Architecture B and now first-class. |
 
 ---
 
@@ -220,6 +221,19 @@ A rule that fails an operational test is a build failure. Not a discussion, not 
 
 ---
 
+## §19 — Originality Rule — no exact-duplicate visuals + every design decision data-backed
+
+| Field | Value |
+|---|---|
+| Verbatim | *"No exact-duplicate visuals across Optimus builds. Two builds can share warm gold + deep charcoal palettes, share editorial register, share particle-system hero architecture or movie-hero architecture. What they can't share: the same canvas animation choreography, the same hero composition pixel-for-pixel, the same brand-mark reveal pattern. Inspiration + similar register: fine. Identical visual: build failure."* + *"Every design decision must be data-backed."* |
+| Anchor | CLAUDE.md §"Originality Rule" (added 2026-05-17 between Core Law and Optimus Positioning Rule) |
+| Operational test | Two tests at Stage 1B human checkpoint: **(1)** Side-by-side comparison: does the proposed visual treatment (hero canvas concept, hero movie shot, brand mark, signature illustration) read as a re-skin of any prior Optimus build, or does it have at least one originality vector (unique composition, unique brand metaphor, unique color combination justified by research, unique motion concept, unique typography pairing)? Re-skin = FAIL. **(2)** Open design-system.md Section 12 (Psychological Foundations). Does every palette decision + every major design-decision row carry a research citation (Pattern #61 mechanisms map — Kahneman/Tversky/Ariely/Schmader & Beilock/Cialdini/etc., or market-intelligence.md §2 audience persona, or §8 differentiation thesis, or initial-business-data.md client positioning)? Aesthetic-only ("I like this color") = FAIL. |
+| Common violation | (a) Animation-specialist clones Pattern #36 chaos→converge→explosion with reduced particle count and renames the wordmark — that's a re-skin, not original. (Goddu Imprint Stage 1D, fixed 2026-05-17.) (b) design-synthesizer ships a palette with no Section 12 citations — "warm gold feels luxe" is not a citation. (c) Reference patterns cited as *visual templates to copy* rather than as *approaches to draw inspiration from*. |
+| Exception | Code architecture is not subject to this rule — shop scaffold, blog architecture, booking calendar, quiz funnel, layout grid, API security defense-in-depth (Pattern #76), sections matrix, the 3-layer hero shape itself, the movie-hero pipeline shape itself, animation wrapper components are proven Optimus patterns that DO get reused without modification. Architecture is reusable; the visual content that fills it must be original-or-justified per client. |
+| Added | 2026-05-17 — codified after Goddu Imprint Stage 1J revealed the Hero Architecture Rule was being interpreted as "clone prior canvas patterns with new colors" rather than "build original canvas concepts within the same architectural shape." |
+
+---
+
 ## Cross-check procedure (orchestrator runs at every Stage 1B human checkpoint)
 
 Before approving design-system.md at the end of Stage 1B:
@@ -227,7 +241,8 @@ Before approving design-system.md at the end of Stage 1B:
 1. **Identify all sections of design-system.md that touch hero, conversion flow, or page architecture.** Sections 5 (composition), 7 (typography device), 11 (sections matrix), 12 (psychology) are the most common touchpoints.
 
 2. **For each touchpoint, run the matching operational test from this index.** Specifically:
-   - Section 5 hero composition — check §4 (no photos), §5 (CTA destinations), §6 (H1 = tagline), §7 (text readability).
+   - Section 2 palette + every research citation row — check §19 (originality + data-backed).
+   - Section 5 hero composition — check §4 (owner headshots; 2 valid architectures), §5 (CTA destinations), §6 (H1 = tagline), §7 (text readability), **§19 (visual originality vs. prior Optimus builds)**.
    - Section 11 Sections Matrix — check §8 (always-built features), §15 (page animation).
    - Any backdrop / motion treatment description — check §3 (no flat solids).
 
@@ -235,7 +250,9 @@ Before approving design-system.md at the end of Stage 1B:
 
 4. **If all tests PASS:** approve and proceed to Stage 1C scaffold. Log the cross-check completion in progress.md.
 
-5. **Operational test for the most common violation pattern (hero photo):** "Movie-hero" full-bleed cinematic backdrop = OK. Two-column with photo on right = NEVER OK regardless of which reference site is cited. If the agent's hero composition is "two-column with editorial photo on right," it's a violation — no exception, no Claro citation.
+5. **Operational test for the most common violation patterns:**
+   - **Hero owner-headshot (§4):** "Movie-hero" full-bleed cinematic backdrop = OK. "Editorial portrait of the owner on the right" two-column = NEVER OK regardless of which reference site is cited. Editorial product/environmental photography as full-bleed cinematic backdrop = OK (new as of 2026-05-17 revision).
+   - **Hero visual re-skin (§19):** Side-by-side comparison with prior Optimus builds. If the proposed hero is "Pattern #36 with different particles + a wordmark swap" or "the Helen Grondin 5-phase canvas with a different mark," it's a re-skin = FAIL. Inspiration from the architecture is fine; cloning the visual is not.
 
 This procedure is also runnable at any other checkpoint (Stage 1D close, Stage 1H pre-launch audit, /retro). Treat any absolute-rule failure as a build failure regardless of how late in the timeline it surfaces.
 

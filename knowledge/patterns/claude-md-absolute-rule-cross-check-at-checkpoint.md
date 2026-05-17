@@ -13,13 +13,14 @@ Mandatory at the Stage 1B human checkpoint of every Optimus build (the design-sy
 
 ## How
 
-The cross-check is a 6-question audit by the orchestrator at the human checkpoint:
+The cross-check is a 7-question audit by the orchestrator at the human checkpoint:
 
 | design-system.md section | CLAUDE.md absolute rule to verify against |
 |---|---|
-| §5 Hero composition | Hero Architecture Rule — *"No photos in the hero, ever — a photo placeholder in the hero is a build failure."* + 3-layer stack (HeroParticles + BrandCanvas + stagger text) + primary CTA always booking + secondary CTA always quiz + phone never in hero. |
+| §2 Palette + §12 Psychological Foundations | **Originality Rule (§19)** — every palette decision and major design-decision row cites research (Pattern #61 mechanisms map: Kahneman/Tversky/Ariely/Schmader & Beilock/Cialdini/etc., or market-intelligence.md §2/§8, or initial-business-data.md client positioning). Aesthetic-only ("looks luxe") = FAIL. |
+| §5 Hero composition | Hero Architecture Rule (revised 2026-05-17) — *"No owner/founder biographical headshots in the hero. Owner photos belong exclusively in the About section."* + Architecture A (3-layer particle system: HeroParticles + BrandCanvas + Framer text) OR Architecture B (Full-bleed movie-hero MP4 with gradient overlay + Framer text). Hybrid = FAIL. **Originality Rule (§19)** also applies — the canvas concept or movie-hero composition must not be a re-skin of a prior Optimus build. |
 | §5 CTA pair | Hero Architecture Rule — primary CTA always booking, secondary always quiz. NEVER "Call Now," "Learn More," info session, or external link. |
-| §6 Photography | Image Generation Rule — fal.ai prompts must be specific, distinct, grounded in §6. NEVER request readable text in prompts. NO stock photography. |
+| §6 Photography | Image Generation Rule — fal.ai (or Higgsfield Soul) prompts must be specific, distinct, grounded in §6. NEVER request readable text in prompts. NO stock photography. |
 | §11 Pricing tier card | Always-Built Features Rule — "Most Popular" badge ONLY on Pro tier. Premium has NO badge (its job is anchoring). NEVER deposit/payment-split copy. NEVER any Google service on any tier. |
 | §11 Booking | Conversion Flow Rule + Always-Built Features Rule — Custom BookingCalendar component (NOT iframe). Inline embed only, never href redirect. |
 | §11 Testimonials | Always-Built Features Rule — exactly 36 testimonials in 3-col × 3-row × 4 pages = 9 per page. NEVER 32 paginated 8 (orphan rows). ZERO em dashes in voiced copy. |
@@ -37,7 +38,8 @@ Procedure:
 - **Absolute rules use language like "ever," "always," "never," "non-negotiable."** Search CLAUDE.md for these tokens to enumerate the absolute-rule set.
 - **Reference patterns inform, they don't override.** Claro Advisors uses single-subject lifestyle photography in the hero. That is true. CLAUDE.md says no photos in the hero. That is also true. The first does not override the second. They coexist by virtue of context: Claro is a wealth-management firm with a different content stack; Optimus's Hero Architecture Rule is grounded in cross-build evidence (Helen Grondin Error #28, etc.) that doesn't change because a single competitor does it differently.
 - **The cross-check is separate from the agent's self-validation.** The agent self-validates against its agent file's Required Reading list and Validation Criteria. The orchestrator validates against CLAUDE.md absolute rules. Both happen.
-- **Operational test for hero-photo questions specifically:** "movie-hero" full-bleed cinematic backdrop where the photo IS the hero canvas may be acceptable IF a real production photo is available. "Box with a photo in the header" — two-column with photo on right — is NEVER acceptable, regardless of which reference site is cited. References that look like the second misread their reference; movie-hero references operate in mode-1.
+- **Operational test for hero-photo questions specifically (post-2026-05-17):** "Movie-hero" full-bleed cinematic backdrop (Architecture B) IS the canonical second hero architecture — editorial product or environmental photography/video as full-bleed backdrop with gradient overlay is now first-class, not an "exception." What's still NEVER acceptable: two-column "editorial portrait of the owner on the right" hero, regardless of which reference site is cited (Claro Advisors, Anomaly, AAFCPAs). Owner headshots belong in the About section. References that suggest two-column owner-portrait heroes misread their own brand's content stack.
+- **Operational test for visual re-skin (Originality Rule §19):** Side-by-side comparison: does the proposed hero canvas concept or movie-hero composition read as "Pattern #36 with different particles" / "Pattern #28 5-phase with a new mark" / "the Helen Grondin canvas rebuilt for this client"? If yes = FAIL (visual re-skin). Architectural shape reuse = fine; specific visual content cloning = build failure. The originality vector can be: unique composition, unique brand metaphor, unique color combination justified by research, unique motion concept, unique typography pairing — at least ONE must be present.
 
 ## Reuse Condition
 

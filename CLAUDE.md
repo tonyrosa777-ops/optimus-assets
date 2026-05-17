@@ -254,6 +254,26 @@ MUST be traceable to market-intelligence.md or initial-business-data.md.
 If you cannot cite the research that backs a decision, do not make the
 decision — surface it for review.
 
+## Originality Rule
+
+**No exact-duplicate visuals across Optimus builds.** Two builds can share warm gold + deep charcoal palettes, share editorial register, share particle-system hero architecture or movie-hero architecture. What they can't share: the same canvas animation choreography, the same hero composition pixel-for-pixel, the same brand-mark reveal pattern. Inspiration + similar register: fine. Identical visual: build failure.
+
+**Every design decision must be data-backed.** Palette derivation, hero metaphor choice, type scale, motion vocabulary, section rhythm — each cites either:
+- Behavioral research from Pattern #61 Section 12 Psychological Foundations (Kahneman, Tversky, Ariely, Schmader & Beilock, Cialdini, et al.)
+- Audience persona psychology from market-intelligence.md §2
+- Differentiation thesis from market-intelligence.md §8 (escape competitor visual zones)
+- Client-specific positioning from initial-business-data.md
+
+Aesthetic-only choices ("I like this color," "this looks luxe") are not sufficient. If a design choice can't be defended with citation, it gets revised before approval.
+
+**Code architecture stays reusable.** Shop scaffold, blog architecture, booking calendar, quiz funnel, layout grid, API security defense-in-depth (Pattern #76), sections matrix, the 3-layer hero shape, the movie-hero pipeline — proven Optimus patterns get reused without modification. Architecture is reusable; the visual content that fills it must be original-or-justified per client.
+
+**Operational test at Stage 1B human checkpoint:** orchestrator asks two questions:
+1. "Is this visual a direct lift from another Optimus build, or does it have at least one originality vector?" — originality vector = unique composition, unique brand metaphor, unique color combination justified by research, unique motion concept, unique typography pairing.
+2. "Is every palette and major design-decision row in design-system.md Section 12 cited with research?"
+
+If both YES → approve. If either NO → kick back to design-synthesizer with the missing citation called out.
+
 ## Optimus Positioning Rule
 Every Optimus site ships as a **premium, modern, 2026-era build with UI/UX engineered for conversion**. This positioning is non-negotiable regardless of client industry, tier, spend, or market segment. Trade businesses get the same luxury-grade foundation as luxury hospitality; $1,500 Starter tier gets the same visual floor as $5,500 Premium. We do not ship cheaper-looking sites — we ship fewer features.
 
@@ -542,29 +562,48 @@ Vercel deploy will fail if the committer email does not match the GitHub account
 This has caused blocked deploys on two prior builds (Errors #13, #23).
 
 ## Hero Architecture Rule
-Every hero ships with exactly 3 layers. No exceptions. **No photos in the hero, ever** — a photo placeholder in the hero is a build failure. The client photo belongs in the About section.
 
-**Layer 1 — HeroParticles.tsx (canvas particle system).** Selected by the animation-specialist from design-system.md Section 8 (Brand Personality Axes). Renders at z-0.
+**No owner/founder biographical headshots in the hero.** Owner photos — Steve, Andrea, whoever — belong exclusively in the About section. A two-column "editorial portrait of the owner on the right" hero is a build failure regardless of how well-shot the portrait is. The hero is where the brand's first impression lives, not where the owner introduces themselves.
 
-**Layer 2 — [BrandName]Canvas.tsx (brand canvas — custom `<canvas>`).** A creative niche-specific canvas animation. NOT an SVG. NOT a generic shape. Named after the brand (e.g. `HealthShieldCanvas.tsx`, `ForgeCanvas.tsx`). Lives in the right panel of the two-column hero split. Follows the 5-phase lifecycle (STREAM → RISE → COOL → ARC → IDLE) documented in [knowledge/patterns/hero-3-layer-stack-and-5-phase-canvas.md](knowledge/patterns/hero-3-layer-stack-and-5-phase-canvas.md). Container: `position: relative`, explicit height `clamp(340px, 50vw, 540px)`. Canvas fills container with `position: absolute; inset: 0`.
+**Two and only two valid hero architectures.** The choice between A and B is design-synthesizer's call at Stage 1B, justified against the brand axes + audience psychology in design-system.md Section 8 and Section 12.
 
-**Selection process (non-negotiable — prevents iteration waste):**
+### Architecture A — 3-layer particle system
+
+- **Layer 1 — HeroParticles.tsx (canvas particle system).** Animation-specialist selects an *original-to-this-build* particle metaphor tied to the client's niche. NOT a re-skin of a prior build's particles. Renders at z-0.
+- **Layer 2 — [BrandName]Canvas.tsx (custom canvas).** Original brand-mark visual concept per build. NOT a re-implementation of Pattern #28 5-phase (Helen Grondin), Pattern #31 LogoParticles (Gray Method), Pattern #36 chaos→converge→explosion (JCM Graphics), or any other prior canvas concept. Inspiration: OK. Re-implementation: build failure. Lives in the right panel of the two-column hero split. Container: `position: relative`, explicit height `clamp(340px, 50vw, 540px)`. Canvas fills container with `position: absolute; inset: 0`.
+- **Layer 3 — Framer Motion stagger text.** H1 first, subheadline at 0.15s, CTAs at 0.3s. z-10.
+
+**Selection process for Architecture A (non-negotiable — prevents iteration waste):**
 1. Read design-system.md Section 8 + the business type.
 2. Brainstorm 10 conceptually distinct visual metaphors tied to this specific business niche. (10 particle-system color variations is ONE concept, not 10. Different metaphors only.)
-3. Spawn a harsh critic agent to score all 10 on: niche relevance, visual impact, technical feasibility, uniqueness. Critic picks ONE winner with written rationale.
+3. Spawn a harsh critic agent to score all 10 on: niche relevance, visual impact, technical feasibility, **originality vs. prior Optimus builds (Originality Rule)**, uniqueness. Critic picks ONE winner with written rationale.
 4. Build ONLY the winner. No pivots mid-implementation. If the winner produces TypeScript errors, runtime errors, or mobile-overflow issues requiring >2 fix commits, HALT and report `[FALLBACK-REQUIRED: <reason>]` — do not autonomously switch.
-5. Fallback: the proven LogoParticles chaos→convergence→explosion pattern (Pattern #36 from JCM Graphics). Requires a client logo PNG with transparent background. Safe option, not the default.
 
-Reference implementations for structure (real repos — do not invent file contents):
+**Reference implementations** (study approach + responsive math; do NOT clone the visual):
 - tonyrosa777-ops/Sylvia-Rich-Hungary-Consul-NE (gold dust + coat of arms)
 - tonyrosa777-ops/where-2-junk (junk/debris particles)
 - tonyrosa777-ops/Placed-Right-Fence (forge ember extrusion)
 
-**Layer 3 — Framer Motion stagger text.** H1 first, subheadline at 0.15s, CTAs at 0.3s. z-10.
+### Architecture B — Movie header (MP4 cinematic backdrop)
 
-**H1 = siteConfig.tagline always, with shimmer.** The tagline IS the H1 — emotional hook copy goes in the subheadline, never the H1. The H1 always receives `.hero-shimmer` (amber/gold for warm brands) or `.hero-shimmer-sage` (sage/white for cool/green/neutral brands). "Where healthcare finally makes sense." is the H1 with shimmer — verify it renders before phase sign-off.
+- **Layer 1 — Full-bleed `<video autoplay loop muted playsinline>`.** Cinematic asset that conveys what the business *does* or *where they operate*. Original composition + subject + lighting per build (no two builds share the same shot). Pipeline:
+  - **Default tool (post-2026-05-17 pilot): Higgsfield AI via official MCP** at `https://mcp.higgsfield.ai/mcp`. Single platform, generates still (Soul/Flux) + animates to video (Cinema Studio / Kling / Veo 3) in one programmatic flow. Cinema Studio preset for editorial static-camera + ambient-motion register.
+  - **Fallback** (if Higgsfield MCP unavailable or pilot regresses): fal.ai (`flux-pro/v1.1`) for still + Kling AI (web UI) for image→video animation. Manual two-tool pipeline.
+  - Heavy gradient/tint overlay for text contrast. Encode mp4 + webm pair for cross-browser. Include poster image for LCP.
+- **Layer 2 — Brand mark watermark (optional).** Subtle wordmark or logo treatment, not a full canvas animation.
+- **Layer 3 — Framer Motion stagger text.** Same H1 + subhead + CTAs pattern as Architecture A.
 
-**Hero text must always be readable.** Hero headings + body always use `color: var(--text-primary)` (#f5f5f5 on dark builds). If background is dark and text is dark, it's a build failure — can you read every word without highlighting?
+**Selection process for Architecture B:**
+1. Read design-system.md Section 8 + Section 12 (Psychological Foundations).
+2. Brainstorm 5 conceptually distinct compositions of cinematic shots that convey the business's product, environment, or moment-of-use. Subject + lighting + camera angle + mood — all original per build.
+3. Spawn the harsh critic agent: score on niche relevance, visual impact, **originality vs. prior Optimus builds (Originality Rule)**, brand-axes fit, looping ergonomics.
+4. Build the winner via Higgsfield (or fallback). 10-second seamless loop, 1080p, audio stripped.
+
+### Shared rules across both architectures
+
+**H1 = siteConfig.tagline always, with shimmer.** The tagline IS the H1 — emotional hook copy goes in the subheadline, never the H1. The H1 always receives `.hero-shimmer` (amber/gold for warm brands) or `.hero-shimmer-sage` (sage/white for cool/green/neutral brands).
+
+**Hero text must always be readable.** Hero headings + body always use `color: var(--text-primary)` (#f5f5f5 on dark builds). If background is dark and text is dark, it's a build failure — can you read every word without highlighting? On Architecture B (movie-hero), gradient overlay must achieve 4.5:1 contrast minimum against text.
 
 **Primary CTA is always booking.** Drives directly to the booking calendar ("Book Your Free Estimate," "Schedule Service," "Book Now"). NEVER "Call Now" — phone CTA belongs in the nav bar, not the hero. Never "Learn More" or "See Our Work."
 
