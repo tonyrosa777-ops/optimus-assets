@@ -1050,7 +1050,9 @@ Update progress.md: Stage 1I complete. Proceed to Stage 1J.
 
 ---
 
-### STAGE 1J — /ultrareview (Claude Code 4.7 final review gate)
+### STAGE 1J — /optimus-review (multi-agent code review gate)
+
+**Replaces:** Claude Code's `/ultrareview` (CLI-only, 3 free runs lifetime per account, $5–$20 per run after). The local replacement at `C:\Users\Anthony\.claude\skills\optimus-review\` runs 8 parallel Sonnet 4.6 specialists (correctness, security, architecture, tests, performance, style + Optimus-only absolute-rules and design-system lenses) followed by an Opus 4.7 verifier that reproduces each finding. Unlimited reruns, ~$1–4 per run, project-aware (catches CLAUDE.md absolute-rule and design-system.md violations /ultrareview structurally cannot).
 
 **Prerequisites (orchestrator verifies BEFORE spawning):**
 - Stage 1I multi-breakpoint browser audit Summary line reads "PASSED" at every viewport (0 console errors, 0 console warnings, no horizontal scroll at 375, no H1 orphans, nav drawer clean).
@@ -1061,16 +1063,17 @@ If any prerequisite is not met: HALT. Stage 1J does not run. Return to the faili
 
 **Orchestrator actions:**
 
-1. Invoke `/ultrareview` from the Claude Code CLI inside the project folder. The command reads the full working tree diff since the last known-good commit (typically the previous demo URL's HEAD).
+1. Invoke `/optimus-review` from inside the project folder (no args = diff vs `main`). The skill auto-detects the diff scope, spawns 8 specialists in parallel, then 1 verifier sequentially. Wall time: ~3 min.
 
-2. Capture the output. `/ultrareview` returns findings classified BUG / DESIGN / PASS.
+2. Read `REVIEW.md` at the project root. Findings classified BUG / DESIGN / SUPPRESSED. The verifier already reproduced each finding — BUGs are verified-real, not speculative.
 
 3. Triage:
-   - **BUG-severity findings** → blocks launch. Each must be resolved before the demo URL is sent. For each BUG, delegate the fix to the agent that owns the affected file (see file-to-agent map below). Re-run `/ultrareview` after fixes to confirm zero BUG findings.
-   - **DESIGN-severity findings** → review with Anthony. Each is either (a) fixed, or (b) explicitly waived with a one-line rationale. If DESIGN count > 15, that signals a quality issue earlier in the build — kick back one phase for cleanup before the review session.
-   - **PASS (no findings)** → Stage 1J cleared.
+   - **BUG-severity findings** → blocks launch. Each must be resolved before the demo URL is sent. For each BUG, delegate the fix to the agent that owns the affected file (see file-to-agent map below). Re-run `/optimus-review` after fixes to confirm zero BUG findings (re-run is free, unlike `/ultrareview`).
+   - **DESIGN-severity findings** → review with Anthony. Each is either (a) fixed, or (b) explicitly waived with a one-line rationale logged in REVIEW.md. If DESIGN count > 15, that signals a quality issue earlier in the build — kick back one phase for cleanup before the review session.
+   - **SUPPRESSED findings** → verifier already filtered as false-positive. No action needed. Useful for debugging the skill if a real bug ever surfaces here.
+   - **Zero BUGs and zero DESIGNs** → Stage 1J cleared.
 
-4. Log ALL findings to `[PROJECT_FOLDER]/pre-launch-audit.md` under a new `## §Ultrareview Findings` section. Format per `knowledge/patterns/ultrareview-as-pre-launch-gate.md`.
+4. REVIEW.md itself is the artifact. Optionally cross-link from `pre-launch-audit.md` under `## §Stage 1J Code Review` with a one-line summary pointing to REVIEW.md.
 
 **File-to-agent fix-owner map** (for BUG triage — not exhaustive, use judgment):
 - `/data/site.ts`, `/data/quiz.ts`, copy-related changes → content-writer
@@ -1079,18 +1082,17 @@ If any prerequisite is not met: HALT. Stage 1J does not run. Return to the faili
 - `/app/globals.css`, design tokens, layout → the orchestrator (inline fix, no agent)
 - `/app/api/**` routes → the orchestrator (inline fix)
 
-**Graceful degradation:**
-- If `/ultrareview` is not available in this Claude Code version → log "Stage 1J SKIPPED — /ultrareview unavailable in this session; manual PR review required before demo" to pre-launch-audit.md and progress.md. Proceed to Phase 2 with the WARN.
-- If the `/ultrareview` free-tier quota is exhausted mid-session (Pro/Max plans get 3 free per session) → log "Stage 1J PARTIAL — quota exhausted after <N> runs; remaining manual review required" and proceed to Phase 2 with the WARN. Do not block indefinitely on a paywall.
-- Time budget: 20 minutes per `/ultrareview` invocation. If it exceeds, terminate the command and log "Stage 1J TIMEOUT — escalate to manual PR review."
+**Re-run policy:** Re-running `/optimus-review` after a BUG fix batch is the default and free. Don't skip the re-run to save time — the cost is ~$1–4 and ~3 min, and a forgotten BUG that ships to the client is dramatically more expensive.
+
+**Time budget:** 5 minutes wall clock per invocation. If it exceeds 10 min, the verifier likely hit an edge case — check `.optimus-review/findings-*.json` for malformed specialist output, then re-run with `--paths` scope narrowed.
 
 **Exit criteria:**
-- `/ultrareview` returned zero BUG findings (or BUG findings all resolved + a re-run returned zero).
-- DESIGN findings are either fixed or logged with a one-line waiver rationale.
-- pre-launch-audit.md has a populated `## §Ultrareview Findings` section.
+- `/optimus-review` returned zero BUG findings (or BUG findings all resolved + a re-run returned zero).
+- DESIGN findings are either fixed or logged with a one-line waiver rationale in REVIEW.md.
+- REVIEW.md exists at project root with a populated `[STAGE-1J-RESULT]` handoff block.
 - progress.md Stage 1J marked complete.
 
-**Commit:** `chore(audit): stage 1j /ultrareview complete, <N> BUG <N> DESIGN, <N> waived`
+**Commit:** `chore(audit): stage 1j /optimus-review complete, <N> BUG <N> DESIGN <N> suppressed`
 
 **Phase 1 is now done.** Everything is built, visually verified, AND code-reviewed. Proceed to Phase 2.
 
