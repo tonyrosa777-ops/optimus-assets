@@ -178,12 +178,12 @@ c:\Projects\Optimus Assets is the entire operating system for every website buil
         If any exit criterion fails: fix, re-verify all affected breakpoints, re-check console.
         Only after all criteria pass does the orchestrator proceed to Phase 2.
 
-[ ] Stage 1J — Run `/ultrareview` on the full working tree (Claude Code 4.7 gate).
+[ ] Stage 1J — Run `/optimus-review` from inside the project folder (local multi-agent code review skill at ~/.claude/skills/optimus-review/).
     - Prerequisite: Stage 1I browser audit PASSED.
-    - BUG findings block launch; must be fixed.
-    - DESIGN findings review-or-waive with Anthony.
-    - Log to pre-launch-audit.md §Ultrareview Findings.
-    - See knowledge/patterns/ultrareview-as-pre-launch-gate.md.
+    - BUG findings block launch; must be fixed and re-run confirmed zero BUGs.
+    - DESIGN findings review-or-waive with Anthony; waivers logged in REVIEW.md.
+    - Output: REVIEW.md at project root with [STAGE-1J-RESULT] handoff block.
+    - See knowledge/patterns/stage-1j-pre-launch-gate.md.
 
 ---
 

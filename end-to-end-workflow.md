@@ -326,20 +326,23 @@ Update `progress.md` as each task completes.
 
 ---
 
-## PHASE 1J — `/ultrareview` (new in 4.7)
+## PHASE 1J — `/optimus-review` (local multi-agent code review)
 
 Prerequisite: Phase 1I pre-launch-auditor + Section 11 browser audit must have passed (zero console errors at all viewports, all file-level FAIL items resolved, all DEFERRED items confirmed in browser audit).
 
-Run `/ultrareview` on the full working tree. This is a Claude Code 4.7 slash command — a dedicated review session that reads changes and flags bugs and design issues a careful reviewer would catch. Pro/Max plans get 3 free per session.
+Run `/optimus-review` from inside the project folder. Local skill at `~/.claude/skills/optimus-review/` spawns 8 parallel Sonnet 4.6 specialists (correctness, security, architecture, tests, performance, style + Optimus-only absolute-rules and design-system) followed by an Opus 4.7 verifier that reproduces every finding before it surfaces. Unlimited reruns, ~$1–4 per run, ~3 min wall time.
+
+Replaces Claude Code's `/ultrareview` (CLI-only, 3 free runs lifetime per account, $5–$20 per run after) since the per-client cost gate violated Optimus's mission fit.
 
 Findings triage:
-- BUG-severity → block launch, resolve before demo URL goes to client
-- DESIGN-severity → review with Anthony, either fix or explicitly waive (waivers logged in pre-launch-audit.md §Ultrareview Findings with one-line rationale)
-- PASS with no findings → launch cleared
+- BUG-severity → block launch, resolve before demo URL goes to client. Re-run `/optimus-review` after fixes (free, unlimited).
+- DESIGN-severity → review with Anthony, either fix or explicitly waive (waivers logged in REVIEW.md with one-line rationale)
+- SUPPRESSED → verifier filtered as false-positive, no action needed
+- Zero BUG + zero DESIGN → launch cleared
 
-Log all findings to `pre-launch-audit.md` under `§Ultrareview Findings`. This is the final gate before the client demo URL is sent.
+Output: `REVIEW.md` at the project root with `[STAGE-1J-RESULT]` handoff block. Archive prior runs as `REVIEW-stage1j-runN.md` when running multiple times.
 
-See [knowledge/patterns/ultrareview-as-pre-launch-gate.md](knowledge/patterns/ultrareview-as-pre-launch-gate.md) for triage detail.
+See [knowledge/patterns/stage-1j-pre-launch-gate.md](knowledge/patterns/stage-1j-pre-launch-gate.md) for triage detail and [optimus-review-skill.md](optimus-review-skill.md) for skill architecture.
 
 ---
 

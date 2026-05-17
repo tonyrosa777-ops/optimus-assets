@@ -2070,8 +2070,8 @@ Full playbook + gotchas:
 - [ ] No adjacent homepage sections share messaging, purpose, or CTA —
       e.g. two "Ready to X?" blocks back-to-back = FAIL
 
-**Stage 1J — `/ultrareview` pass**
-- [ ] Stage 1J `/ultrareview` pass — see knowledge/patterns/ultrareview-as-pre-launch-gate.md
+**Stage 1J — `/optimus-review` pass**
+- [ ] Stage 1J `/optimus-review` pass — see knowledge/patterns/stage-1j-pre-launch-gate.md
 
 **If you fix a bug mid-audit**
 - [ ] Re-verify ALL affected breakpoints, not just the one where you caught it

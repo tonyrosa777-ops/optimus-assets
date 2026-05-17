@@ -409,7 +409,7 @@ file-reading cannot catch:
 File-reading verifies structure. High-res screenshot review verifies appearance.
 Both are required.
 
-- Screenshot visual review is a SUPPLEMENT to file-level checks, not a replacement. If file-level checks passed but high-res screenshots reveal layout issues, flag as FAIL (Section 11 fails) and mark the HANDOFF-TO-ULTRAREVIEW as DEFERRED — do not proceed to Stage 1J on a visually-broken build.
+- Screenshot visual review is a SUPPLEMENT to file-level checks, not a replacement. If file-level checks passed but high-res screenshots reveal layout issues, flag as FAIL (Section 11 fails) and mark the HANDOFF-TO-STAGE-1J as DEFERRED — do not proceed to Stage 1J on a visually-broken build.
 
 Record in the audit report:
 
@@ -428,28 +428,38 @@ This agent's output report must include an explicit BLOCKED-ON-SECTION-11 line i
 the Summary. The orchestrator reads this as a signal to schedule the browser audit
 before declaring the project ready for Phase 2 (Launch).
 
-### SECTION 12 — `/ultrareview` handoff (after Section 11 PASSES)
+### SECTION 12 — Stage 1J `/optimus-review` handoff (after Section 11 PASSES)
 
 This section is NOT audited by this agent. It is a handoff to the orchestrator.
 
 After the Section 11 browser audit PASSES (zero console errors, all viewports clean,
-nav drawer working), the orchestrator runs the `/ultrareview` slash command on the
-full working tree diff. `/ultrareview` is a Claude Code 4.7 feature — a dedicated
-review session that reads through changes and flags bugs and design issues a careful
-reviewer would catch.
+nav drawer working), the orchestrator runs the `/optimus-review` skill from inside
+the project folder. The skill is a local multi-agent code review at
+`~/.claude/skills/optimus-review/` — spawns 8 parallel Sonnet 4.6 specialists
+(correctness, security, architecture, tests, performance, style + Optimus-only
+absolute-rules and design-system) followed by an Opus 4.7 verifier that reproduces
+every finding before it surfaces. Replaces Claude Code's `/ultrareview` (CLI-only,
+3 free runs lifetime per account, $5–$20 per run after) since the per-client cost
+gate violated Optimus mission fit. Unlimited reruns, ~$1–4 per run, ~3 min wall time.
 
 Output handling:
 - BUG-severity findings → block launch. Must be resolved before the build ships.
+  Re-run `/optimus-review` after fixes (free, unlimited).
 - DESIGN-severity findings → review with Anthony. Either fix or explicitly waive
-  with a one-line rationale logged in pre-launch-audit.md.
-- PASS with no findings → launch cleared.
+  with a one-line rationale logged in REVIEW.md.
+- SUPPRESSED → verifier filtered as false-positive, no action needed.
+- Zero BUG + zero DESIGN → launch cleared.
 
-All `/ultrareview` findings are logged to `pre-launch-audit.md` under the new
-section `§Ultrareview Findings`. Do NOT skip this step — this is the final gate
-before demo URL goes to the client.
+The skill writes `REVIEW.md` at the project root with a `[STAGE-1J-RESULT]` handoff
+block. The orchestrator reads REVIEW.md directly. Optionally cross-link from
+pre-launch-audit.md under `## §Stage 1J Code Review` with a one-line summary
+pointing to REVIEW.md. Do NOT skip this step — this is the final gate before demo
+URL goes to the client.
 
-This agent's output report must include an explicit HANDOFF-TO-ULTRAREVIEW block
+This agent's output report must include an explicit HANDOFF-TO-STAGE-1J block
 in the Handoff alongside the Section 11 block.
+
+See `knowledge/patterns/stage-1j-pre-launch-gate.md` for full triage detail.
 
 ## Output
 Write the completed audit to: [PROJECT_FOLDER]\pre-launch-audit.md
@@ -462,7 +472,7 @@ Date: [DATE]
 ## Summary
 PASS: [N]  FAIL: [N]  WARN: [N]  DEFERRED: [N]
 BLOCKED-ON-SECTION-11: multi-breakpoint browser audit pending (orchestrator execution required)
-HANDOFF-TO-ULTRAREVIEW: `/ultrareview` pending (orchestrator execution required after Section 11 PASSES)
+HANDOFF-TO-STAGE-1J: `/optimus-review` pending (orchestrator execution required after Section 11 PASSES)
 
 ## FAIL Items (must resolve before launch)
 [list all FAIL items with one-line fix instruction]
@@ -480,9 +490,11 @@ HANDOFF-TO-ULTRAREVIEW: `/ultrareview` pending (orchestrator execution required 
 Multi-breakpoint browser audit BLOCKS LAUNCH until orchestrator runs it per
 knowledge/patterns/end-of-build-multi-breakpoint-browser-audit.md
 
-## §Ultrareview Findings
-[populated by orchestrator after `/ultrareview` runs — BUG and DESIGN severity
-findings with resolution status: RESOLVED / WAIVED (with rationale) / OPEN]
+## §Stage 1J Code Review
+[optional cross-link to REVIEW.md at project root — populated by orchestrator
+after `/optimus-review` runs. Format: one-line summary of run results
+(N BUG / N DESIGN / N SUPPRESSED) + link to REVIEW.md + waiver rationale
+for any DESIGN findings explicitly waived.]
 ```
 
 ## Constraints
@@ -494,10 +506,10 @@ findings with resolution status: RESOLVED / WAIVED (with rationale) / OPEN]
 ## Validation (orchestrator checks before proceeding)
 - [PROJECT_FOLDER]\pre-launch-audit.md exists and is non-empty
 - File contains Summary section with PASS/FAIL/WARN/DEFERRED counts
-- Summary contains both BLOCKED-ON-SECTION-11 and HANDOFF-TO-ULTRAREVIEW lines
+- Summary contains both BLOCKED-ON-SECTION-11 and HANDOFF-TO-STAGE-1J lines
 - All FAIL items have a one-line fix instruction
 - File-level audit covers Sections 1 through 10 (Sections 11 and 12 are orchestrator handoffs)
-- Handoff includes BLOCKED-ON-SECTION-11 template AND a HANDOFF-TO-ULTRAREVIEW template (either active-form when FAILs = 0, or DEFERRED-form when FAILs > 0)
+- Handoff includes BLOCKED-ON-SECTION-11 template AND a HANDOFF-TO-STAGE-1J template (either active-form when FAILs = 0, or DEFERRED-form when FAILs > 0)
 
 ## Handoff
 When complete, report:
@@ -525,18 +537,18 @@ This is how the orchestrator knows to run the multi-breakpoint audit next. Do no
 If file-level FAIL count is 0 AND no BLOCKED-ON items prevent browser audit, emit:
 
 ```
-[HANDOFF-TO-ULTRAREVIEW]
+[HANDOFF-TO-STAGE-1J]
 Prerequisite: Section 11 browser audit must PASS first.
-Orchestrator action: After Section 11 PASSES, run `/ultrareview` on working tree. Log findings to pre-launch-audit.md §Ultrareview Findings.
-Blocker conditions: Any BUG-severity finding blocks launch. DESIGN-severity review-or-waive (see knowledge/patterns/ultrareview-as-pre-launch-gate.md).
+Orchestrator action: After Section 11 PASSES, run `/optimus-review` from inside the project folder. The skill writes REVIEW.md at project root with [STAGE-1J-RESULT] handoff block.
+Blocker conditions: Any BUG-severity finding blocks launch. Re-run `/optimus-review` after fixes (free, unlimited). DESIGN-severity review-or-waive (see knowledge/patterns/stage-1j-pre-launch-gate.md).
 ```
 
 If file-level FAIL count > 0 OR any BLOCKED-ON item prevents browser audit, emit:
 
 ```
-[HANDOFF-TO-ULTRAREVIEW: DEFERRED]
-Reason: <N> file-level FAILs must resolve first. Section 11 browser audit + Stage 1J /ultrareview cannot run until file-level FAILs = 0.
+[HANDOFF-TO-STAGE-1J: DEFERRED]
+Reason: <N> file-level FAILs must resolve first. Section 11 browser audit + Stage 1J /optimus-review cannot run until file-level FAILs = 0.
 Orchestrator action: Fix all FAIL items, re-run pre-launch-auditor, THEN Section 11 + Stage 1J.
 ```
 
-NEVER emit the unconditional HANDOFF-TO-ULTRAREVIEW block when file-level FAILs are present — this causes the orchestrator to waste a `/ultrareview` free-tier slot on a broken build.
+Unlike `/ultrareview`, `/optimus-review` has no per-run quota — emitting the unconditional HANDOFF block on a broken build wastes a few minutes, not a billable free-tier slot. Still: do not emit unconditional when FAILs are present, so the orchestrator's prerequisite check stays clean.

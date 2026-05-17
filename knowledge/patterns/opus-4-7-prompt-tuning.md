@@ -34,7 +34,7 @@ CLAUDE.md (consolidated), 7 agent files under `.claude/agents/`, 3 root-level sk
 
 ## Related patterns
 - `knowledge/patterns/opus-4-7-api-migration-checklist.md` — companion pattern for API-client code migration (future upsells).
-- `knowledge/patterns/ultrareview-as-pre-launch-gate.md` — new gate added during this retune.
+- `knowledge/patterns/stage-1j-pre-launch-gate.md` — new gate added during this retune (originally `ultrareview-as-pre-launch-gate.md`; renamed 2026-05-17 when `/ultrareview` was replaced with local `/optimus-review` skill).
 
 ## Signal to watch
 If a future Claude model update ships release notes mentioning:

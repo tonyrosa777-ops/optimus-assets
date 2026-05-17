@@ -878,7 +878,7 @@ Workflow integration (all five enforcement points):
   - .claude/agents/launch/pre-launch-auditor.md — file-level agent emits a
     [BLOCKED-ON: Section 11 Multi-Breakpoint Browser Audit] handoff template in its
     output report, instructing the orchestrator to run the Playwright audit before
-    advancing to Stage 1J /ultrareview
+    advancing to Stage 1J /optimus-review
 
 The pre-launch-auditor agent defers ALL visible-state checks to this audit —
 file-reading agents cannot verify layout, overflow, hydration, or console noise.
