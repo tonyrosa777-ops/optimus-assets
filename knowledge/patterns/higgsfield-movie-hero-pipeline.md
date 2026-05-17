@@ -64,6 +64,19 @@ Visual review the still per CLAUDE.md Image Generation Rule before proceeding. C
 
 ### Step 4 — Animate the still
 
+**⚠️ MOTION READABILITY IS A HARD GATE (revised 2026-05-17 post-Goddu).** Goddu's first Architecture B pilot used "static camera + ambient-only motion" (light shift + dust motes) and the user reaction was immediate: *"you can hardly tell that it was a video... It's not clear, nor would anybody know to wait there to see it move."* See [[../errors/higgsfield-static-camera-motion-too-subtle-for-hero]].
+
+**Lesson:** in a hero context the user grants ~1-2 seconds of dwell time before scrolling. Motion that doesn't read in the first second is wasted credit. The "static camera + dust motes" register works for passive desktop wallpapers and long-dwell ambient backgrounds — NOT for conversion-critical web heroes.
+
+For hero use case, the prompt MUST include at least one of these motion mechanisms (in decreasing order of cinema-studio reliability):
+1. **Slow camera push-in (zoom-in)** — start wider, end on the locked composition. Cinema Studio + `genre: intimate` handles this cleanly. Push-in at 3-4% per second over 10s. Use `medias[].role: end_image` (not `start_image`) to anchor the final frame to the poster. Loop strategy: play-once-then-freeze on the final frame (`onEnded={(e) => e.currentTarget.pause()}` in Hero.tsx; no `loop` attribute). The frozen final frame matches the poster — no visual jump.
+2. **Slight camera dolly with parallax** — premium register, but risks AI-warping the subjects. Use only for stronger compositions with clean depth separation.
+3. **Aggressive light shift** (≥25-30% modulation, not 10%) — keeps static camera but motion is unambiguous. Cinema Studio's light handling is inconsistent at this magnitude though; ~30% regen-risk.
+
+The static-camera + ambient-only register is for non-hero contexts only: About-page accents, interior page background sections, footer ambient. Long-dwell contexts where subtle motion has time to read.
+
+Higgsfield generate_video call:
+
 Use `mcp__higgsfield__generate_video` with `cinematic_studio_video_v2` (Cinema Studio — the refined cinematic camera + color model). Pass the still as `start_image` via `medias`:
 
 ```json
@@ -84,31 +97,41 @@ Critical params:
 - `duration: 10` — 10-second loop is the Optimus standard. Cinema Studio supports 3-12s.
 - `medias[].role: "start_image"` — passes the still as the opening frame so animation starts from a known good composition.
 
-Prompt structure (static-camera ambient-motion-only — designed to loop seamlessly):
+Prompt structure (slow camera push-in — default for hero context, post-Goddu lesson):
 ```
-Locked-off static camera, completely still — no zoom, no pan, no push-in, no
-rotation, no dolly. Composition holds exactly as the start image: [REPEAT KEY
-COMPOSITION ELEMENTS].
+Editorial product film, slow continuous dolly push-in over 10 seconds. Opening
+frame: wide establishing shot of [COMPOSITION DESCRIPTION] with approximately
+30% more [SURFACE/CONTEXT] visible around the subject than the final composition.
 
-What moves, and only this:
-(1) [LIGHT MODULATION — e.g. warm window light from upper-left modulates
-intensity by ~10% over five seconds then back, as if a thin cloud passes
-outside the window];
-(2) [PARTICLE/DUST MOTION — sparse dust motes drift through the window light
-beam, 4-6 motes visible across the 10 seconds, drifting downward slowly];
-(3) [SURFACE TONE SHIFT — barely-perceptible warm tone shift on [SURFACE] as
-light intensity modulates].
+Over 10 seconds, the camera dollies forward at a steady 3-4 percent per second,
+gradually closing in on [PRIMARY SUBJECT]. Final frame must land exactly on the
+locked composition: [REPEAT KEY COMPOSITION ELEMENTS verbatim from the still
+generation prompt].
 
-Everything else holds completely still. [REPEAT EACH STATIC OBJECT — pen does
-not move, tumbler holds, etc.] No hands enter the frame. No objects appear or
-disappear. One unbroken continuous take.
+Static subjects — [LIST EACH OBJECT] do not move. No rotation, no tilt, no
+parallax distortion. No people, no hands, no text overlays, no logos. Shallow
+depth of field maintained throughout; [PALETTE DESCRIPTION] stable. Final frame
+composition is non-negotiable — it must match the poster still for seamless
+freeze-on-end behavior.
 
-Loop requirement: end frame visually indistinguishable from start frame for
-seamless web autoplay loop.
+Cinematic, [BRAND-AXES MOOD WORDS], [REGISTER] register.
+```
 
-Negative: no people, no hands, no camera movement of any kind, no cuts, no
-fades, no new objects, no text overlays, no audio cue, no rapid motion, no
-dramatic lighting changes.
+Pass `medias: [{value: <still_job_id>, role: "end_image"}]` (note: `end_image` not `start_image` — Cinema Studio interpolates the camera move BACKWARD from the locked end frame, so the still anchors the final composition, not the first frame).
+
+Loop strategy: **play-once-then-freeze** (NOT autoplay loop). The 10s push-in lands on the still composition; the video pauses on its own final frame, which is visually identical to the poster image. Hero.tsx implementation:
+
+```tsx
+<video
+  autoPlay muted playsInline
+  preload="metadata"
+  poster="/images/hero-poster.webp"
+  onEnded={(e) => e.currentTarget.pause()}
+  // NO loop attribute
+>
+  <source src="/videos/hero-loop.webm" type="video/webm" />
+  <source src="/videos/hero-loop.mp4" type="video/mp4" />
+</video>
 ```
 
 Cinema Studio in `pro` mode for 10 seconds takes 60-180s wall time. Poll with `mcp__higgsfield__job_status` `sync: true`.
@@ -291,6 +314,18 @@ Wall time:
 
 ## Related
 
+**Callable Optimus skills (use these instead of executing the pipeline manually):**
+- [[../../../Users/Anthony/.claude/skills/optimus-higgsfield-hero-video/SKILL.md]] — `/optimus-higgsfield-hero-video` — the canonical end-to-end orchestration for Architecture B hero video generation. Encodes corrected approach from Goddu v1+v2 failures.
+- [[../../../Users/Anthony/.claude/skills/optimus-higgsfield-ad-creative/SKILL.md]] — `/optimus-higgsfield-ad-creative` — Marketing Studio ad creative workflow (Tier 3 upsell). DIFFERENT register than hero — never mix.
+- [[../../../Users/Anthony/.claude/skills/optimus-higgsfield-soul-character/SKILL.md]] — `/optimus-higgsfield-soul-character` — Soul ID training + character management for AI spokesperson / influencer pipelines.
+
+**Supporting Optimus pattern docs:**
+- [[higgsfield-mcsla-prompt-mastery]] — MCSLA structure (Model · Camera · Subject · Look · Action) + 10 named prompt patterns + 12 brand register library + Soul ID Identity-vs-Motion separation rule
+- [[higgsfield-camera-vocabulary]] — 20-term camera glossary + reliability hierarchy (most reliable / risky / wrong-register) + per-use-case preset matrix
+- [[higgsfield-model-selection-matrix]] — Higgsfield model decision tree + cost matrix + "Seedance draft → Kling final" workflow
+- [[ai-video-slop-avoidance-checklist]] — platform-agnostic 15-point anti-pattern checklist
+
+**Existing Optimus rules + patterns this pipeline executes against:**
 - CLAUDE.md Hero Architecture Rule (revised 2026-05-17) — the rule this pattern executes against
 - CLAUDE.md Originality Rule (§19 in absolute-rules-index) — the rule that triggered the Goddu rebuild
 - Pattern #56 (huashu-extracted-critique-rubric) — the harsh critic methodology used for composition selection
@@ -298,3 +333,6 @@ Wall time:
 - Pattern #58 (claude-md-absolute-rule-cross-check-at-checkpoint) — the Stage 1B cross-check that the critic enforces
 - Pattern #38 (fal.ai never request readable text) — applies to Higgsfield prompts identically
 - `optimus-review-skill.md` (vault root) — Stage 1J gate that would catch a Higgsfield-rebuilt hero violating any absolute rule
+
+**Error documentation:**
+- [[../errors/higgsfield-static-camera-motion-too-subtle-for-hero]] — Goddu v1 failure (motion below perceptual threshold for hero dwell window) + v2 failure (composition drift from combining camera + composition change in same prompt)
